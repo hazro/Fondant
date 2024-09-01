@@ -15,6 +15,12 @@ public class AttackController : MonoBehaviour
     [SerializeField] private float spiralExpansionSpeed = 0.5f; // 螺旋が外側に広がる速度
     [SerializeField] private float delayMultiplier = 0.0f; // 発射間の遅延時間に掛けるランダムな範囲の最大値
     [SerializeField] private float shakeAmplitude = 0.0f; // 振幅的な揺れの強さ
+    [SerializeField] private bool scaleOverTime = false; // 時間経過に応じてスケールする機能を有効にするか
+    [SerializeField] private bool shootFourDirections = false; // 上下左右4方向に発射する機能を有効にするか
+    [SerializeField] private bool shootFourDiagonalDirections = false; // 斜め4方向に発射する機能を有効にするか
+    [SerializeField] private bool shootEightDirections = false; // 8方向に発射する機能を有効にするか
+    [SerializeField] private bool useRandomPosition = false; // ランダムな位置から発射する機能を有効にするか
+    [SerializeField] private int numberOfShots = 1; // 一度の攻撃で発射する回数
 
     [Header("Projectile Settings")]
     [SerializeField] private GameObject projectilePrefab; // 発射するプレハブ
@@ -29,6 +35,8 @@ public class AttackController : MonoBehaviour
 
     private bool isShooting;
     private GameObject attackObjectGroup; // 発射物をまとめるグループオブジェクト
+    private UnitController unitController; // UnitControllerの参照
+    private Coroutine shootingCoroutine; // 発射コルーチン
 
     /// <summary>
     /// 初期化処理。発射物のグループオブジェクトを確認し、必要に応じて作成します。
@@ -42,7 +50,19 @@ public class AttackController : MonoBehaviour
             attackObjectGroup = new GameObject("AttackObjectGroup");
         }
 
+        // UnitControllerの参照を取得
+        unitController = GetComponent<UnitController>();
+
         isShooting = false;
+    }
+
+    /// <summary>
+    /// ターゲットオブジェクトを設定する
+    /// </summary>
+    /// <param name="target">新しいターゲットオブジェクト</param>
+    public void SetTargetObject(Transform target)
+    {
+        targetObject = target;
     }
 
     /// <summary>
@@ -50,16 +70,38 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        // 発射の有効/無効をチェック
-        if (isShootingEnabled && !isShooting)
+        // 攻撃が有効になる条件をチェック
+        if (targetObject != null && unitController != null)
         {
-            isShooting = true;
-            StartCoroutine(ShootProjectile());
+            // EnableAttackStanceがONの場合は、AttackStance中でないと攻撃しない
+            if (unitController.enableAttackStance)
+            {
+                isShootingEnabled = unitController.InAttackStance;
+            }
+            else
+            {
+                // EnableAttackStanceがOFFの場合は、攻撃範囲内にいる時攻撃する
+                isShootingEnabled = unitController.InAttackStance || Vector2.Distance(transform.position, targetObject.position) <= unitController.approachRange;
+            }
         }
-        else if (!isShootingEnabled && isShooting)
+        else
         {
+            isShootingEnabled = false;
+        }
+
+        // 発射の有効/無効をチェック
+        if (isShootingEnabled && shootingCoroutine == null)
+        {
+            Debug.Log("攻撃開始");
+            isShooting = true;
+            shootingCoroutine = StartCoroutine(ShootProjectile());
+        }
+        else if (!isShootingEnabled && shootingCoroutine != null)
+        {
+            Debug.Log("攻撃停止");
             isShooting = false;
-            StopCoroutine(ShootProjectile());
+            StopCoroutine(shootingCoroutine);
+            shootingCoroutine = null;
         }
 
         // ターゲット追従の方向設定を更新
@@ -70,6 +112,7 @@ public class AttackController : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// プレハブを指定の方向に飛ばし、指定の条件で消滅させるコルーチン。
     /// </summary>
@@ -78,22 +121,109 @@ public class AttackController : MonoBehaviour
     {
         while (isShooting)
         {
-            // 遅延時間をランダムに調整
             float adjustedDelay = delayBetweenShots + Random.Range(-delayMultiplier / 2f, delayMultiplier / 2f);
 
-            GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-            projectile.transform.SetParent(attackObjectGroup.transform); // 発射物をグループの子オブジェクトに設定
-            projectile.transform.localScale *= sizeMultiplier;
-
-            // 螺旋状の動きが有効な場合、寿命を3倍にする
-            float adjustedLifetime = spiralMovementEnabled ? projectileLifetime * 3.0f : projectileLifetime;
-
-            ProjectileBehavior projectileBehavior = projectile.GetComponent<ProjectileBehavior>();
-
-            // 発射物の設定を初期化
-            projectileBehavior.Initialize(direction, speed, adjustedLifetime, attackCharThrough, attackObjectThrough, gameObject.tag, followTarget ? targetObject : null, enableTrail, spiralMovementEnabled, spiralExpansionSpeed, shakeAmplitude);
+            if (useRandomPosition)
+            {
+                StartCoroutine(ShootRandomPositions());
+            }
+            else if (shootEightDirections)
+            {
+                ShootInMultipleDirections(new Vector2[] {
+                    Vector2.up, Vector2.down, Vector2.left, Vector2.right,
+                    new Vector2(1, 1).normalized, new Vector2(1, -1).normalized,
+                    new Vector2(-1, 1).normalized, new Vector2(-1, -1).normalized
+                });
+            }
+            else if (shootFourDirections)
+            {
+                ShootInMultipleDirections(new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right });
+            }
+            else if (shootFourDiagonalDirections)
+            {
+                ShootInMultipleDirections(new Vector2[] {
+                    new Vector2(1, 1).normalized, new Vector2(1, -1).normalized,
+                    new Vector2(-1, 1).normalized, new Vector2(-1, -1).normalized
+                });
+            }
+            else
+            {
+                ShootProjectileInDirection(direction);
+            }
 
             yield return new WaitForSeconds(adjustedDelay);
         }
+    }
+
+    /// <summary>
+    /// 指定された回数、ランダムな位置から発射するコルーチン
+    /// </summary>
+    /// <returns>コルーチン</returns>
+    private IEnumerator ShootRandomPositions()
+    {
+        for (int i = 0; i < numberOfShots; i++)
+        {
+            Vector2 randomPosition = GetRandomPositionWithinRange();
+            ShootProjectileInDirectionFromPosition(randomPosition, direction);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    /// <summary>
+    /// 指定された範囲内のランダムな位置を取得する
+    /// </summary>
+    /// <returns>ランダムな位置</returns>
+    private Vector2 GetRandomPositionWithinRange()
+    {
+        if (unitController == null) return transform.position;
+
+        float range = unitController.approachRange; // 小文字のapproachRangeに変更
+        Vector2 randomOffset = Random.insideUnitCircle * range;
+        return (Vector2)transform.position + randomOffset;
+    }
+
+    /// <summary>
+    /// 指定した複数の方向に向けて発射する
+    /// </summary>
+    /// <param name="directions">発射する方向の配列</param>
+    private void ShootInMultipleDirections(Vector2[] directions)
+    {
+        foreach (var dir in directions)
+        {
+            ShootProjectileInDirection(dir);
+        }
+    }
+
+    /// <summary>
+    /// 単一の方向に向けて発射する
+    /// </summary>
+    /// <param name="dir">発射する方向</param>
+    private void ShootProjectileInDirection(Vector2 dir)
+    {
+        GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+        projectile.transform.SetParent(attackObjectGroup.transform);
+        projectile.transform.localScale *= sizeMultiplier;
+
+        float adjustedLifetime = spiralMovementEnabled ? projectileLifetime * 3.0f : projectileLifetime;
+
+        ProjectileBehavior projectileBehavior = projectile.GetComponent<ProjectileBehavior>();
+        projectileBehavior.Initialize(dir, speed, adjustedLifetime, attackCharThrough, attackObjectThrough, gameObject.tag, followTarget ? targetObject : null, enableTrail, spiralMovementEnabled, spiralExpansionSpeed, shakeAmplitude, scaleOverTime);
+    }
+
+    /// <summary>
+    /// ランダムな位置から単一の方向に向けて発射する
+    /// </summary>
+    /// <param name="position">発射する位置</param>
+    /// <param name="dir">発射する方向</param>
+    private void ShootProjectileInDirectionFromPosition(Vector2 position, Vector2 dir)
+    {
+        GameObject projectile = Instantiate(projectilePrefab, position, Quaternion.identity);
+        projectile.transform.SetParent(attackObjectGroup.transform);
+        projectile.transform.localScale *= sizeMultiplier;
+
+        float adjustedLifetime = spiralMovementEnabled ? projectileLifetime * 3.0f : projectileLifetime;
+
+        ProjectileBehavior projectileBehavior = projectile.GetComponent<ProjectileBehavior>();
+        projectileBehavior.Initialize(dir, speed, adjustedLifetime, attackCharThrough, attackObjectThrough, gameObject.tag, followTarget ? targetObject : null, enableTrail, spiralMovementEnabled, spiralExpansionSpeed, shakeAmplitude, scaleOverTime);
     }
 }

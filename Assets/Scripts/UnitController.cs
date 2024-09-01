@@ -60,11 +60,14 @@ public class UnitController : MonoBehaviour
     private Vector2 previousDirection; // 前回のスプライト方向を記憶
 
     private bool inAttackStance = false; // 攻撃モード中かどうか
+    public bool InAttackStance => inAttackStance; // 攻撃モード中かどうかを取得するプロパティ
     private float attackStanceStartTime; // 攻撃モードの開始時間
     private bool inAttackDelay = false; // 攻撃ディレイ中かどうか
     private float attackDelayStartTime; // 攻撃ディレイの開始時間
 
     private Vector2 escapePosition; //　逃走先の記録
+
+    private AttackController attackController; // AttackControllerの参照
 
     void Start()
     {
@@ -82,6 +85,9 @@ public class UnitController : MonoBehaviour
 
         previousPosition = transform.position;
         previousDirection = Vector2.zero; // 初期化
+
+        // AttackControllerの参照を取得
+        attackController = GetComponent<AttackController>();
     }
 
     void Update()
@@ -104,31 +110,7 @@ public class UnitController : MonoBehaviour
             }
         }
 
-        // 逃走機能が有効かつ逃走中でない場合に逃走をチェック
-        if (enableEscape && !isEscaping)
-        {
-            CheckAndPerformEscape(currentPosition);
-        }
-
-        // 逃走中であれば他の移動を行わない
-        if (isEscaping)
-        {
-            PerformEscape(currentPosition);
-            return;
-        }
-
-        // テレポート機能が有効かつ一定時間経過している場合、テレポートを実行
-        if (enableTeleport && Time.time - lastTeleportTime >= teleportInterval)
-        {
-            PerformTeleport(currentPosition);
-            lastTeleportTime = Time.time; // テレポートの実行時間を更新
-
-            // テレポート後はランダム移動のターゲットをリセット
-            SetNewRandomTarget();
-
-            // テレポート後は全ての移動処理をスキップ
-            return;
-        }
+        // その他の処理は省略...
 
         // 一定間隔でターゲットを再評価する
         if (Time.time - lastTargetUpdateTime > targetUpdateInterval)
@@ -392,6 +374,8 @@ public class UnitController : MonoBehaviour
             startTime = Time.time;
         }
 
+        //newPosition = Vector2.MoveTowards(currentPosition, newPosition, movementSpeed * Time.deltaTime);
+
         return newPosition;
     }
 
@@ -413,46 +397,52 @@ public class UnitController : MonoBehaviour
         currentTarget = newTarget;
     }
 
-/// <summary>
-/// ターゲットとの距離を評価し、最も近いターゲットを設定します。
-/// </summary>
-public void SetClosestTarget()
-{
-    // ターゲットタグを設定する
-    string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy");
-    float closestDistance = Mathf.Infinity;
-    Transform closestTarget = null;
-
-    // 指定したタグのターゲットを探索
-    foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+    /// <summary>
+    /// ターゲットとの距離を評価し、最も近いターゲットを設定します。
+    /// </summary>
+    public void SetClosestTarget()
     {
-        // 自分自身をターゲットにしない
-        if (potentialTarget == gameObject) continue;
+        // ターゲットタグを設定する
+        string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy");
+        float closestDistance = Mathf.Infinity;
+        Transform closestTarget = null;
 
-        float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
-        if (distance < closestDistance)
+        // 指定したタグのターゲットを探索
+        foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
         {
-            closestDistance = distance;
-            closestTarget = potentialTarget.transform;
+            // 自分自身をターゲットにしない
+            if (potentialTarget == gameObject) continue;
+
+            float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestTarget = potentialTarget.transform;
+            }
+        }
+
+        // ターゲットを設定（見つからなかった場合はnullのまま）
+        targetTransform = closestTarget;
+
+        // ターゲットが切り替わったらAttackControllerのTargetObjectも更新
+        if (attackController != null && targetTransform != null)
+        {
+            attackController.SetTargetObject(targetTransform);
+        }
+
+        // デバッグ情報を表示
+        if (showDebugInfo)
+        {
+            if (targetTransform != null)
+            {
+                Debug.Log($"ターゲット設定: {targetTransform.name} 距離: {closestDistance}");
+            }
+            else
+            {
+                Debug.Log("ターゲットが見つかりませんでした。");
+            }
         }
     }
-
-    // ターゲットを設定（見つからなかった場合はnullのまま）
-    targetTransform = closestTarget;
-
-    // デバッグ情報を表示
-    if (showDebugInfo)
-    {
-        if (targetTransform != null)
-        {
-            Debug.Log($"ターゲット設定: {targetTransform.name} 距離: {closestDistance}");
-        }
-        else
-        {
-            Debug.Log("ターゲットが見つかりませんでした。");
-        }
-    }
-}
 
     /// <summary>
     /// ユニットをカメラの範囲内に留めるメソッド

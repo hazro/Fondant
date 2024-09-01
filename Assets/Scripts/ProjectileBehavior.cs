@@ -17,6 +17,10 @@ public class ProjectileBehavior : MonoBehaviour
     private TrailRenderer trailRenderer; // 軌跡を描くためのTrail Renderer
     private SpriteRenderer[] spriteRenderers; // PrefabのすべてのSpriteRenderer
     private float shakeAmplitude; // 振幅の強さ
+    private bool scaleOverTime; // スケーリングを時間経過に応じて行うか
+    private float followStrength = 0f; // 追従の強さ
+    private float followIncreaseDuration = 1.0f; // 追従力が最大になるまでの時間
+    private float timeSinceLaunch; // 発射後の経過時間
 
     [Header("Trail Settings")]
     [SerializeField] private float trailTime = 0.5f; // 軌跡が残る時間（秒）
@@ -38,18 +42,7 @@ public class ProjectileBehavior : MonoBehaviour
     /// <summary>
     /// 発射物の初期化
     /// </summary>
-    /// <param name="direction">発射方向</param>
-    /// <param name="speed">発射速度</param>
-    /// <param name="lifetime">発射物の寿命</param>
-    /// <param name="charThrough">キャラクターへの貫通回数</param>
-    /// <param name="objectThrough">障害物への貫通回数</param>
-    /// <param name="shooterTag">発射元のタグ</param>
-    /// <param name="target">追従するターゲット</param>
-    /// <param name="enableTrail">軌跡を有効にするかどうか</param>
-    /// <param name="enableSpiralMovement">螺旋状の動きを有効にするかどうか</param>
-    /// <param name="spiralExpansionSpeed">螺旋の外側に広がる速度</param>
-    /// <param name="shakeAmplitude">揺れの強さ</param>
-    public void Initialize(Vector2 direction, float speed, float lifetime, int charThrough, int objectThrough, string shooterTag, Transform target = null, bool enableTrail = false, bool enableSpiralMovement = false, float spiralExpansionSpeed = 1f, float shakeAmplitude = 0f)
+    public void Initialize(Vector2 direction, float speed, float lifetime, int charThrough, int objectThrough, string shooterTag, Transform target = null, bool enableTrail = false, bool enableSpiralMovement = false, float spiralExpansionSpeed = 1f, float shakeAmplitude = 0f, bool scaleOverTime = false)
     {
         this.moveDirection = direction.normalized;
         this.moveSpeed = speed;
@@ -58,9 +51,10 @@ public class ProjectileBehavior : MonoBehaviour
         this.remainingObjectThrough = objectThrough;
         this.shooterTag = shooterTag;
         this.followTarget = target;
-        this.spiralMovementEnabled = enableSpiralMovement; // 螺旋状の動きを有効にするかどうかを設定
-        this.spiralExpansionSpeed = spiralExpansionSpeed; // 螺旋の外側に広がる速度を設定
-        this.shakeAmplitude = shakeAmplitude; // 揺れの強さを設定
+        this.spiralMovementEnabled = enableSpiralMovement; 
+        this.spiralExpansionSpeed = spiralExpansionSpeed; 
+        this.shakeAmplitude = shakeAmplitude; 
+        this.scaleOverTime = scaleOverTime;
 
         // 軌跡の設定
         if (enableTrail)
@@ -73,23 +67,30 @@ public class ProjectileBehavior : MonoBehaviour
             trailRenderer.startColor = trailStartColor;
             trailRenderer.endColor = trailEndColor;
 
-            // SpriteRendererを透明にする
             SetSpriteRenderersAlpha(0f);
         }
         else
         {
-            // トレイルが無効の場合、SpriteRendererを元に戻す
             SetSpriteRenderersAlpha(1f);
         }
 
+        timeSinceLaunch = 0f; // 発射時に経過時間をリセット
         StartCoroutine(DestroyAfterLifetime());
     }
 
     /// <summary>
-    /// 毎フレームの更新処理。発射物の移動を制御します。
+    /// 毎フレームの更新処理。発射物の移動とスケーリングを制御します。
     /// </summary>
     private void Update()
     {
+        timeSinceLaunch += Time.deltaTime;
+
+        // 追従力を徐々に増加させる
+        if (followTarget != null)
+        {
+            followStrength = Mathf.Clamp01(timeSinceLaunch / followIncreaseDuration);
+        }
+
         // サインカーブの揺れを左右方向に加える
         shakeOffset = Mathf.Sin(Time.time * moveSpeed) * shakeAmplitude;
         Vector2 perpendicularDirection = new Vector2(-moveDirection.y, moveDirection.x); // 進行方向に直交するベクトル
@@ -97,45 +98,38 @@ public class ProjectileBehavior : MonoBehaviour
 
         if (spiralMovementEnabled)
         {
-            // 螺旋状の動きを計算する
-            spiralAngle += moveSpeed * Time.deltaTime; // 螺旋の角度を速度に基づいて増加
-            float radius = spiralAngle * spiralExpansionSpeed; // 外側に広がる速度を設定
+            spiralAngle += moveSpeed * Time.deltaTime;
+            float radius = spiralAngle * spiralExpansionSpeed;
             Vector2 spiralOffset = new Vector2(Mathf.Cos(spiralAngle), Mathf.Sin(spiralAngle)) * radius;
-
-            // 位置を更新
             transform.position = (Vector2)transform.position + (spiralOffset + shakeVector) * Time.deltaTime;
 
-            // 進行方向に回転を合わせる
             float angle = Mathf.Atan2(spiralOffset.y, spiralOffset.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
         }
         else if (followTarget != null)
         {
-            // ターゲットに向かって進む
-            moveDirection = (followTarget.position - transform.position).normalized;
-
-            // 位置を更新
+            // ターゲットに向かう方向を徐々に強化
+            moveDirection = Vector2.Lerp(moveDirection, (followTarget.position - transform.position).normalized, followStrength);
             transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
-
-            // 進行方向に回転を合わせる
+            
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
         }
         else
         {
-            // 通常の直線的な移動
             transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
-
-            // 進行方向に回転を合わせる
+            
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
         }
+
+        if (scaleOverTime)
+        {
+            float scaleIncrease = 1 + moveSpeed * Time.deltaTime * 0.1f;
+            transform.localScale *= scaleIncrease;
+        }
     }
 
-    /// <summary>
-    /// SpriteRendererの透明度を設定する
-    /// </summary>
-    /// <param name="alpha">透明度（0 = 完全に透明, 1 = 完全に不透明）</param>
     private void SetSpriteRenderersAlpha(float alpha)
     {
         if (spriteRenderers != null)
