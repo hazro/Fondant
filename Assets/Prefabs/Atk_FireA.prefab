@@ -119,6 +119,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32a1831448d61cf40a8318f986badb27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attributes: 01000000
+  power: 1
   trailTime: 10
   trailWidth: 0.05
   trailStartColor: {r: 0.7490196, g: 0.43921572, b: 0, a: 1}

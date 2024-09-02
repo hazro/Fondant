@@ -15,20 +15,7 @@ MonoBehaviour:
   job: 0
   level: 1
   exp: 10
-  magic: 0
-  str: 0
-  dex: 0
-  residtCondition: 0
-  attackDelay: 0
-  attackSpeed: 0
-  attackUnitThrough: 0
-  attackObjectThrough: 0
-  attackSize: 0
-  knockBack: 0
-  targetJob: 0
   weapons: 0
   shields: 0
   armor: 0
   accessories: 0
-  teleportation: 0
-  escape: 0

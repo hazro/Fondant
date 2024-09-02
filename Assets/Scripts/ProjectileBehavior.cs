@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -22,16 +23,75 @@ public class ProjectileBehavior : MonoBehaviour
     private float followIncreaseDuration = 1.0f; // 追従力が最大になるまでの時間
     private float timeSinceLaunch; // 発射後の経過時間
 
+    [Header("Attributes")]
+    [SerializeField] public List<Attribute> attributes = new List<Attribute>(); // Attributesをpublicに変更
+    public float power = 1.0f; // 攻撃力
+
     [Header("Trail Settings")]
     [SerializeField] private float trailTime = 0.5f; // 軌跡が残る時間（秒）
     [SerializeField] private float trailWidth = 0.1f; // 軌跡の幅
     [SerializeField] private Color trailStartColor = Color.white; // 軌跡の開始色
     [SerializeField] private Color trailEndColor = new Color(1, 1, 1, 0); // 軌跡の終了色
 
+    // 発射元のユニット
+    public Unit shooterUnit { get; private set; }
+
     private bool spiralMovementEnabled = false; // 螺旋状の動きを有効にするかどうか
     private float spiralExpansionSpeed = 1f; // 螺旋の外側に広がる速度
     private float spiralAngle = 0f; // 螺旋状の角度
     private float shakeOffset = 0f; // 揺れのオフセット
+
+    public enum Attribute
+    {
+        Physical,
+        Magical,
+        Technology,
+        Nature,
+        Healing,
+        StatusAilment,
+        StatusEffect
+    }
+
+    public enum StatusAilment
+    {
+        Poison,
+        Burn,
+        Freeze,
+        Paralysis,
+        Weakness
+    }
+
+    public enum StatusEffect
+    {
+        AttackBoost,
+        MagicBoost,
+        DefenseBoost,
+        MagicDefenseBoost,
+        SpeedBoost,
+        AutoHeal
+    }
+
+    // フィールドを非公開にして、プロパティで管理する
+    private StatusAilment currentStatusAilment; // インスペクタには表示しない
+    private StatusEffect currentStatusEffect;   // インスペクタには表示しない
+
+    /// <summary>
+    /// ステータス異常のプロパティ
+    /// </summary>
+    public StatusAilment CurrentStatusAilment
+    {
+        get => currentStatusAilment;
+        set => currentStatusAilment = value;
+    }
+
+    /// <summary>
+    /// ステータス効果のプロパティ
+    /// </summary>
+    public StatusEffect CurrentStatusEffect
+    {
+        get => currentStatusEffect;
+        set => currentStatusEffect = value;
+    }
 
     private void Start()
     {
@@ -42,7 +102,7 @@ public class ProjectileBehavior : MonoBehaviour
     /// <summary>
     /// 発射物の初期化
     /// </summary>
-    public void Initialize(Vector2 direction, float speed, float lifetime, int charThrough, int objectThrough, string shooterTag, Transform target = null, bool enableTrail = false, bool enableSpiralMovement = false, float spiralExpansionSpeed = 1f, float shakeAmplitude = 0f, bool scaleOverTime = false)
+    public void Initialize(Vector2 direction, float speed, float lifetime, int charThrough, int objectThrough, string shooterTag, Transform target = null, bool enableTrail = false, bool enableSpiralMovement = false, float spiralExpansionSpeed = 1f, float shakeAmplitude = 0f, bool scaleOverTime = false, List<Attribute> attributes = null, StatusAilment? statusAilment = null, StatusEffect? statusEffect = null)
     {
         this.moveDirection = direction.normalized;
         this.moveSpeed = speed;
@@ -51,10 +111,25 @@ public class ProjectileBehavior : MonoBehaviour
         this.remainingObjectThrough = objectThrough;
         this.shooterTag = shooterTag;
         this.followTarget = target;
-        this.spiralMovementEnabled = enableSpiralMovement; 
-        this.spiralExpansionSpeed = spiralExpansionSpeed; 
-        this.shakeAmplitude = shakeAmplitude; 
+        this.spiralMovementEnabled = enableSpiralMovement;
+        this.spiralExpansionSpeed = spiralExpansionSpeed;
+        this.shakeAmplitude = shakeAmplitude;
         this.scaleOverTime = scaleOverTime;
+
+        if (attributes != null)
+        {
+            this.attributes = attributes;
+        }
+
+        if (statusAilment.HasValue)
+        {
+            this.CurrentStatusAilment = (StatusAilment)statusAilment; // 明示的なキャストを使用
+        }
+
+        if (statusEffect.HasValue)
+        {
+            this.CurrentStatusEffect = (StatusEffect)statusEffect; // 明示的なキャストを使用
+        }
 
         // 軌跡の設定
         if (enableTrail)
@@ -130,6 +205,15 @@ public class ProjectileBehavior : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 発射元のユニットを設定する
+    /// </summary>
+    /// <param name="unit"></param>
+    public void SetShooterUnit(Unit unit)
+    {
+        shooterUnit = unit;
+    }
+
     private void SetSpriteRenderersAlpha(float alpha)
     {
         if (spriteRenderers != null)
@@ -171,6 +255,49 @@ public class ProjectileBehavior : MonoBehaviour
         // 衝突したオブジェクトのタグが発射元のタグと異なる場合の処理
         else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && collision.tag != shooterTag)
         {
+            // ダメージを与える
+            Unit targetUnit = collision.gameObject.GetComponent<Unit>();
+            if (targetUnit != null)
+            {
+                float totalDamage = 0;
+                float totalHealing = 0;
+
+                foreach (Attribute attribute in attributes)
+                {
+                    switch (attribute)
+                    {
+                        case Attribute.Magical:
+                        case Attribute.Technology:
+                        case Attribute.Nature:
+                            float magicDamage = shooterUnit.magicalAttackPower * power - targetUnit.magicalDefensePower * 0.1f;
+                            Debug.Log("Hit!! Magical Damage: " + magicDamage + "magicalAttackPower: " + shooterUnit.magicalAttackPower + "power: " + power + "magicalDefensePower: " + targetUnit.magicalDefensePower);
+                            totalDamage += magicDamage;
+                            break;
+
+                        case Attribute.Physical:
+                            float physicalDamage = shooterUnit.physicalAttackPower * power - targetUnit.physicalDefensePower * 0.1f;
+                            Debug.Log("Hit!! Physical Damage: " + physicalDamage + "physicalAttackPower: " + shooterUnit.physicalAttackPower + "power: " + power + "physicalDefensePower: " + targetUnit.physicalDefensePower);
+                            totalDamage += physicalDamage;
+                            break;
+
+                        case Attribute.Healing:
+                            float healing = shooterUnit.magicalAttackPower;
+                            Debug.Log("Hit!! Healing: " + healing + "magicalAttackPower: " + shooterUnit.magicalAttackPower);
+                            totalHealing += healing;
+                            break;
+                    }
+                }
+
+                if (totalDamage > 0)
+                {
+                    targetUnit.TakeDamage(totalDamage);
+                }
+
+                if (totalHealing > 0)
+                {
+                    targetUnit.Heal(totalHealing);
+                }
+            }
             remainingCharThrough--;
             if (remainingCharThrough <= 0)
             {
@@ -187,7 +314,7 @@ public class ProjectileBehavior : MonoBehaviour
     {
         isFadingOut = true;
         SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>();
-        float fadeDuration = 0.3f; // フェードアウトにかける時間
+        float fadeDuration = 0.1f; // フェードアウトにかける時間
         float elapsedTime = 0f;
 
         while (elapsedTime < fadeDuration)
