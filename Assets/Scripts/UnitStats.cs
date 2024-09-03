@@ -7,8 +7,8 @@ using UnityEngine;
 public class UnitStats : ScriptableObject
 {
     public int job;
-    public int level;
-    public int exp;
+    public int totalExp;
+    public int addLevel;
     //public float magic;
     //public float str;
     //public float dex;
@@ -26,4 +26,12 @@ public class UnitStats : ScriptableObject
     public int accessories;
     //public float teleportation;
     //public float escape;
+
+    public int drop1;
+    public int drop2;
+    public int drop3;
+
+    public float drop1Rate;
+    public float drop2Rate;
+    public float drop3Rate;
 }

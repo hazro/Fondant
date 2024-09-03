@@ -16,7 +16,7 @@ public class JobStatus : ScriptableObject
     public float AttackObjectThrough;
     public float KnockBack;
     // Levelアップの上昇値
-    public int levelExp;
+    public float levelScaleFactor;
     public float levelMagic;
     public float levelStr;
     public float levelDex;

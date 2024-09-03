@@ -467,9 +467,10 @@ public class UnitController : MonoBehaviour
     /// </summary>
     private void UpdateSpriteBasedOnDirection(Vector2 direction, Sprite[] sprites, SpriteRenderer spriteRenderer, bool useDiagonalSprites, bool useFlippedSpritesForLeft)
     {
+
+        // スプライトが8枚以下の場合でも処理をスキップ
         if (sprites.Length < 8)
         {
-            Debug.LogWarning("directionSprites 配列には8つのスプライトが必要です。");
             return;
         }
 

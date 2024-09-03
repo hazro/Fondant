@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class Unit : MonoBehaviour
     public UnitStats unitStats;
     private JobStatus jobStatus;
 
+    [SerializeField] public int currentLevel;
     [SerializeField] public float Hp;
     [SerializeField] public float physicalAttackPower;
     [SerializeField] public float magicalAttackPower;
@@ -34,13 +36,13 @@ public class Unit : MonoBehaviour
         jobStatus = Resources.Load<JobStatus>("JobStatus" + unitStats.job.ToString("D2"));
         // unitStatsからステータスを読み込む
         int currentJob = unitStats.job;
-        int currentLevel = unitStats.level;
-        //int currentExp = unitStats.exp;
+        int totalExp = unitStats.totalExp;
         int currentWeapons = unitStats.weapons;
         int currentShields = unitStats.shields;
         int currentArmor = unitStats.armor;
         int currentAccessories = unitStats.accessories;
         // JobStatusからステータスを読み込む
+        float currentLevelScaleFactor = jobStatus.levelScaleFactor;
         float currentMagic = jobStatus.Magic;
         float currentStr = jobStatus.Str;
         float currentDex = jobStatus.Dex;
@@ -48,7 +50,6 @@ public class Unit : MonoBehaviour
         float currentAttackUnitThrough = jobStatus.AttackUnitThrough;
         float currentAttackObjectThrough = jobStatus.AttackObjectThrough;
         float currentKnockBack = jobStatus.KnockBack;
-        int levelExp = jobStatus.levelExp;
         float levelMagic = jobStatus.levelMagic;
         float levelStr = jobStatus.levelStr;
         float levelDex = jobStatus.levelDex;
@@ -61,6 +62,8 @@ public class Unit : MonoBehaviour
         float escape = jobStatus.escape;
 
         // ステータスを計算する
+        int baseExperience = 10; // レベルアップに必要な基本経験値
+        currentLevel = (int)Math.Sqrt(totalExp / (baseExperience * currentLevelScaleFactor)) + 1;
         Hp = (currentStr + currentLevel * levelStr) * 10;
         physicalAttackPower = (currentStr + currentLevel * levelStr) / 1;
         magicalAttackPower = (currentMagic + currentLevel * levelMagic) / 1;

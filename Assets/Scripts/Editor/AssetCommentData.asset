@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a3a4a4c89d7e20418bde3030d1fe184, type: 3}
+  m_Name: AssetCommentData
+  m_EditorClassIdentifier: 
+  comments:
+  - guid: 
+    comment: 
+  - guid: 9fcf9475d63983f488dfd7207bd95490
+    comment: "\u9B54\u6CD5_\u706B\u306E\u7389\u30A8\u30D5\u30A7\u30AF\u30C8"
+  - guid: dd9e0b8203dca60458ba32310ed677c8
+    comment: "\u30E2\u30F3\u30B9\u30BF\u30FC_\u7269\u7406\u7CFB"
+  - guid: 1495663638acb184db073ab1df42195a
+    comment: "\u8077\u696D_\u6226\u58EB"
+  - guid: 5eb894d24a545cd4386b2ecd16fa0381
+    comment: "\u76FE_\u6728\u306E\u76FE"
+  - guid: 30fa924926e0a0b439926899f01eae71
+    comment: "\u8EFD\u93A7_\u76AE\u306E\u93A7"
+  - guid: 13e973b3544f0e145840e5994fa03240
+    comment: "\u30A2\u30AF\u30BB\u30B5\u30EA_\u9B54\u6CD5\u306E\u6307\u8F2A"

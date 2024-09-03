@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1340197821091170628}
   - component: {fileID: 5675681079502434131}
   m_Layer: 0
-  m_Name: Atk_FireA
+  m_Name: Aef_MagicFire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

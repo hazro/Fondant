@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df7c8125cfb2b4e4daa4bf4e53036023, type: 3}
-  m_Name: UnitStats_Player01
+  m_Name: UnitStats_Enemy01
   m_EditorClassIdentifier: 
-  job: 0
+  job: 30
   totalExp: 0
   addLevel: 0
   weapons: 0
-  shields: 211001
-  armor: 213001
-  accessories: 215001
-  drop1: 0
-  drop2: 0
-  drop3: 0
-  drop1Rate: 0
-  drop2Rate: 0
-  drop3Rate: 0
+  shields: 0
+  armor: 0
+  accessories: 0
+  drop1: 211001
+  drop2: 213001
+  drop3: 215001
+  drop1Rate: 0.1
+  drop2Rate: 0.5
+  drop3Rate: 0.3
