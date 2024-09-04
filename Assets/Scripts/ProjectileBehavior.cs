@@ -14,7 +14,6 @@ public class ProjectileBehavior : MonoBehaviour
     private int remainingObjectThrough;
     private string shooterTag; // 発射元のタグ
     private Transform followTarget;
-    private bool isFadingOut = false; // アルファフェードアウトフラグ
     private TrailRenderer trailRenderer; // 軌跡を描くためのTrail Renderer
     private SpriteRenderer[] spriteRenderers; // PrefabのすべてのSpriteRenderer
     private float shakeAmplitude; // 振幅の強さ
@@ -312,7 +311,6 @@ public class ProjectileBehavior : MonoBehaviour
     /// <returns>コルーチン</returns>
     private IEnumerator FadeOutAndDestroy()
     {
-        isFadingOut = true;
         SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>();
         float fadeDuration = 0.1f; // フェードアウトにかける時間
         float elapsedTime = 0f;

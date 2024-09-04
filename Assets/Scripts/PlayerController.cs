@@ -93,7 +93,8 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("WorldEntrance"))
         {
-            WorldManager.Instance.StartWorld1Battle();
+            // バトルシーンへ移動し、キャラクター配置画面を表示
+            GameManager.Instance.LoadScene("InToWorldEntrance");
         }
     }
 

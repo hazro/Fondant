@@ -224,7 +224,7 @@ public class BattleSetupManager : MonoBehaviour
     private void OnStartBattleButtonClicked()
     {
         // 新しいバトルシーンをロード
-        SceneManager.LoadScene("BattleScene");
+        GameManager.Instance.LoadScene("InToBattleScene");
 
         // 子オブジェクトをすべて取得
         Transform[] playerChildren = playerGroup.GetComponentsInChildren<Transform>();

@@ -6,6 +6,7 @@ using UnityEngine;
 /// </summary>
 public class UnitController : MonoBehaviour
 {
+    // 各種設定を保持するフィールド
     [Header("Debug表示設定")]
     public bool showGizmos = true; // Gizmosの表示を制御するチェックボックス（デフォルトでオフ）
     public bool showDebugInfo = false; // デバッグ情報の表示を制御するチェックボックス（デフォルトでオフ）
@@ -25,8 +26,6 @@ public class UnitController : MonoBehaviour
 
     [Header("通常移動設定")]
     public float movementSpeed = 1.0f;
-    public float minTargetDistance = 0.5f;
-    public float maxTargetDistance = 1.0f;
     public float followRange = 7.0f; // 追従範囲
     public float approachRange = 0.3f; // 近づきすぎたら止まる範囲
     [Range(0, 100)] public float followWeight = 99f; // 追従移動の反映ウェイト（%）
@@ -36,26 +35,24 @@ public class UnitController : MonoBehaviour
     public float attackStanceDuration = 10.0f; // 攻撃モードでその場にとどまる時間（秒）
     public float attackDelay = 5.0f; // 攻撃後のディレイ時間（秒）
 
+    // インターナルステートの追跡
     private float lastTargetUpdateTime;
     public float targetUpdateInterval = 0.5f; // ターゲット再評価の間隔
-
     private float lastTeleportTime; // 最後にテレポートした時間を記録
     private bool isEscaping = false; // 逃走中かどうかのフラグ
 
+    // スプライト関連のフィールド
     [Header("移動方向に応じたスプライト")]
     public Sprite[] directionSprites;
     public bool useDiagonalSprites = false;
     public bool useFlippedSpritesForLeft = false;
 
     private SpriteRenderer spriteRenderer;
-    private Vector2 currentTarget;
     private Camera mainCamera;
     private Transform targetTransform;
-
+    private RandomWalkerBezier2D randomWalker; // RandomWalkerBezier2Dの参照
     private Vector2 startPosition;
-    private float journeyTime;
     private float startTime;
-
     private Vector2 previousPosition;
     private Vector2 previousDirection; // 前回のスプライト方向を記憶
 
@@ -64,19 +61,31 @@ public class UnitController : MonoBehaviour
     private float attackStanceStartTime; // 攻撃モードの開始時間
     private bool inAttackDelay = false; // 攻撃ディレイ中かどうか
     private float attackDelayStartTime; // 攻撃ディレイの開始時間
-
     private Vector2 escapePosition; //　逃走先の記録
 
     private AttackController attackController; // AttackControllerの参照
 
+    /// <summary>
+    /// 初期設定を行います。
+    /// </summary>
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        // RandomWalkerBezier2Dコンポーネントがアタッチされていない場合はアタッチする
+        if (GetComponent<RandomWalkerBezier2D>() == null)
+        {
+            gameObject.AddComponent<RandomWalkerBezier2D>();
+        }
+        
+        spriteRenderer = GetComponent<SpriteRenderer>(); // スプライトレンダラーの参照を取得
+        randomWalker = GetComponent<RandomWalkerBezier2D>(); // RandomWalkerBezier2Dの参照を取得
+
+        if (randomWalker == null)
+        {
+            Debug.LogError("RandomWalkerBezier2D component is missing on this GameObject.");
+        }
 
         // 最初の目標地点を設定
-        SetNewRandomTarget();
         startPosition = transform.position;
-        journeyTime = GetRandomJourneyTime();
         startTime = Time.time;
 
         SetClosestTarget();
@@ -90,6 +99,9 @@ public class UnitController : MonoBehaviour
         attackController = GetComponent<AttackController>();
     }
 
+    /// <summary>
+    /// フレームごとの更新を行います。
+    /// </summary>
     void Update()
     {
         Vector2 currentPosition = transform.position;
@@ -98,11 +110,10 @@ public class UnitController : MonoBehaviour
         // 攻撃モードが有効の場合の処理
         if (enableAttackStance)
         {
-            // 攻撃モードまたはディレイ中の場合の処理
             if (inAttackStance || inAttackDelay)
             {
                 HandleAttackStance(currentPosition);
-                if (showDebugInfo) DisplayDebugInfo(); // デバッグ情報の表示
+                if (showDebugInfo) DisplayDebugInfo();
                 if (!inAttackDelay)
                 {
                     return; // 攻撃モード中は通常の移動処理を行わない
@@ -110,41 +121,48 @@ public class UnitController : MonoBehaviour
             }
         }
 
-        // その他の処理は省略...
-
-        // 一定間隔でターゲットを再評価する
         if (Time.time - lastTargetUpdateTime > targetUpdateInterval)
         {
             SetClosestTarget();
             lastTargetUpdateTime = Time.time;
         }
 
-        // ランダム移動と追従移動を計算
-        Vector2 randomMovePosition = CalculateRandomMove(currentPosition);
-        Vector2 followMovePosition = CalculateFollowMove(currentPosition);
+        if (randomWalker != null)
+        {
+            Vector2 randomMovePosition = randomWalker.GetBezierPosition(movementSpeed, currentPosition);
+            Vector2 followMovePosition = CalculateFollowMove(currentPosition);
 
-        // ランダム移動と追従移動の影響を個別に計算して合成
-        float followRatio = followWeight / 100f;
-        float randomRatio = 1f - followRatio;
+            float followRatio = followWeight / 100f;
+            float randomRatio = 1f - followRatio;
 
-        newPosition = (randomMovePosition * randomRatio) + (followMovePosition * followRatio);
+            newPosition = (randomMovePosition * randomRatio) + (followMovePosition * followRatio);
 
-        // カメラの範囲内に制限
-        newPosition = KeepWithinCameraBounds(newPosition);
+            newPosition = KeepWithinCameraBounds(newPosition);
 
-        // ユニットを移動
-        transform.position = newPosition;
+            transform.position = newPosition;
 
-        // スプライトの切り替え
-        Vector2 averageDirection = CalculateAverageDirection(previousPosition, currentPosition, newPosition);
-        UpdateSpriteBasedOnDirection(averageDirection, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+            // ターゲットがapproachRangeの範囲内にいるときは、逃走中以外で常にターゲット方向を向く
+            if (targetTransform != null && Vector2.Distance(currentPosition, targetTransform.position) <= approachRange && !isEscaping)
+            {
+                Vector2 directionToTarget = ((Vector2)targetTransform.position - currentPosition).normalized;
+                UpdateSpriteBasedOnDirection(directionToTarget, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+            }
+            else
+            {
+                Vector2 averageDirection = CalculateAverageDirection(previousPosition, currentPosition, newPosition);
+                UpdateSpriteBasedOnDirection(averageDirection, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+            }
 
-        // 前回の位置を更新
-        previousPosition = currentPosition;
+            previousPosition = currentPosition;
+        }
+        else
+        {
+            Debug.LogError("RandomWalkerBezier2D is missing on this GameObject.");
+        }
     }
 
     /// <summary>
-    /// 攻撃範囲内に別タグのユニットがいる場合に逃走するためのチェックを行う関数
+    /// 攻撃範囲内に別タグのユニットがいる場合に逃走するためのチェックを行います。
     /// </summary>
     private void CheckAndPerformEscape(Vector2 currentPosition)
     {
@@ -171,65 +189,54 @@ public class UnitController : MonoBehaviour
 
         if (closestThreat != null && closestDistance <= threatApproachRange)
         {
-            // 逃走先の計算
             Vector2 directionAway = (currentPosition - (Vector2)closestThreat.position).normalized;
             float escapeDistance = threatApproachRange * escapeDistanceMultiplier;
-            escapePosition = currentPosition + directionAway * escapeDistance; // 逃走先を設定
+            escapePosition = currentPosition + directionAway * escapeDistance;
 
             if (showDebugInfo)
             {
                 Debug.Log($"逃走先計算: 新しい位置 {escapePosition}, 逃走元: {closestThreat.name}");
             }
-            // 逃走フラグをセット
             isEscaping = true;
         }
     }
 
     /// <summary>
-    /// 実際に逃走する処理を行う関数
+    /// 実際に逃走する処理を行います。
     /// </summary>
     private void PerformEscape(Vector2 currentPosition)
     {
-        // 逃走の実行
         Vector2 newEscapePosition = Vector2.MoveTowards(currentPosition, escapePosition, movementSpeed * escapeSpeedMultiplier * Time.deltaTime);
 
-        // 逃走中も画面内に制限
         newEscapePosition = KeepWithinCameraBounds(newEscapePosition);
-
-        // 逃走のスプライト切り替え
-        Vector2 escapeDirection = (newEscapePosition - currentPosition).normalized;
-        UpdateSpriteBasedOnDirection(escapeDirection, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
 
         transform.position = newEscapePosition;
 
-        // 逃走が完了したか確認
+        Vector2 escapeDirection = (newEscapePosition - currentPosition).normalized;
+        UpdateSpriteBasedOnDirection(escapeDirection, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+
         if (Vector2.Distance(transform.position, escapePosition) < 0.1f)
         {
-            // 逃走完了後はランダム移動のターゲットをリセット
-            SetNewRandomTarget();
-            isEscaping = false; // 逃走フラグをリセット
+            randomWalker.SetNewTargetPosition();
+            isEscaping = false;
         }
     }
 
     /// <summary>
-    /// テレポート機能を実行する関数
+    /// テレポート機能を実行します。
     /// </summary>
     private void PerformTeleport(Vector2 currentPosition)
     {
-        // 攻撃中はテレポートしない
         if (inAttackStance) return;
 
-        // ターゲットが設定されていない場合はテレポートしない
         if (targetTransform == null) return;
 
         Vector2 targetPosition = targetTransform.position;
         Vector2 directionToTarget = (targetPosition - currentPosition).normalized;
         float distanceToTarget = Vector2.Distance(currentPosition, targetPosition);
 
-        // テレポートの距離を計算し、攻撃範囲よりも近づかないようにする
         float teleportDistanceLimited = Mathf.Min(teleportDistance, distanceToTarget - approachRange);
 
-        // テレポート距離が無効（負の値またはゼロ）の場合は終了
         if (teleportDistanceLimited <= 0)
         {
             if (showDebugInfo)
@@ -239,10 +246,8 @@ public class UnitController : MonoBehaviour
             return;
         }
 
-        // テレポート先の位置を計算
         Vector2 teleportPosition = currentPosition + directionToTarget * teleportDistanceLimited;
 
-        // テレポート位置が有効かどうかの確認を追加
         if (teleportPosition != (Vector2)transform.position)
         {
             transform.position = teleportPosition;
@@ -261,23 +266,20 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
-    /// 攻撃モードを処理する関数
+    /// 攻撃モードを処理します。
     /// </summary>
     private void HandleAttackStance(Vector2 currentPosition)
     {
         if (targetTransform != null)
         {
-            // 攻撃スタンス中の場合
             if (inAttackStance)
             {
                 if (Time.time - attackStanceStartTime < attackStanceDuration)
                 {
-                    // 攻撃モード中はその場で向きを固定
                     return;
                 }
                 else
                 {
-                    // 攻撃モード終了、ディレイに移行
                     inAttackStance = false;
                     inAttackDelay = true;
                     attackDelayStartTime = Time.time;
@@ -285,116 +287,65 @@ public class UnitController : MonoBehaviour
                 }
             }
 
-            // ディレイ中の場合
             if (inAttackDelay)
             {
                 if (Time.time - attackDelayStartTime < attackDelay)
                 {
-                    // ディレイ中は通常の移動を行う（攻撃しない）
                     return;
                 }
                 else
                 {
-                    // ディレイ終了、再び攻撃スタンスのチェックを開始
                     inAttackDelay = false;
                 }
             }
 
-            // 攻撃モードやディレイが終了した場合、新たにターゲットを確認
             float distanceToTarget = Vector2.Distance(currentPosition, targetTransform.position);
             if (distanceToTarget <= approachRange)
             {
-                // 攻撃範囲内に入った場合、攻撃モードに移行
                 inAttackStance = true;
                 attackStanceStartTime = Time.time;
 
-                // ターゲットの向きを向く
                 Vector2 directionToTarget = (targetTransform.position - (Vector3)currentPosition).normalized;
-                previousDirection = directionToTarget; // 現在のターゲット方向を記憶
+                previousDirection = directionToTarget;
                 UpdateSpriteBasedOnDirection(directionToTarget, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
             }
         }
     }
 
     /// <summary>
-    /// 追従移動を計算する関数
+    /// 追従移動を計算します。
     /// </summary>
     private Vector2 CalculateFollowMove(Vector2 currentPosition)
     {
         if (targetTransform == null)
         {
-            // ターゲットが見つからない場合は現在の位置を返す
             return currentPosition;
         }
 
         Vector2 targetPosition = targetTransform.position;
         float distanceToTarget = Vector2.Distance(currentPosition, targetPosition);
 
-        // ターゲットがfollowRangeの範囲外にいる場合、追従しない
         if (distanceToTarget > followRange)
         {
             if (showDebugInfo)
             {
                 Debug.Log($"ターゲットが追従範囲外です: 距離 = {distanceToTarget}");
             }
-            return currentPosition; // 追従しない場合は現在の位置を返す
+            return currentPosition;
         }
 
-        // 攻撃範囲内にいる場合、攻撃モードを処理
         HandleAttackStance(currentPosition);
 
-        // ターゲットがapproachRange内にいる場合、近づきすぎないようにする
         if (distanceToTarget <= approachRange)
         {
             if (showDebugInfo)
             {
                 Debug.Log($"ターゲットに近づきすぎています: {distanceToTarget}");
             }
-            return currentPosition; // ターゲットとの距離が近すぎるので、現在の位置を維持する
+            return currentPosition;
         }
 
-        // ターゲットに向かって移動する
         return Vector2.MoveTowards(currentPosition, targetPosition, movementSpeed * Time.deltaTime);
-    }
-
-    /// <summary>
-    /// ランダム移動を計算する関数
-    /// </summary>
-    private Vector2 CalculateRandomMove(Vector2 currentPosition)
-    {
-        float elapsed = Time.time - startTime;
-        float t = Mathf.Clamp01(elapsed / journeyTime);
-        Vector2 newPosition = Vector2.Lerp(startPosition, currentTarget, t);
-
-        if (t >= 1.0f)
-        {
-            SetNewRandomTarget();
-            startPosition = currentPosition;
-            journeyTime = GetRandomJourneyTime();
-            startTime = Time.time;
-        }
-
-        //newPosition = Vector2.MoveTowards(currentPosition, newPosition, movementSpeed * Time.deltaTime);
-
-        return newPosition;
-    }
-
-    /// <summary>
-    /// ランダムな目標地点を設定します。目標地点はカメラの範囲内に制限されます。
-    /// </summary>
-    private void SetNewRandomTarget()
-    {
-        Vector2 currentPosition = transform.position;
-        float randomDistance = Random.Range(minTargetDistance, maxTargetDistance);
-        float randomAngle = Random.Range(0, 360);
-
-        Vector2 newTarget = currentPosition + new Vector2(
-            Mathf.Cos(randomAngle * Mathf.Deg2Rad) * randomDistance,
-            Mathf.Sin(randomAngle * Mathf.Deg2Rad) * randomDistance
-        );
-
-        newTarget = KeepWithinCameraBounds(newTarget);
-        currentTarget = newTarget;
     }
 
     /// <summary>
@@ -402,15 +353,12 @@ public class UnitController : MonoBehaviour
     /// </summary>
     public void SetClosestTarget()
     {
-        // ターゲットタグを設定する
         string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy");
         float closestDistance = Mathf.Infinity;
         Transform closestTarget = null;
 
-        // 指定したタグのターゲットを探索
         foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
         {
-            // 自分自身をターゲットにしない
             if (potentialTarget == gameObject) continue;
 
             float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
@@ -421,16 +369,13 @@ public class UnitController : MonoBehaviour
             }
         }
 
-        // ターゲットを設定（見つからなかった場合はnullのまま）
         targetTransform = closestTarget;
 
-        // ターゲットが切り替わったらAttackControllerのTargetObjectも更新
         if (attackController != null && targetTransform != null)
         {
             attackController.SetTargetObject(targetTransform);
         }
 
-        // デバッグ情報を表示
         if (showDebugInfo)
         {
             if (targetTransform != null)
@@ -445,7 +390,7 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
-    /// ユニットをカメラの範囲内に留めるメソッド
+    /// ユニットをカメラの範囲内に留めるメソッドです。
     /// </summary>
     private Vector2 KeepWithinCameraBounds(Vector2 position)
     {
@@ -492,14 +437,6 @@ public class UnitController : MonoBehaviour
         else if (angle >= -67.5f && angle < -22.5f) spriteIndex = useDiagonalSprites ? 7 : 0;
 
         spriteRenderer.sprite = sprites[spriteIndex];
-    }
-
-    /// <summary>
-    /// ランダムな移動時間を取得します。
-    /// </summary>
-    private float GetRandomJourneyTime()
-    {
-        return Random.Range(0.5f, 2.0f); // 移動時間の範囲を設定
     }
 
     /// <summary>

@@ -6,6 +6,8 @@ using UnityEngine;
 public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance { get; private set; }
+    //攻撃エフェクトを格納するオブジェクト
+    public GameObject attackObjectGroup;
 
     private void Awake()
     {

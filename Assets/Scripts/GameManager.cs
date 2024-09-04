@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 /// <summary>
 /// ゲーム全体の管理を行うクラス。
@@ -8,6 +9,13 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    [SerializeField] private IventryUI iventryUI; // IventryUIのインスタンスを取得するためのフィールド
+
+    [SerializeField] private StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
+
+    [SerializeField] private RectTransform statusLogPanel; // ステータスログパネルのRectTransformを取得するためのフィールド
+    [SerializeField] private TextMeshProUGUI currentGold; // 現在のゴールドを表示するためのフィールド
+    [SerializeField] private TextMeshProUGUI stockExp; // ストック経験値を表示するためのフィールド
 
     void Awake()
     {
@@ -35,7 +43,7 @@ public class GameManager : MonoBehaviour
         InitializeGame();
 
         // タウンシーンをロード
-        SceneManager.LoadScene("TownScene");
+        LoadScene("InToTownScene");
     }
 
     /// <summary>
@@ -58,6 +66,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void InitializeGame()
     {
+        //StatusLogの初期化
+        statusLog.currentGold = 0;
+        statusLog.currentExp = 0;
+        
         // ゲーム開始時に必要な初期化処理をここに記述
         // 例: プレイヤーデータのリセット、初期アイテムの設定など
     }
@@ -81,19 +93,48 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// シーンがロードされたときに呼び出されるコールバックメソッドです。
-    /// TownSceneがロードされた場合、プレイヤーを生成します。
+    /// 指定したシーンをロードする。
     /// </summary>
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    /// <param name="sceneName"></param>
+    public void LoadScene(string sceneName)
     {
-        if (scene.name == "TownScene")
+        if(sceneName == "InToTownScene")
         {
-            // TownSceneがロードされたら、TownManagerでプレイヤーを生成
-            TownManager townManager = FindObjectOfType<TownManager>();
-            if (townManager != null)
-            {
-                townManager.SpawnPlayer();
-            }
+            statusLogPanel.gameObject.SetActive(true);
+            iventryUI.SetButtonEnabled(false);
+            SceneManager.LoadScene("TownScene");
         }
+        if(sceneName == "InToWorldEntrance")
+        {
+            statusLogPanel.gameObject.SetActive(false);
+            iventryUI.SetButtonEnabled(false);
+            SceneManager.LoadScene("BattleSetupScene");
+        }
+        if(sceneName == "InToBattleScene")
+        {
+            statusLogPanel.gameObject.SetActive(true);
+            SceneManager.LoadScene("BattleScene");
+            iventryUI.SetButtonEnabled(true);
+        }
+    }
+
+    /// <summary>
+    /// ストック経験値を追加する。
+    /// </summary>
+    /// <param name="exp"></param>
+    public void AddExperience(int exp)
+    {
+        statusLog.currentExp += exp;
+        stockExp.text = statusLog.currentExp.ToString("D6");
+    }
+
+    /// <summary>
+    /// ゴールドを追加する。
+    /// </summary>
+    /// <param name="gold"></param>
+    public void AddGold(int gold)
+    {
+        statusLog.currentGold += gold;
+        currentGold.text = statusLog.currentGold.ToString("D6");
     }
 }

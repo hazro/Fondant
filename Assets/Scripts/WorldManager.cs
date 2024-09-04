@@ -59,13 +59,4 @@ public class WorldManager : MonoBehaviour
 
         return default;
     }
-
-    /// <summary>
-    /// ワールド1のバトルを開始するメソッド。
-    /// </summary>
-    public void StartWorld1Battle()
-    {
-        // バトルシーンへ移動し、キャラクター配置画面を表示
-        SceneManager.LoadScene("BattleSetupScene");
-    }
 }

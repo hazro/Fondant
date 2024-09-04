@@ -47,12 +47,8 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void Start()
     {
-        // AttackObjectGroup が存在しない場合は新規作成
-        attackObjectGroup = GameObject.Find("AttackObjectGroup");
-        if (attackObjectGroup == null)
-        {
-            attackObjectGroup = new GameObject("AttackObjectGroup");
-        }
+        // 攻撃物グループの参照を取得
+        attackObjectGroup = BattleManager.Instance.attackObjectGroup;
 
         // UnitControllerの参照を取得
         unitController = GetComponent<UnitController>();
@@ -242,6 +238,8 @@ public class AttackController : MonoBehaviour
     private void ShootProjectileInDirectionFromPosition(Vector2 position, Vector2 dir)
     {
         GameObject projectile = Instantiate(projectilePrefab, position, Quaternion.identity);
+        if (projectile == null) return; // projectileがnullでないことを確認
+        
         projectile.transform.SetParent(attackObjectGroup.transform);
         projectile.transform.localScale *= sizeMultiplier;
 

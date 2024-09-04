@@ -27,3 +27,13 @@ MonoBehaviour:
     comment: "\u8EFD\u93A7_\u76AE\u306E\u93A7"
   - guid: 13e973b3544f0e145840e5994fa03240
     comment: "\u30A2\u30AF\u30BB\u30B5\u30EA_\u9B54\u6CD5\u306E\u6307\u8F2A"
+  - guid: 4eb9f016a5c444a40b3349a130a08665
+    comment: "\u6728\u306E\u76FE"
+  - guid: 0f5754fdc8f1e094d863a6dda26fc4f9
+    comment: "\u76AE\u306E\u93A7"
+  - guid: 4340f5533dc8daa45b11580a044593e4
+    comment: "\u9B54\u6CD5\u306E\u6307\u8F2A"
+  - guid: 5182d5670bc814648b958961e9b9e999
+    comment: "\u88C5\u5099\u7121\u3057"
+  - guid: d0b0660a5ab01134cb3672bd0c8a4462
+    comment: "\u6B66\u5668\u3000\u7121\u3057"
