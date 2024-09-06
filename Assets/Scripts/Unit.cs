@@ -13,6 +13,7 @@ public class Unit : MonoBehaviour
     private EqpStats StatusArmor;
     private EqpStats StatusAccessories;
 
+    [SerializeField] public string unitName;
     [SerializeField] public int currentLevel;
     [SerializeField] public int nextLevelExp;
     [SerializeField] public float Hp;
@@ -32,6 +33,7 @@ public class Unit : MonoBehaviour
     [SerializeField] public bool escape;
 
     [SerializeField] public int currentWeapons;
+    [SerializeField] public int currentAttackEffects;
     [SerializeField] public int currentShields;
     [SerializeField] public int currentArmor;
     [SerializeField] public int currentAccessories;

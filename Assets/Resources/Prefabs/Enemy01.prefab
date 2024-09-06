@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 6376528810690273896}
   - component: {fileID: -974410892335292695}
   - component: {fileID: 2401721365655997688}
+  - component: {fileID: -3489721708659180383}
   m_Layer: 7
   m_Name: Enemy01
   m_TagString: Enemy
@@ -134,7 +135,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatus: {fileID: 11400000, guid: 99699edd123ae004b950019f6c4b7d68, type: 2}
+  unitName: Slime
   currentLevel: 0
+  nextLevelExp: 0
   Hp: 0
   physicalAttackPower: 0
   magicalAttackPower: 0
@@ -151,6 +154,7 @@ MonoBehaviour:
   teleportation: 0
   escape: 0
   currentWeapons: 0
+  currentAttackEffects: 0
   currentShields: 0
   currentArmor: 0
   currentAccessories: 0
@@ -268,6 +272,18 @@ MonoBehaviour:
   projectileLifetime: 1
   attackCharThrough: 1
   attackObjectThrough: 1
+--- !u!114 &-3489721708659180383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6733682485709165052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bce8953e131ad42988af42c44967f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2368170003510174869
 PrefabInstance:
   m_ObjectHideFlags: 0

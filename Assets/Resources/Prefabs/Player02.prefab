@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -4819470667952837959}
   - component: {fileID: 8771216265614344082}
   - component: {fileID: 332809884657080496}
+  - component: {fileID: 7700006020279543997}
   m_Layer: 7
   m_Name: Player02
   m_TagString: Ally
@@ -51,7 +52,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatus: {fileID: 11400000, guid: d3605514823cda048919fa652e0fafc6, type: 2}
+  unitName: Player02
   currentLevel: 0
+  nextLevelExp: 0
   Hp: 0
   physicalAttackPower: 0
   magicalAttackPower: 0
@@ -68,6 +71,7 @@ MonoBehaviour:
   teleportation: 0
   escape: 0
   currentWeapons: 0
+  currentAttackEffects: 0
   currentShields: 0
   currentArmor: 0
   currentAccessories: 0
@@ -260,6 +264,18 @@ MonoBehaviour:
   projectileLifetime: 1
   attackCharThrough: 1
   attackObjectThrough: 1
+--- !u!114 &7700006020279543997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6733682485709165052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bce8953e131ad42988af42c44967f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5291864887289360292
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6997690884266244285}
   - component: {fileID: 8348358530457623965}
   - component: {fileID: 2566493374737329187}
+  - component: {fileID: 4296729180112786149}
   m_Layer: 7
   m_Name: Enemy03
   m_TagString: Enemy
@@ -51,7 +52,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatus: {fileID: 11400000, guid: 08703d997854f4c41883aa4ea70fc468, type: 2}
+  unitName: Skelton
   currentLevel: 0
+  nextLevelExp: 0
   Hp: 0
   physicalAttackPower: 0
   magicalAttackPower: 0
@@ -68,6 +71,7 @@ MonoBehaviour:
   teleportation: 0
   escape: 0
   currentWeapons: 0
+  currentAttackEffects: 0
   currentShields: 0
   currentArmor: 0
   currentAccessories: 0
@@ -245,6 +249,18 @@ MonoBehaviour:
   projectileLifetime: 1
   attackCharThrough: 1
   attackObjectThrough: 1
+--- !u!114 &4296729180112786149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6733682485709165052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bce8953e131ad42988af42c44967f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8210183602087771521
 GameObject:
   m_ObjectHideFlags: 0

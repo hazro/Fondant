@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// プレイヤーのオブジェクトをドラッグ可能にするためのスクリプト。
@@ -12,6 +13,14 @@ public class Draggable : MonoBehaviour
     public Vector2 minDragBounds;
     public Vector2 maxDragBounds;
     private int originalSortingOrder;
+    private string currentSceneName;
+
+    private void Start()
+    {
+        isDragging = false; // ドラッグ中の初期化
+        // 現在のシーン名を取得
+        currentSceneName = SceneManager.GetActiveScene().name;
+    }
 
     private void Awake()
     {
@@ -20,6 +29,10 @@ public class Draggable : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (currentSceneName != "BattleSetupScene")
+        {
+            return;
+        }
         // ドラッグ開始処理
         startPos = transform.position;
         isDragging = true;
@@ -47,44 +60,47 @@ public class Draggable : MonoBehaviour
 
     private void OnMouseUp()
     {
-        // ドラッグ終了処理
-        isDragging = false;
-        SetSpriteTransparency(1f); // 透明度を元に戻す
-
-        // 吸着処理
-        Collider2D[] colliders = Physics2D.OverlapPointAll(transform.position);
-        foreach (Collider2D collider in colliders)
+        if (isDragging)
         {
-            if (collider.CompareTag("DropZone"))
-            {
-                // ターゲットのDropZone内の他のPlayerをチェック
-                Collider2D[] dropZoneColliders = Physics2D.OverlapBoxAll(collider.bounds.center, collider.bounds.size, 0f);
-                Draggable otherPlayer = null;
+            // ドラッグ終了処理
+            isDragging = false;
+            SetSpriteTransparency(1f); // 透明度を元に戻す
 
-                foreach (Collider2D zoneCollider in dropZoneColliders)
+            // 吸着処理
+            Collider2D[] colliders = Physics2D.OverlapPointAll(transform.position);
+            foreach (Collider2D collider in colliders)
+            {
+                if (collider.CompareTag("DropZone"))
                 {
-                    if (zoneCollider != collider)
+                    // ターゲットのDropZone内の他のPlayerをチェック
+                    Collider2D[] dropZoneColliders = Physics2D.OverlapBoxAll(collider.bounds.center, collider.bounds.size, 0f);
+                    Draggable otherPlayer = null;
+
+                    foreach (Collider2D zoneCollider in dropZoneColliders)
                     {
-                        otherPlayer = zoneCollider.GetComponent<Draggable>();
-                        if (otherPlayer != null && otherPlayer != this)
+                        if (zoneCollider != collider)
                         {
-                            // 他のPlayerが存在する場合、位置を入れ替える
-                            Vector3 otherPlayerStartPos = otherPlayer.startPos;
-                            otherPlayer.transform.position = startPos;
-                            otherPlayer.startPos = otherPlayerStartPos;
-                            break;
+                            otherPlayer = zoneCollider.GetComponent<Draggable>();
+                            if (otherPlayer != null && otherPlayer != this)
+                            {
+                                // 他のPlayerが存在する場合、位置を入れ替える
+                                Vector3 otherPlayerStartPos = otherPlayer.startPos;
+                                otherPlayer.transform.position = startPos;
+                                otherPlayer.startPos = otherPlayerStartPos;
+                                break;
+                            }
                         }
                     }
+
+                    // 新しいドロップゾーンにプレイヤーを移動
+                    transform.position = collider.transform.position + new Vector3(0,0,-0.1f);
+                    return;
                 }
-
-                // 新しいドロップゾーンにプレイヤーを移動
-                transform.position = collider.transform.position + new Vector3(0,0,-0.1f);
-                return;
             }
-        }
 
-        // ドロップゾーンが見つからない場合、元の位置に戻す
-        transform.position = startPos;
+            // ドロップゾーンが見つからない場合、元の位置に戻す
+            transform.position = startPos;
+        }
     }
 
     /// <summary>

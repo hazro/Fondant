@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// ゲーム全体の管理を行うクラス。
@@ -14,11 +15,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
 
     [SerializeField] private RectTransform statusLogPanel; // ステータスログパネルのRectTransformを取得するためのフィールド
+    [SerializeField] private RectTransform UnitSkillPanel; // ユニットスキルパネルのRectTransformを取得するためのフィールド
     [SerializeField] private TextMeshProUGUI currentGold; // 現在のゴールドを表示するためのフィールド
     [SerializeField] private TextMeshProUGUI stockExp; // ストック経験値を表示するためのフィールド
 
     void Awake()
     {
+        // カメラにPhysics2DRaycasterがアタッチされていない場合、アタッチする
+        Camera camera = Camera.main;
+        if(camera != null){
+            if(camera.GetComponent<Physics2DRaycaster>() == null){
+                camera.gameObject.AddComponent<Physics2DRaycaster>();
+            }
+        }
         // シングルトンパターンの設定
         if (Instance == null)
         {
@@ -100,8 +109,10 @@ public class GameManager : MonoBehaviour
     {
         if(sceneName == "InToTownScene")
         {
+            statusLog.currentGold /= 3; // 街には1/3のゴールドしか持ち帰れない
             statusLogPanel.gameObject.SetActive(true);
             iventryUI.SetButtonEnabled(false);
+            UnitSkillPanel.gameObject.SetActive(false);
             SceneManager.LoadScene("TownScene");
         }
         if(sceneName == "InToWorldEntrance")
@@ -109,12 +120,14 @@ public class GameManager : MonoBehaviour
             statusLogPanel.gameObject.SetActive(false);
             iventryUI.SetButtonEnabled(false);
             SceneManager.LoadScene("BattleSetupScene");
+            UnitSkillPanel.gameObject.SetActive(true);
         }
         if(sceneName == "InToBattleScene")
         {
             statusLogPanel.gameObject.SetActive(true);
             SceneManager.LoadScene("BattleScene");
             iventryUI.SetButtonEnabled(true);
+            UnitSkillPanel.gameObject.SetActive(true);
         }
     }
 
@@ -136,5 +149,13 @@ public class GameManager : MonoBehaviour
     {
         statusLog.currentGold += gold;
         currentGold.text = statusLog.currentGold.ToString("D6");
+    }
+
+    /// <summary>
+    /// イベントリーUIを渡すプロパティ。
+    /// </summary>
+    public IventryUI IventryUI
+    {
+        get { return iventryUI; }
     }
 }
