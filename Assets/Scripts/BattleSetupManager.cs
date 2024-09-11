@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 自動戦闘の準備をするクラス
@@ -16,9 +17,14 @@ public class BattleSetupManager : MonoBehaviour
     private WorldManager worldManager; // WorldManagerの参照
     private Transform playerGroup; // プレイヤーグループのTransform
     private Transform enemyGroup; // エネミーグループのTransform
+    private IventryUI iventryUI; // IventryUIの参照
 
     private void Start()
     {
+        iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
+        // プレイヤーユニットのリストをクリア
+        iventryUI.playerUnits.Clear();
+        iventryUI.playerUnits = playerUnits.ToList(); // プレイヤーユニットをリストに追加
         // WorldManagerのインスタンスを動的に取得
         worldManager = WorldManager.Instance;
 
@@ -188,6 +194,13 @@ public class BattleSetupManager : MonoBehaviour
             DontDestroyOnLoad(playerGroupObj);
         }
 
+        // プレイヤーの数が1体以上、5体以下であることを確認
+        if (playerUnits.Length < 1 || playerUnits.Length > 5)
+        {
+            Debug.LogError("プレイヤーの数は1体以上、5体以下でなければなりません。");
+            return;
+        }
+
         // 配列内のPrefab数がGridPanelの子オブジェクトの数と一致するか確認
         int gridCells = PlayerGridPoint.childCount;
         if (playerUnits.Length > gridCells)
@@ -238,7 +251,7 @@ public class BattleSetupManager : MonoBehaviour
                 unitController.enabled = true;
             }
             
-            Draggable draggable = child.GetComponent<Draggable>();
+            PlayerDraggable draggable = child.GetComponent<PlayerDraggable>();
             if (draggable != null)
             {
                 Destroy(draggable);

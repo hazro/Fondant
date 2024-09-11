@@ -6,6 +6,10 @@ using UnityEngine;
 /// </summary>
 public class UnitController : MonoBehaviour
 {
+    // Unitのスプライトを取得
+    [SerializeField] private SpriteRenderer unitSprite;
+    private Animator animator; // Animatorコンポーネントの参照
+
     // 各種設定を保持するフィールド
     [Header("Debug表示設定")]
     public bool showGizmos = true; // Gizmosの表示を制御するチェックボックス（デフォルトでオフ）
@@ -25,7 +29,7 @@ public class UnitController : MonoBehaviour
     public bool targetSameTag = false; // 自分と同じタグを持つオブジェクトをターゲットにするかどうか
 
     [Header("通常移動設定")]
-    public float movementSpeed = 1.0f;
+    public float movementSpeed = 1.0f; // 移動速度
     public float followRange = 7.0f; // 追従範囲
     public float approachRange = 0.3f; // 近づきすぎたら止まる範囲
     [Range(0, 100)] public float followWeight = 99f; // 追従移動の反映ウェイト（%）
@@ -36,25 +40,21 @@ public class UnitController : MonoBehaviour
     public float attackDelay = 5.0f; // 攻撃後のディレイ時間（秒）
 
     // インターナルステートの追跡
-    private float lastTargetUpdateTime;
+    private float lastTargetUpdateTime; // 最後にターゲットを更新した時間
     public float targetUpdateInterval = 0.5f; // ターゲット再評価の間隔
     private float lastTeleportTime; // 最後にテレポートした時間を記録
     private bool isEscaping = false; // 逃走中かどうかのフラグ
 
-    // スプライト関連のフィールド
-    [Header("移動方向に応じたスプライト")]
-    public Sprite[] directionSprites;
-    public bool useDiagonalSprites = false;
-    public bool useFlippedSpritesForLeft = false;
-
-    private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
-    private Transform targetTransform;
+    private Transform targetTransform; // ターゲットのTransform
     private RandomWalkerBezier2D randomWalker; // RandomWalkerBezier2Dの参照
-    private Vector2 startPosition;
-    private float startTime;
-    private Vector2 previousPosition;
+    private Vector2 startPosition; // 移動開始位置
+    private float startTime; // 移動開始時間
+    private Vector2 previousPosition; // 前回の位置を記憶
     private Vector2 previousDirection; // 前回のスプライト方向を記憶
+    private bool isMoving; // 移動中かどうかのフラグ
+    private int currentSpriteIndex; // 現在のスプライトインデックス
+    private float lastSpriteChangeTime; // 最後にスプライトを変更した時間
 
     private bool inAttackStance = false; // 攻撃モード中かどうか
     public bool InAttackStance => inAttackStance; // 攻撃モード中かどうかを取得するプロパティ
@@ -70,18 +70,32 @@ public class UnitController : MonoBehaviour
     /// </summary>
     void Start()
     {
+
+        // Animatorコンポーネントを取得
+        animator = GetComponent<Animator>();
+
+        // ランダムなオフセットを設定 (0から1の範囲で)
+        float randomOffset = Random.Range(0f, animator.GetCurrentAnimatorStateInfo(0).length);
+        // アニメーションの再生をランダムなタイミングで開始
+        animator.Play("Base Layer.Idle", 0, randomOffset);
+
         // RandomWalkerBezier2Dコンポーネントがアタッチされていない場合はアタッチする
         if (GetComponent<RandomWalkerBezier2D>() == null)
         {
             gameObject.AddComponent<RandomWalkerBezier2D>();
         }
         
-        spriteRenderer = GetComponent<SpriteRenderer>(); // スプライトレンダラーの参照を取得
         randomWalker = GetComponent<RandomWalkerBezier2D>(); // RandomWalkerBezier2Dの参照を取得
 
         if (randomWalker == null)
         {
             Debug.LogError("RandomWalkerBezier2D component is missing on this GameObject.");
+        }
+
+        // unitSpriteが設定されているか確認
+        if (unitSprite == null)
+        {
+            Debug.LogError("unitSpriteが設定されていません。");
         }
 
         // 最初の目標地点を設定
@@ -94,6 +108,7 @@ public class UnitController : MonoBehaviour
 
         previousPosition = transform.position;
         previousDirection = Vector2.zero; // 初期化
+        isMoving = false; // 初期状態では移動していない
 
         // AttackControllerの参照を取得
         attackController = GetComponent<AttackController>();
@@ -141,16 +156,28 @@ public class UnitController : MonoBehaviour
 
             transform.position = newPosition;
 
+            // 移動中かどうかを判断し、アニメーションを切り替える
+            if (currentPosition != (Vector2)transform.position)
+            {
+                isMoving = true;
+                animator.SetTrigger("Walk"); // 動いている場合はWalkトリガーをセット
+            }
+            else
+            {
+                isMoving = false;
+                animator.SetTrigger("Idle"); // 止まっている場合はIdleトリガーをセット
+            }
+
             // ターゲットがapproachRangeの範囲内にいるときは、逃走中以外で常にターゲット方向を向く
             if (targetTransform != null && Vector2.Distance(currentPosition, targetTransform.position) <= approachRange && !isEscaping)
             {
                 Vector2 directionToTarget = ((Vector2)targetTransform.position - currentPosition).normalized;
-                UpdateSpriteBasedOnDirection(directionToTarget, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+                UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
             }
             else
             {
                 Vector2 averageDirection = CalculateAverageDirection(previousPosition, currentPosition, newPosition);
-                UpdateSpriteBasedOnDirection(averageDirection, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+                UpdateSpriteBasedOnDirection(averageDirection, unitSprite);
             }
 
             previousPosition = currentPosition;
@@ -213,7 +240,7 @@ public class UnitController : MonoBehaviour
         transform.position = newEscapePosition;
 
         Vector2 escapeDirection = (newEscapePosition - currentPosition).normalized;
-        UpdateSpriteBasedOnDirection(escapeDirection, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+        UpdateSpriteBasedOnDirection(escapeDirection, unitSprite);
 
         if (Vector2.Distance(transform.position, escapePosition) < 0.1f)
         {
@@ -307,7 +334,7 @@ public class UnitController : MonoBehaviour
 
                 Vector2 directionToTarget = (targetTransform.position - (Vector3)currentPosition).normalized;
                 previousDirection = directionToTarget;
-                UpdateSpriteBasedOnDirection(directionToTarget, directionSprites, spriteRenderer, useDiagonalSprites, useFlippedSpritesForLeft);
+                UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
             }
         }
     }
@@ -390,7 +417,7 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
-    /// ユニットをカメラの範囲内に留めるメソッドです。
+    /// ユニットをカメラの範囲内に留め、Obstacleレイヤーが設定されたオブジェクトの範囲に進入不可にするメソッドです。
     /// </summary>
     private Vector2 KeepWithinCameraBounds(Vector2 position)
     {
@@ -404,39 +431,39 @@ public class UnitController : MonoBehaviour
         float clampedX = Mathf.Clamp(position.x, minScreenBounds.x, maxScreenBounds.x);
         float clampedY = Mathf.Clamp(position.y, minScreenBounds.y, maxScreenBounds.y);
 
-        return new Vector2(clampedX, clampedY);
+        Vector2 clampedPosition = new Vector2(clampedX, clampedY);
+
+        // 障害物があるかチェック
+        float checkRadius = 0.1f; // 進入不可のチェックに使用する半径
+        LayerMask obstacleLayerMask = LayerMask.GetMask("Obstacle");
+
+        // 進入しようとしている位置に障害物があるかどうかを確認
+        if (Physics2D.OverlapCircle(clampedPosition, checkRadius, obstacleLayerMask))
+        {
+            // 障害物がある場合、現在の位置から動かない
+            if (showDebugInfo)
+            {
+                Debug.Log("Obstacle detected, cannot move to position: " + clampedPosition);
+            }
+            return (Vector2)transform.position; // 現在の位置を返して進入を防止
+        }
+
+        return clampedPosition;
     }
+
 
     /// <summary>
     /// 移動方向に基づいてスプライトを更新します。
     /// </summary>
-    private void UpdateSpriteBasedOnDirection(Vector2 direction, Sprite[] sprites, SpriteRenderer spriteRenderer, bool useDiagonalSprites, bool useFlippedSpritesForLeft)
+    private void UpdateSpriteBasedOnDirection(Vector2 direction, SpriteRenderer unitSprite)
     {
-
-        // スプライトが8枚以下の場合でも処理をスキップ
-        if (sprites.Length < 8)
-        {
-            return;
-        }
-
         // スプライトの方向をスムージングするために補間
         float smoothingFactor = 0.1f; // スムージングの度合いを調整する係数
         Vector2 smoothedDirection = Vector2.Lerp(previousDirection, direction, smoothingFactor).normalized;
         previousDirection = smoothedDirection; // 次のフレームのために現在の方向を記憶
 
-        float angle = Mathf.Atan2(smoothedDirection.y, smoothedDirection.x) * Mathf.Rad2Deg;
-        int spriteIndex = 0;
-
-        if (angle >= -22.5f && angle < 22.5f) spriteIndex = 0;
-        else if (angle >= 22.5f && angle < 67.5f) spriteIndex = useDiagonalSprites ? 1 : 0;
-        else if (angle >= 67.5f && angle < 112.5f) spriteIndex = 2;
-        else if (angle >= 112.5f && angle < 157.5f) spriteIndex = useDiagonalSprites ? 3 : 4;
-        else if (angle >= 157.5f || angle < -157.5f) spriteIndex = useFlippedSpritesForLeft ? 0 : 4;
-        else if (angle >= -157.5f && angle < -112.5f) spriteIndex = useDiagonalSprites ? 5 : 4;
-        else if (angle >= -112.5f && angle < -67.5f) spriteIndex = 6;
-        else if (angle >= -67.5f && angle < -22.5f) spriteIndex = useDiagonalSprites ? 7 : 0;
-
-        spriteRenderer.sprite = sprites[spriteIndex];
+        // 左向きかどうかを判定してFlipXを設定
+        unitSprite.flipX = smoothedDirection.x < 0;
     }
 
     /// <summary>

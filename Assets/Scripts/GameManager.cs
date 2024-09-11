@@ -18,16 +18,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private RectTransform UnitSkillPanel; // ユニットスキルパネルのRectTransformを取得するためのフィールド
     [SerializeField] private TextMeshProUGUI currentGold; // 現在のゴールドを表示するためのフィールド
     [SerializeField] private TextMeshProUGUI stockExp; // ストック経験値を表示するためのフィールド
+    [SerializeField] private Canvas uiCanvas; // キャンバスを取得するためのフィールド
 
     void Awake()
     {
-        // カメラにPhysics2DRaycasterがアタッチされていない場合、アタッチする
-        Camera camera = Camera.main;
-        if(camera != null){
-            if(camera.GetComponent<Physics2DRaycaster>() == null){
-                camera.gameObject.AddComponent<Physics2DRaycaster>();
-            }
-        }
         // シングルトンパターンの設定
         if (Instance == null)
         {
@@ -37,6 +31,23 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+        // カメラにPhysics2DRaycasterがアタッチされていない場合、アタッチする
+        Camera camera = Camera.main;
+        if(camera != null){
+            if(camera.GetComponent<Physics2DRaycaster>() == null){
+                camera.gameObject.AddComponent<Physics2DRaycaster>();
+            }
+        }
+        // キャンバスのカメラを設定
+        if(uiCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+        {
+            uiCanvas.worldCamera = camera;
+        }
+        else
+        {
+            uiCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+            uiCanvas.worldCamera = camera;
         }
     }
 

@@ -17,7 +17,7 @@ MonoBehaviour:
   addLevel: 0
   weapons: 0
   shields: 211001
-  armor: 213001
+  armor: 213002
   accessories: 215001
   drop1: 0
   drop2: 0
@@ -25,3 +25,5 @@ MonoBehaviour:
   drop1Rate: 0
   drop2Rate: 0
   drop3Rate: 0
+  dropExp: 0
+  dropGold: 0

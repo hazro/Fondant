@@ -37,3 +37,17 @@ MonoBehaviour:
     comment: "\u88C5\u5099\u7121\u3057"
   - guid: d0b0660a5ab01134cb3672bd0c8a4462
     comment: "\u6B66\u5668\u3000\u7121\u3057"
+  - guid: f4ae9f63e45e99947ad8fc8d4741ac10
+    comment: Slash_Icon
+  - guid: e8f6e2de76f2a4649b8f4ef7c1e73cbe
+    comment: Thrust_Icon
+  - guid: 15763cee7f3c9b045ab978f2512216a2
+    comment: Magic_Icon
+  - guid: cbdb613d1e80ce24aa035e9ab4d37a39
+    comment: Arrow_Icon
+  - guid: 0ba40e9876c5c0345b45e6dee5512bef
+    comment: Heal_Icon
+  - guid: 15e38d4ea92311b4591eb9b5798d1288
+    comment: "\u8EFD\u93A7_\u5E03\u306E\u670D"
+  - guid: c445c8442ee5b9849980db3f81533dfb
+    comment: "\u5E03\u306E\u670D"
