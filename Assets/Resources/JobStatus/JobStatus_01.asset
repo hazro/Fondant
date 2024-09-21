@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de32defa2d4928a4eaac17277ae864a8, type: 3}
+  m_Name: JobStatus_01
+  m_EditorClassIdentifier: 
+  Magic: 5
+  Str: 1
+  Dex: 2
+  ResidtCondition: 0
+  AttackUnitThrough: 0
+  AttackObjectThrough: 0
+  InitKnockBack: 0
+  levelScaleFactor: 1
+  levelMagic: 2
+  levelStr: 0.33
+  levelDex: 1
+  levelResidtCondition: 0
+  levelAttackUnitThrough: 0
+  levelAttackObjectThrough: 0
+  levelKnockBack: 0
+  targetJob: 0
+  teleportation: 0
+  escape: 0
+  EqueLargeSwordAxe: 0
+  EqueSwordDagger: 0
+  EqueStickStaffBook: 1
+  Arrow: 0
+  SPWeapon: 0
+  EqueShield: 1
+  EqueHeavyArmor: 0
+  EqueLightArmor: 0
+  EqueRobe: 1
+  EqueAccessories: 1

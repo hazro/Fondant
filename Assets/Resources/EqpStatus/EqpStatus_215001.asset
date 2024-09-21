@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a5819c43c1320a478f5cdfcb9f0b444, type: 3}
   m_Name: EqpStatus_215001
   m_EditorClassIdentifier: 
+  eqpName: normal magic ring
   HP: 0
   physicalAttackPower: 0
   magicalAttackPower: 1
@@ -27,3 +28,4 @@ MonoBehaviour:
   targetJob: 0
   teleportation: 0
   escape: 0
+  ability: Increase magic defense and attack power just a little

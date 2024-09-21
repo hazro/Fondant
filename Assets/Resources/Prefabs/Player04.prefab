@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.06, y: 0.06, z: 0.06}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 5845159640445041639}
@@ -73,8 +73,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: b9d08fd4a85d6ec49ac1c37b13f5acbe, type: 3}
-  m_Color: {r: 0.6732001, g: 0.656, b: 1, a: 1}
+  m_Sprite: {fileID: -228545605, guid: 0643ac9d61202dd479f0672990ea7152, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -110,7 +110,7 @@ Transform:
   m_GameObject: {fileID: 712602724647150278}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.31, z: 0}
+  m_LocalPosition: {x: 0, y: -0.298, z: 0}
   m_LocalScale: {x: 0.13, y: 0.012999999, z: 0.13}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: b12c17123d746f347bcc1757051229b4, type: 3}
   m_Color: {r: 0.30200002, g: 0.18538488, b: 0.029898012, a: 0.5019608}
   m_FlipX: 0
@@ -201,7 +201,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8958093472379284428}
@@ -222,20 +222,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatus: {fileID: 11400000, guid: 47cd2bdcf9e4f124c96c0ff021153ab8, type: 2}
-  unitName: Player04
-  currentLevel: 0
-  nextLevelExp: 0
-  Hp: 0
-  physicalAttackPower: 0
-  magicalAttackPower: 0
-  physicalDefensePower: 0
-  magicalDefensePower: 0
-  resistCondition: 0
-  attackDelay: 0
-  Speed: 0
+  unitName: P4
+  condition: 0
+  job: 0
+  totalExp: 0
+  currentLevel: 1
+  nextLevelExp: 10
+  addLevel: 0
+  Hp: 10
+  physicalAttackPower: 1
+  magicalAttackPower: 5
+  physicalDefensePower: 0.1
+  magicalDefensePower: 0.5
+  resistCondition: 1
+  attackDelay: 0.1
+  Speed: 3.1
   attackUnitThrough: 0
-  attackObjectThrough: 0
-  attackSize: 0
+  attackObjectThrough: 99
+  attackSize: 1
   knockBack: 0
   targetJob: 0
   teleportation: 0
@@ -259,10 +263,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7526a4d4b29abc40af8106a76b03019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitSprite: {fileID: 7595808378486761504}
+  unitSprite: {fileID: 8894279849393891494, guid: 5faea5395ce58a946830c80d3749011e, type: 3}
   followSpeed: 10
-  minDragBounds: {x: -3, y: -1.3}
-  maxDragBounds: {x: -1.6, y: 1.4}
+  minDragBounds: {x: -4.6, y: -2.4}
+  maxDragBounds: {x: -2.25, y: 2.4}
 --- !u!61 &89814433626327920
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -345,7 +349,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6733682485709165052}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 769132681452f0e47a54f0e2fce59db6, type: 3}
   m_Name: 
@@ -395,7 +399,7 @@ Animator:
   m_GameObject: {fileID: 6733682485709165052}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b02dba76969c7594fbcb337d35cc911f, type: 2}
+  m_Controller: {fileID: 9100000, guid: 97d4c0643e9931d498243e442e83806f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

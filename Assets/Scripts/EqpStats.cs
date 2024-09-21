@@ -6,6 +6,7 @@ using UnityEngine;
 /// </summary>
 public class EqpStats : ScriptableObject
 {
+    public string eqpName;
     public int HP;
     public float physicalAttackPower;
     public float magicalAttackPower;
@@ -21,4 +22,5 @@ public class EqpStats : ScriptableObject
     public int targetJob;
     public float teleportation;
     public float escape;
+    public string ability; // とくしゅ能力
 }

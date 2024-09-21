@@ -18,16 +18,21 @@ public class IventryUI : MonoBehaviour
     public int[] IventryItem = new int[MaxItems]; // を格納する配列
 
     // スキルパネルオブジェクトを格納するリスト
-    public List<GameObject> IventrySkillList = new List<GameObject>();
+    public List<GameObject> IventrySkillList1 = new List<GameObject>();
+    public List<GameObject> IventrySkillList2 = new List<GameObject>();
+    public List<GameObject> IventrySkillList3 = new List<GameObject>();
+    public List<GameObject> IventrySkillList4 = new List<GameObject>();
+    public List<GameObject> IventrySkillList5 = new List<GameObject>();
     
     // IventryPanelの子オブジェクトをすべて取得
     private List<Transform> children = new List<Transform>();
 
-    // プレイヤーユニットのリスト
-    [HideInInspector] public List<GameObject> playerUnits = new List<GameObject>();
+    private GameManager gameManager; // GameManagerの参照
 
     private void Start()
     {
+        // GameManagerのインスタンスを取得
+        gameManager = GameManager.Instance;
         // IventryPanelの子オブジェクトをchildrenに格納
         UpdateIventryPanelPosition();
     }
@@ -86,7 +91,7 @@ public class IventryUI : MonoBehaviour
         }
     }
 
-    // Skillリストを選択したunitのものに変更する
+    // 指定UnitのSkillリストを更新する
     public void UpdateUnitSkillUI(GameObject unitObject)
     {
         // unitObjectがnullならエラーログを出力して終了
@@ -102,6 +107,38 @@ public class IventryUI : MonoBehaviour
         {
             Debug.LogError("Unit component not found on unitObject");
             return;
+        }
+
+        // unit番号の取得
+        // unitObjectの名前に(Clone)がついている場合は削除する
+        if (unitObject.name.Contains("(Clone)"))
+        {
+            unitObject.name = unitObject.name.Replace("(Clone)", "");
+        }
+        int unitNum = int.Parse(unitObject.name[unitObject.name.Length - 1].ToString());
+
+        // IventrySkillList1~5の番号がunitNumのものを取得
+        List<GameObject> IventrySkillList = null;
+        switch (unitNum)
+        {
+            case 1:
+                IventrySkillList = IventrySkillList1;
+                break;
+            case 2:
+                IventrySkillList = IventrySkillList2;
+                break;
+            case 3:
+                IventrySkillList = IventrySkillList3;
+                break;
+            case 4:
+                IventrySkillList = IventrySkillList4;
+                break;
+            case 5:
+                IventrySkillList = IventrySkillList5;
+                break;
+            default:
+                Debug.LogError("unitNum is invalid");
+                return;
         }
 
         // IventrySkillListの孫オブジェクトをすべて削除
@@ -144,7 +181,7 @@ public class IventryUI : MonoBehaviour
     public void IventrySorting(GameObject destroyObject)
     {
         // GameManagerがアクティブであることを確認
-        if (!GameManager.Instance.gameObject.activeInHierarchy)
+        if (!gameManager.gameObject.activeInHierarchy)
         {
             return;
         }
@@ -184,84 +221,101 @@ public class IventryUI : MonoBehaviour
     }
 
     // 装備を変更するメソッド(ItemDandDHandlerから呼び出される)
-    public void changeEquipment(string objName, Image image, GameObject obj)
+    public void changeEquipment(Transform[] targetSkillList, string objName, Image image, GameObject obj)
     {
         // unit名を取得  
-        string unitName = IventrySkillList[0].GetComponentInChildren<TextMeshProUGUI>().text;
-        foreach (GameObject unitObj in playerUnits)
+        string unitName = targetSkillList[0].gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
+        // GameManagerがアクティブでない場合は処理を終了
+        if (gameManager != null && gameManager.livingUnits != null)
         {
-            Unit unit = unitObj.GetComponent<Unit>();
-            if (unit.unitName == unitName)
+            foreach (GameObject unitObj in gameManager.livingUnits)
             {
-                if(objName[0] == '1' && image.name == "charWpn")
+                Unit unit = unitObj.GetComponent<Unit>();
+                if (unit.unitName == unitName)
                 {
-                    print(image.name + "武器を入れ替えます" + objName);
-                    unit.currentWeapons = int.Parse(objName);
-                    // イベントリから移動したobjを削除
-                    Destroy(obj);
-                    // イベントリをソート
-                    StartCoroutine(IventrySortingCoroutine(obj));
-                    // もともと持っていた武器があればイベントリに追加
-                    if (unit.currentWeapons != 0)
+                    if(objName[0] == '1' && image.name == "charWpn")
                     {
-                        AddItem(unit.currentWeapons);
+                        print(image.name + "武器を入れ替えます" + objName);
+                        // 現在の装備IDを取得
+                        int keepID = unit.currentWeapons;
+                        unit.currentWeapons = int.Parse(objName);
+                        // イベントリから移動したobjを削除
+                        Destroy(obj);
+                        // イベントリをソート
+                        StartCoroutine(IventrySortingCoroutine(obj));
+                        // もともと持っていた武器があればイベントリに追加
+                        if (keepID != 0)
+                        {
+                            AddItem(keepID);
+                        }
+                        // スキルパネルの更新
+                        UpdateUnitSkillUI(unitObj);
                     }
-                    // スキルパネルの更新
-                    UpdateUnitSkillUI(unitObj);
-                }
-                // 名前の0番目が2で1番目が1で2番目が1ならばシールド
-                if(objName[0] == '2' && objName[1] == '1' && objName[2] == '1' && image.name == "charShild")
-                {
-                    print(image.name + " 盾を入れ替えます " + objName);
-                    unit.currentShields = int.Parse(objName);
-                    // イベントリから移動したobjを削除
-                    Destroy(obj);
-                    // イベントリをソート
-                    StartCoroutine(IventrySortingCoroutine(obj));
-                    // もともと持っていた盾があればイベントリに追加
-                    if (unit.currentShields != 0)
+                    // 名前の0番目が2で1番目が1で2番目が1ならばシールド
+                    if(objName[0] == '2' && objName[1] == '1' && objName[2] == '1' && image.name == "charShild")
                     {
-                        AddItem(unit.currentShields);
+                        print(image.name + " 盾を入れ替えます " + objName);
+                        // 現在の装備IDを取得
+                        int keepID = unit.currentShields;
+                        unit.currentShields = int.Parse(objName);
+                        // イベントリから移動したobjを削除
+                        Destroy(obj);
+                        // イベントリをソート
+                        StartCoroutine(IventrySortingCoroutine(obj));
+                        // もともと持っていた盾があればイベントリに追加
+                        if (keepID != 0)
+                        {
+                            AddItem(keepID);
+                        }
+                        // スキルパネルの更新
+                        UpdateUnitSkillUI(unitObj);
                     }
-                    // スキルパネルの更新
-                    UpdateUnitSkillUI(unitObj);
-                }
-                // 名前の0番目が2で1番目が1で2番目が2~4のいずれかならば防具
-                else if (objName[0] == '2' && objName[1] == '1' && (objName[2] >= '2' && objName[2] <= '4') && image.name == "charArmor")
-                {
-                    print(image.name + "防具を入れ替えます" + objName);
-                    unit.currentArmor = int.Parse(objName);
-                    // イベントリから移動したobjを削除
-                    Destroy(obj);
-                    // イベントリをソート
-                    StartCoroutine(IventrySortingCoroutine(obj));
-                    // もともと持っていた防具があればイベントリに追加
-                    if (unit.currentArmor != 0)
+                    // 名前の0番目が2で1番目が1で2番目が2~4のいずれかならば防具
+                    else if (objName[0] == '2' && objName[1] == '1' && (objName[2] >= '2' && objName[2] <= '4') && image.name == "charArmor")
                     {
-                        AddItem(unit.currentArmor);
+                        print(obj + "を削除し" + image.name + "防具を入れ替えます" + objName);
+                        // 現在の装備IDを取得
+                        int keepID = unit.currentArmor;
+                        unit.currentArmor = int.Parse(objName);
+                        // イベントリから移動したobjを削除
+                        Destroy(obj);
+                        // イベントリをソート
+                        StartCoroutine(IventrySortingCoroutine(obj));
+                        // もともと持っていた防具があればイベントリに追加
+                        if (keepID != 0)
+                        {
+                            AddItem(keepID);
+                        }
+                        // スキルパネルの更新
+                        UpdateUnitSkillUI(unitObj);
                     }
-                    // スキルパネルの更新
-                    UpdateUnitSkillUI(unitObj);
-                }
-                // 名前の0番目が2で1番目が1で2番目が5ならばアクセサリ
-                else if(objName[0] == '2' && objName[1] == '1' && objName[2] == '5' &&  image.name == "charAccsse")
-                {
-                    print(image.name + "アクセサリを入れ替えます" + objName);
-                    unit.currentAccessories = int.Parse(objName);
-                    // イベントリから移動したobjを削除
-                    Destroy(obj);
-                    // イベントリをソート
-                    StartCoroutine(IventrySortingCoroutine(obj));
-                    // もともと持っていたアクセサリがあればイベントリに追加
-                    if (unit.currentAccessories != 0)
+                    // 名前の0番目が2で1番目が1で2番目が5ならばアクセサリ
+                    else if(objName[0] == '2' && objName[1] == '1' && objName[2] == '5' &&  image.name == "charAccsse")
                     {
-                        AddItem(unit.currentAccessories);
+                        print(image.name + "アクセサリを入れ替えます" + objName);
+                        // 現在の装備IDを取得
+                        int keepID = unit.currentAccessories;
+                        unit.currentAccessories = int.Parse(objName);
+                        // イベントリから移動したobjを削除
+                        Destroy(obj);
+                        // イベントリをソート
+                        StartCoroutine(IventrySortingCoroutine(obj));
+                        // もともと持っていたアクセサリがあればイベントリに追加
+                        if (keepID != 0)
+                        {
+                            AddItem(keepID);
+                        }
+                        // スキルパネルの更新
+                        UpdateUnitSkillUI(unitObj);
                     }
-                    // スキルパネルの更新
-                    UpdateUnitSkillUI(unitObj);
+                    // unitのステータスを更新
+                    unit.updateStatus();
                 }
             }
         }
+        else
+        {
+            Debug.LogError("gameManager.playerUnits is null");
+        }
     }
-
 }

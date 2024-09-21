@@ -1,49 +1,58 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
+using System.Collections;
 
 /// <summary>
 /// 自動戦闘の準備をするクラス
 /// </summary>
 public class BattleSetupManager : MonoBehaviour
 {
-    public GameObject[] playerUnits; // プレイヤーのプレハブの配列
     public Button startBattleButton; // 戦闘開始ボタン
     public Transform enemyGridPoint; // 敵キャラクター配置用のグリッドポイント
     public Transform PlayerGridPoint; // プレイヤーキャラクター配置用のグリッドポイント
     private WorldManager worldManager; // WorldManagerの参照
-    private Transform playerGroup; // プレイヤーグループのTransform
+    private GameManager gameManager; // GameManagerの参照
     private Transform enemyGroup; // エネミーグループのTransform
     private IventryUI iventryUI; // IventryUIの参照
 
+    private void Awake()
+    {
+
+    }
+
     private void Start()
     {
-        iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
-        // プレイヤーユニットのリストをクリア
-        iventryUI.playerUnits.Clear();
-        iventryUI.playerUnits = playerUnits.ToList(); // プレイヤーユニットをリストに追加
         // WorldManagerのインスタンスを動的に取得
         worldManager = WorldManager.Instance;
+        // GameManagerのインスタンスを取得
+        gameManager = GameManager.Instance;
+        iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
 
         if (startBattleButton == null || worldManager == null || enemyGridPoint == null || PlayerGridPoint == null)
         {
             Debug.LogError("必要なフィールドが設定されていません。");
             return;
         }
-
-        startBattleButton.onClick.AddListener(OnStartBattleButtonClicked);
-        SetupEnemies(); // 敵キャラクターの配置
         SetupCharacterPlacement(); // プレイヤーキャラクターの配置
+        SetupEnemies(); // 敵キャラクターの配置
+
+        // 戦闘開始ボタンがクリックされたときの処理を設定
+        startBattleButton.onClick.AddListener(OnStartBattleButtonClicked);
     }
+
 
     /// <summary>
     /// 敵キャラクターをグリッド上に配置するメソッド。
     /// </summary>
     public void SetupEnemies()
     {
+        // 敵の数を初期化
+        gameManager.enemyCount = 0;
+
         if (enemyGroup == null)
         {
             GameObject enemyGroupObj = new GameObject("EnemyGroup");
@@ -177,40 +186,28 @@ public class BattleSetupManager : MonoBehaviour
                 }
             }
         }
+        // 配置した敵の数を取得
+        gameManager.enemyCount = enemyGroup.childCount;
     }
 
     /// <summary>
-    /// プレイヤーキャラクターをGridPanel上に自動配置するメソッド
+    /// 生存キャラクターをGridPanel上に自動配置するメソッド
     /// </summary>
     public void SetupCharacterPlacement()
     {
-        // PlayerGroupオブジェクトのチェックと作成
-        if (playerGroup == null)
-        {
-            GameObject playerGroupObj = new GameObject("PlayerGroup");
-            playerGroup = playerGroupObj.transform;
-
-            // 次のシーンに持っていくために、DontDestroyOnLoadを設定
-            DontDestroyOnLoad(playerGroupObj);
-        }
-
-        // プレイヤーの数が1体以上、5体以下であることを確認
-        if (playerUnits.Length < 1 || playerUnits.Length > 5)
-        {
-            Debug.LogError("プレイヤーの数は1体以上、5体以下でなければなりません。");
-            return;
-        }
+        // GameManagerからプレイヤーキャラクターのリストを取得　リストから配列に変換
+        GameObject[] livingUnits = gameManager.livingUnits.ToArray();
 
         // 配列内のPrefab数がGridPanelの子オブジェクトの数と一致するか確認
         int gridCells = PlayerGridPoint.childCount;
-        if (playerUnits.Length > gridCells)
+        if (livingUnits.Length > gridCells)
         {
             Debug.LogError("プレイヤーの数がGridセルの数を超えています。");
             return;
         }
 
         // GridPanelの子オブジェクト（セル）に対して順番にPlayerPrefabを配置する
-        for (int i = 0; i < playerUnits.Length; i++)
+        for (int i = 0; i < livingUnits.Length; i++)
         {
             // 各セルのTransformを取得
             Transform cellTransform = PlayerGridPoint.GetChild(i);
@@ -223,14 +220,9 @@ public class BattleSetupManager : MonoBehaviour
 
             Vector3 playerPosition = cellTransform.position;
 
-            // プレイヤーのPrefabをセルの位置にインスタンス化
-            GameObject player = Instantiate(playerUnits[i], playerPosition, Quaternion.identity);
-
-            // プレイヤーをPlayerGroupの子として設定
-            player.transform.SetParent(playerGroup);
-
-            // プレイヤーの位置をUIのワールド座標に合わせて調整
-            player.transform.position = playerPosition + new Vector3(0, 0, -0.1f);
+            // プレイヤーの位置をセルの位置に設定
+            livingUnits[i].transform.position = playerPosition + new Vector3(0, 0, -0.1f); // Z軸を少し下げる事でキャラのコリジョンを優勢にする
+            livingUnits[i].SetActive(true);
         }
     }
 
@@ -238,25 +230,6 @@ public class BattleSetupManager : MonoBehaviour
     {
         // 新しいバトルシーンをロード
         GameManager.Instance.LoadScene("InToBattleScene");
-
-        // 子オブジェクトをすべて取得
-        Transform[] playerChildren = playerGroup.GetComponentsInChildren<Transform>();
-
-        // 子オブジェクトの指定のコンポーネントを有効化
-        foreach (Transform child in playerChildren)
-        {
-            UnitController unitController = child.GetComponent<UnitController>();
-            if (unitController != null)
-            {
-                unitController.enabled = true;
-            }
-            
-            PlayerDraggable draggable = child.GetComponent<PlayerDraggable>();
-            if (draggable != null)
-            {
-                Destroy(draggable);
-            }
-        }
 
         // 子オブジェクトをすべて取得
         Transform[] children = enemyGroup.GetComponentsInChildren<Transform>();
@@ -273,6 +246,6 @@ public class BattleSetupManager : MonoBehaviour
 
 
         // 自動戦闘を開始する
-        BattleManager.Instance.StartAutoBattle(playerUnits);
+        BattleManager.Instance.StartAutoBattle();
     }
 }

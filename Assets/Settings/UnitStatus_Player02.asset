@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bd11514573513f48b95937e0df61928, type: 3}
   m_Name: UnitStatus_Player02
   m_EditorClassIdentifier: 
-  job: 0
-  totalExp: 0
+  job: 1
   addLevel: 0
   weapons: 0
   shields: 211001
@@ -25,3 +24,5 @@ MonoBehaviour:
   drop1Rate: 0
   drop2Rate: 0
   drop3Rate: 0
+  dropExp: 0
+  dropGold: 0

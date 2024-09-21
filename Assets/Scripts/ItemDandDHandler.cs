@@ -6,12 +6,14 @@ using UnityEngine.UI;
 /// オブジェクトをドラッグ＆ドロップで移動し、特定の条件で処理を行うクラス。
 /// IBeginDragHandler, IDragHandler, IEndDragHandler インターフェースを実装しています。
 /// </summary>
-public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private Vector3 offset; // ドラッグ中のオフセット
     private Vector3 originalPosition; // 元の位置を保存する変数
     private BoxCollider2D boxCollider; // 自身のBoxCollider2Dの参照
     private IventryUI iventryUI; // IventryUIの参照
+    private InfomationPanelDisplay infomationPanelDisplay; // InfomationPanelDisplayの参照
+    [SerializeField] private EqpStats eqpStats; // EqpStatsの参照
 
     /// <summary>
     /// 初期設定を行うメソッド。BoxCollider2Dを取得します。
@@ -20,6 +22,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     {
         boxCollider = GetComponent<BoxCollider2D>(); // BoxCollider2Dを取得
         iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
+        infomationPanelDisplay = FindObjectOfType<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
     }
 
     /// <summary>
@@ -86,8 +89,11 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     transform.position = originalPosition;
                     return;
                 }
+                //targetの親の親の親のゲームオブジェクトの子オブジェクトのリストを取得
+                Transform[] targetSkillList = targetObject.transform.parent.parent.parent.GetComponentsInChildren<Transform>();
+
                 // Iventryで装備の入れ替え処理を行う
-                iventryUI.changeEquipment(objName, image, this.gameObject);
+                iventryUI.changeEquipment(targetSkillList, objName, image, this.gameObject);
             }
             else
             {
@@ -103,6 +109,64 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             boxCollider.enabled = true; // 自身のBoxCollider2Dを再度有効にする
         }
+    }
+
+    /// <summary>
+    /// マウスがオブジェクトに入ったときに呼び出されるメソッド。
+    /// </summary>
+    /// <param name="eventData">イベントデータ</param>
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!infomationPanelDisplay.isClicked)
+        {
+            // EqpStatsがnullではないとき、EqpStatsの各項目の中でvalueがnull又は0でないものだけを取得して、"変数名: " + value + "\n" という形式でテキストを作成
+            string text = "";
+            if (eqpStats != null)
+            {
+                foreach (var field in eqpStats.GetType().GetFields())
+                {
+                    if (field.GetValue(eqpStats) != null && field.GetValue(eqpStats).ToString() != "0")
+                    {
+                        text += field.Name + ": " + field.GetValue(eqpStats) + "\n";
+                    }
+                }
+            }
+
+            // ここにマウスオーバー時の処理を追加
+            infomationPanelDisplay.SetActiveAndChangeText(text, gameObject);
+        }
+    }
+
+    /// <summary>
+    /// マウスがオブジェクトから出たときに呼び出されるメソッド。
+    /// </summary>
+    /// <param name="eventData">イベントデータ</param>
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (!infomationPanelDisplay.isClicked)
+        {
+            // ここにマウスオーバー解除時の処理を追加
+            infomationPanelDisplay.SetInactive();
+        }
+    }
+
+    /// <summary>
+    /// オブジェクトがクリックされたときに呼び出されるメソッド。
+    /// </summary>
+    /// <param name="eventData">イベントデータ</param>
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        /*
+        // クリックされたらオーバーレイの処理を固定する
+        if (infomationPanelDisplay.isClicked)
+        {
+            infomationPanelDisplay.isClicked =false;
+        }
+        else
+        {
+            infomationPanelDisplay.isClicked = true;
+        }
+        */
     }
 
     /// <summary>

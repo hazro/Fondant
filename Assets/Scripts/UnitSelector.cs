@@ -19,6 +19,10 @@ public class UnitSelector : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         //IventryUIのUnitSkillUIを更新するメソッドを実行する
-        iventryUI.UpdateUnitSkillUI(this.gameObject);
+        //TagがAllyの場合
+        if (this.gameObject.tag == "Ally")
+        {
+            iventryUI.UpdateUnitSkillUI(this.gameObject);
+        }
     }
 }

@@ -18,7 +18,7 @@ MonoBehaviour:
   ResidtCondition: 0
   AttackUnitThrough: 0
   AttackObjectThrough: 0
-  KnockBack: 3
+  InitKnockBack: 0
   levelScaleFactor: 1
   levelMagic: 0.33
   levelStr: 2
@@ -33,7 +33,7 @@ MonoBehaviour:
   EqueLargeSwordAxe: 1
   EqueSwordDagger: 0
   EqueStickStaffBook: 0
-  Arrow: 1
+  Arrow: 0
   SPWeapon: 1
   EqueShield: 1
   EqueHeavyArmor: 1

@@ -25,7 +25,7 @@ public class BattleManager : MonoBehaviour
     /// <summary>
     /// 自動戦闘を開始するメソッド
     /// </summary>
-    public void StartAutoBattle(GameObject[] playerUnits)
+    public void StartAutoBattle()
     {
         // 自動戦闘ロジックの実装
         // 敵とプレイヤーの戦闘を開始

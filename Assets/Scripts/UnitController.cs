@@ -52,7 +52,7 @@ public class UnitController : MonoBehaviour
     private float startTime; // 移動開始時間
     private Vector2 previousPosition; // 前回の位置を記憶
     private Vector2 previousDirection; // 前回のスプライト方向を記憶
-    private bool isMoving; // 移動中かどうかのフラグ
+    //private bool isMoving; // 移動中かどうかのフラグ
     private int currentSpriteIndex; // 現在のスプライトインデックス
     private float lastSpriteChangeTime; // 最後にスプライトを変更した時間
 
@@ -65,19 +65,21 @@ public class UnitController : MonoBehaviour
 
     private AttackController attackController; // AttackControllerの参照
 
+    Unit unit; // ユニットの参照
+
     /// <summary>
     /// 初期設定を行います。
     /// </summary>
     void Start()
     {
+        unit = GetComponent<Unit>(); // Unitの参照を取得
 
         // Animatorコンポーネントを取得
         animator = GetComponent<Animator>();
 
         // ランダムなオフセットを設定 (0から1の範囲で)
-        float randomOffset = Random.Range(0f, animator.GetCurrentAnimatorStateInfo(0).length);
-        // アニメーションの再生をランダムなタイミングで開始
-        animator.Play("Base Layer.Idle", 0, randomOffset);
+        float randomOffset = UnityEngine.Random.Range(0f, animator.GetCurrentAnimatorStateInfo(0).length);
+        animator.Play(unit.job.ToString("D2") + "_idle", 0, randomOffset); // Idleアニメーションを再生
 
         // RandomWalkerBezier2Dコンポーネントがアタッチされていない場合はアタッチする
         if (GetComponent<RandomWalkerBezier2D>() == null)
@@ -108,7 +110,7 @@ public class UnitController : MonoBehaviour
 
         previousPosition = transform.position;
         previousDirection = Vector2.zero; // 初期化
-        isMoving = false; // 初期状態では移動していない
+        //isMoving = false; // 初期状態では移動していない
 
         // AttackControllerの参照を取得
         attackController = GetComponent<AttackController>();
@@ -159,33 +161,54 @@ public class UnitController : MonoBehaviour
             // 移動中かどうかを判断し、アニメーションを切り替える
             if (currentPosition != (Vector2)transform.position)
             {
-                isMoving = true;
-                animator.SetTrigger("Walk"); // 動いている場合はWalkトリガーをセット
+                //isMoving = true;
+                string stateName = unit.job.ToString("D2") + "_walk";
+                if(PlayAnimatorStateIfExists(stateName))
+                {
+                    animator.Play(stateName); // 動いている場合はWalkステートをセット
+                }
             }
             else
             {
-                isMoving = false;
-                animator.SetTrigger("Idle"); // 止まっている場合はIdleトリガーをセット
+                //isMoving = false;
+                string stateName = unit.job.ToString("D2") + "_idle";
+                if(PlayAnimatorStateIfExists(stateName))
+                {
+                    animator.Play(stateName); // 動いていない場合はIdleステートをセット
+                }
             }
 
-            // ターゲットがapproachRangeの範囲内にいるときは、逃走中以外で常にターゲット方向を向く
-            if (targetTransform != null && Vector2.Distance(currentPosition, targetTransform.position) <= approachRange && !isEscaping)
-            {
-                Vector2 directionToTarget = ((Vector2)targetTransform.position - currentPosition).normalized;
-                UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
-            }
-            else
-            {
-                Vector2 averageDirection = CalculateAverageDirection(previousPosition, currentPosition, newPosition);
-                UpdateSpriteBasedOnDirection(averageDirection, unitSprite);
-            }
+                // ターゲットがapproachRangeの範囲内にいるときは、逃走中以外で常にターゲット方向を向く
+                if (targetTransform != null && Vector2.Distance(currentPosition, targetTransform.position) <= approachRange && !isEscaping)
+                {
+                    Vector2 directionToTarget = ((Vector2)targetTransform.position - currentPosition).normalized;
+                    UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
+                }
+                else
+                {
+                    Vector2 averageDirection = CalculateAverageDirection(previousPosition, currentPosition, newPosition);
+                    UpdateSpriteBasedOnDirection(averageDirection, unitSprite);
+                }
 
             previousPosition = currentPosition;
         }
         else
         {
-            Debug.LogError("RandomWalkerBezier2D is missing on this GameObject.");
+            Debug.LogError("RandomWalkerBezier2D is missing on this GameObject."); // RandomWalkerBezier2Dがアタッチされていない場合はエラーを表示
         }
+    }
+
+    /// <summary>
+    /// 指定されたステートがAnimatorに存在する場合に再生します。
+    /// </summary>
+    /// <param name="stateName">再生するステートの名前</param>
+    private bool PlayAnimatorStateIfExists(string stateName)
+    {
+        // state名をハッシュ値に変換
+        int stateID = Animator.StringToHash(stateName);
+
+        // 指定したレイヤーの中にstateIDのステートが存在するか確認
+        return animator.HasState(0, stateID);
     }
 
     /// <summary>
