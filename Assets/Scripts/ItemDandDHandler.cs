@@ -14,6 +14,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     private IventryUI iventryUI; // IventryUIの参照
     private InfomationPanelDisplay infomationPanelDisplay; // InfomationPanelDisplayの参照
     [SerializeField] private EqpStats eqpStats; // EqpStatsの参照
+    public GameObject wpnAef; // 武器のエフェクトを登録するための変数
 
     /// <summary>
     /// 初期設定を行うメソッド。BoxCollider2Dを取得します。

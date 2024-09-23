@@ -242,6 +242,8 @@ public class ProjectileBehavior : MonoBehaviour
     /// <param name="collision">衝突したオブジェクトの情報</param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        bool targetSameTag = shooterUnit.GetComponent<UnitController>().targetSameTag;
+
         // 衝突したオブジェクトが障害物タグを持つ場合の処理
         if (collision.CompareTag("Obstacle"))
         {
@@ -251,9 +253,15 @@ public class ProjectileBehavior : MonoBehaviour
                 StartCoroutine(FadeOutAndDestroy());
             }
         }
-        // 衝突したオブジェクトのタグが発射元のタグと異なる場合の処理
-        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && collision.tag != shooterTag)
+        
+        // 発射元のtargetSameTagがfalseであれば発射元のタグと異なる場合、trueであれば発射元のタグと同じ場合の処理
+        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && (targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag))
         {
+            // 自分をターゲットにしていないのに自分に当たった場合は無視する
+            if (collision.gameObject == shooterUnit.gameObject)
+            {
+                return;
+            }
             // ダメージを与える
             Unit targetUnit = collision.gameObject.GetComponent<Unit>();
             if (targetUnit != null)
@@ -269,19 +277,16 @@ public class ProjectileBehavior : MonoBehaviour
                         case Attribute.Technology:
                         case Attribute.Nature:
                             float magicDamage = shooterUnit.magicalAttackPower * power - targetUnit.magicalDefensePower * 0.1f;
-                            Debug.Log("Hit!! Magical Damage: " + magicDamage + "magicalAttackPower: " + shooterUnit.magicalAttackPower + "power: " + power + "magicalDefensePower: " + targetUnit.magicalDefensePower);
                             totalDamage += magicDamage;
                             break;
 
                         case Attribute.Physical:
                             float physicalDamage = shooterUnit.physicalAttackPower * power - targetUnit.physicalDefensePower * 0.1f;
-                            Debug.Log("Hit!! Physical Damage: " + physicalDamage + "physicalAttackPower: " + shooterUnit.physicalAttackPower + "power: " + power + "physicalDefensePower: " + targetUnit.physicalDefensePower);
                             totalDamage += physicalDamage;
                             break;
 
                         case Attribute.Healing:
                             float healing = shooterUnit.magicalAttackPower;
-                            Debug.Log("Hit!! Healing: " + healing + "magicalAttackPower: " + shooterUnit.magicalAttackPower);
                             totalHealing += healing;
                             break;
                     }

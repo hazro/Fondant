@@ -22,13 +22,15 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool useRandomPosition = false; // ランダムな位置から発射する機能を有効にするか
     [SerializeField] private int numberOfShots = 1; // 一度の攻撃で発射する回数
 
+    public GameObject weaponPrefab; // 武器のPrefab
+
     [Header("Projectile Settings")]
-    [SerializeField] private GameObject projectilePrefab; // 発射するプレハブ
+    public GameObject projectilePrefab; // 発射するプレハブ
     [SerializeField] private Transform targetObject; // 追従するターゲットオブジェクト
     [SerializeField] private Vector2 direction; // 発射方向
-    [SerializeField] private float speed = 5f; // 発射速度
+    [SerializeField] private float speed = 2f; // 発射速度
     [SerializeField] private float sizeMultiplier = 1f; // サイズ倍率
-    [SerializeField] private float delayBetweenShots = 0.3f; // 発射間の遅延時間
+    [SerializeField] private float delayBetweenShots = 2.0f; // 発射間の遅延時間
     [SerializeField] private float projectileLifetime = 1.0f; // プレハブの寿命時間（デフォルト1.0f）
     [SerializeField] private int attackCharThrough = 1; // 異なるタグのターゲットに対する貫通回数
     [SerializeField] private int attackObjectThrough = 1; // 障害物タグのターゲットに対する貫通回数
@@ -100,12 +102,30 @@ public class AttackController : MonoBehaviour
             {
                 Debug.Log("攻撃開始");
                 isShooting = true;
-                shootingCoroutine = StartCoroutine(ShootProjectile());
+                int weapomAmplitude = 0; // 武器のふり幅の範囲
+                if(weaponPrefab != null)
+                {
+                    // weaponPrefab.nameの上3桁までの数値の違い(111,112,113,114,115,116,117)によって武器のふり幅の範囲をそれぞれ設定
+                    if (weaponPrefab.name.Substring(0, 3) == "111") weapomAmplitude = 60; //大剣
+                    else if (weaponPrefab.name.Substring(0, 3) == "112") weapomAmplitude = 45; //ダガー、槍
+                    else if (weaponPrefab.name.Substring(0, 3) == "113") weapomAmplitude = 60; //斧
+                    else if (weaponPrefab.name.Substring(0, 3) == "114") weapomAmplitude = 5; //長杖
+                    else if (weaponPrefab.name.Substring(0, 3) == "115") weapomAmplitude = 15; //短杖、本
+                    else if (weaponPrefab.name.Substring(0, 3) == "116") weapomAmplitude = 0; //弓
+                    else if (weaponPrefab.name.Substring(0, 3) == "117") weapomAmplitude = 15; //銃、特殊武器
+                }
+                
+                shootingCoroutine = StartCoroutine(ShootProjectile(weapomAmplitude));
                 lastAttackStartTime = Time.time; // 最後に攻撃開始が行われた時間を更新
             }
             else if (!isShootingEnabled && shootingCoroutine != null)
             {
                 Debug.Log("攻撃停止");
+                if (weaponPrefab != null)
+                {
+                    weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0); // 武器の角度を元に戻す
+                    weaponPrefab.SetActive(false); // weaponPrefabを非アクティブにする
+                }
                 isShooting = false;
                 StopCoroutine(shootingCoroutine);
                 shootingCoroutine = null;
@@ -122,15 +142,61 @@ public class AttackController : MonoBehaviour
         }
     }
 
+    // コールーチンで-範囲～範囲の範囲で武器を振り(RotationZ)、終わったら非アクティブにして元の角度に戻す
+    private IEnumerator ShakeWeapon(float amplitude)
+    {
+        float moveWeapon = 0.1f; // 武器を前に突き出す距離
+        // もしweaponPrefaのScaleXが0より低い場合は、amplitudeを反転させる
+        if (weaponPrefab.transform.localScale.x < 0)
+        {
+            amplitude *= -1;
+            moveWeapon *= -1;
+        }
+
+        weaponPrefab.SetActive(true); // weaponPrefabをアクティブにする
+
+        float time = 0;
+        float duration = 0.2f;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+
+            // Mathf.Lerpで amplitude から -amplitude に0.2秒間で変化させる
+            float zRotation = Mathf.Lerp(amplitude, -amplitude, Mathf.PingPong(time * 2 / duration, 1));
+            // Mathf.Lerpで moveWeapon から -moveWeapon に0.2秒間で変化させる
+            float move = Mathf.Lerp(moveWeapon, -moveWeapon, Mathf.PingPong(time * 2 / duration, 1));
+
+            // Z軸回転を設定
+            weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, zRotation);
+            // 武器を前に突き出す
+            weaponPrefab.transform.position = transform.position + new Vector3(move, 0, 0);
+
+            yield return null;
+        }
+
+        weaponPrefab.SetActive(false); // weaponPrefabを非アクティブにする
+        // 回転をリセット
+        weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0);
+    }
+
     /// <summary>
     /// プレハブを指定の方向に飛ばし、指定の条件で消滅させるコルーチン。
     /// </summary>
     /// <returns>コルーチン</returns>
-    private IEnumerator ShootProjectile()
+    private IEnumerator ShootProjectile(int weapomAmplitude)
     {
+        float maxDelay = 10.0f;  // 最大ディレイ
+        float minDelay = 0.1f;   // 最小ディレイ
+        float offset = 3.0f;     // オフセット値
         while (isShooting)
         {
-            float adjustedDelay = delayBetweenShots + Random.Range(-delayMultiplier / 2f, delayMultiplier / 2f);
+            // コールーチンで-範囲～範囲の範囲で武器を振る(RotationZ)
+            if (weaponPrefab != null) StartCoroutine(ShakeWeapon(weapomAmplitude)); // 武器を振るコルーチン
+
+            // 数値が増えるほどディレイ時間が短くなるようにし最大値と最小値の間に収まるように調整
+            float delayShots = Mathf.Max(maxDelay / (delayBetweenShots + offset), minDelay);
+            float adjustedDelay = delayShots + Random.Range(-delayMultiplier / 2f, delayMultiplier / 2f);
 
             if (useRandomPosition)
             {
@@ -209,7 +275,13 @@ public class AttackController : MonoBehaviour
     /// <param name="dir">発射する方向</param>
     private void ShootProjectileInDirection(Vector2 dir)
     {
-        GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+        //発射位置(transformX)に0.1fオフセットをかける weaponPrefab.transform.localScale.x < 0の場合は-0.1fオフセットをかける
+        float offset = 0;
+        if (weaponPrefab != null)
+        {
+            offset = weaponPrefab.transform.localScale.x < 0 ? -0.1f : 0.1f;
+        }
+        GameObject projectile = Instantiate(projectilePrefab, (transform.position + new Vector3(offset,0,0)), Quaternion.identity);
         if (projectile == null) return; // projectileがnullでないことを確認
 
         projectile.transform.SetParent(attackObjectGroup.transform);

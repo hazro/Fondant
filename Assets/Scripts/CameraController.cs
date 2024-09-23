@@ -9,6 +9,7 @@ public class CameraController : MonoBehaviour
 {
     private Camera mainCamera;
     public GameObject whiteoutMask; // ホワイトアウト用マスク
+    private SpriteRenderer whiteoutMaskSpriteRenderer; // ホワイトアウト用マスクのスプライトレンダラー
     private float originalOGS; // カメラの元のorthographicSize
     private Vector3 originalPosition; // カメラの元の位置
     
@@ -16,6 +17,7 @@ public class CameraController : MonoBehaviour
     {
         mainCamera = Camera.main;
         originalOGS = mainCamera.orthographicSize;
+        whiteoutMaskSpriteRenderer = whiteoutMask.GetComponent<SpriteRenderer>();
     }
 
     /// <summary>
@@ -81,14 +83,21 @@ public class CameraController : MonoBehaviour
         // ホワイトアウトオブジェジェクトをアクティブにし、Scaleを0に初期化した後、0.5秒かけて10に拡大
         whiteoutMask.SetActive(true);
         whiteoutMask.transform.localScale = Vector3.zero;
+        whiteoutMaskSpriteRenderer.color = new Color(1, 0.97f, 0.85f, 0.4f); // 透明にする
+        whiteoutMask.transform.localScale = new Vector3(0, 0, 0); // Scaleを0に初期化
         elapsedTime = 0;
         duration = 0.5f;
         while (elapsedTime < duration)
         {
+            // whiteoutMaskはtargetObjectの位置に合わせる
+            whiteoutMask.transform.position = targetPosition;
             elapsedTime += Time.deltaTime;
-            whiteoutMask.transform.localScale = Vector3.Lerp(Vector3.zero, new Vector3(10, 10, 10), elapsedTime / duration);
+            whiteoutMask.transform.localScale = Vector3.Lerp(Vector3.zero, new Vector3(3, 3, 3), elapsedTime / duration);
             yield return null;
         }
+        // alpha1の黒にして、Scaleを10にする
+        whiteoutMaskSpriteRenderer.color = new Color(0, 0, 0, 1);
+        whiteoutMask.transform.localScale = new Vector3(10, 10, 10);
 
         // カメラを元の位置とサイズに戻す
         mainCamera.transform.position = originalPosition;

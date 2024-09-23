@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: UnitStatus_Player01
   m_EditorClassIdentifier: 
   job: 0
-  totalExp: 0
   addLevel: 0
-  weapons: 0
+  weapons: 111001
   shields: 211001
   armor: 213001
   accessories: 215001
@@ -25,3 +24,5 @@ MonoBehaviour:
   drop1Rate: 0
   drop2Rate: 0
   drop3Rate: 0
+  dropExp: 0
+  dropGold: 0

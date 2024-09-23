@@ -56,11 +56,11 @@ public class UnitController : MonoBehaviour
     private int currentSpriteIndex; // 現在のスプライトインデックス
     private float lastSpriteChangeTime; // 最後にスプライトを変更した時間
 
-    private bool inAttackStance = false; // 攻撃モード中かどうか
+    private bool inAttackStance = false; // その場でとどまる攻撃モード中かどうか
     public bool InAttackStance => inAttackStance; // 攻撃モード中かどうかを取得するプロパティ
-    private float attackStanceStartTime; // 攻撃モードの開始時間
-    private bool inAttackDelay = false; // 攻撃ディレイ中かどうか
-    private float attackDelayStartTime; // 攻撃ディレイの開始時間
+    private float attackStanceStartTime; // その場でとどまる攻撃モードの開始時間
+    private bool inAttackDelay = false; // その場でとどまる攻撃ディレイ中かどうか
+    private float attackDelayStartTime; // その場でとどまる撃ディレイの開始時間
     private Vector2 escapePosition; //　逃走先の記録
 
     private AttackController attackController; // AttackControllerの参照
@@ -487,6 +487,22 @@ public class UnitController : MonoBehaviour
 
         // 左向きかどうかを判定してFlipXを設定
         unitSprite.flipX = smoothedDirection.x < 0;
+        // 左向きかどうかを判定して武器のオブジェクトのScaleXを元の値に*-1して反転させる
+        if(GetComponent<AttackController>().weaponPrefab!=null)
+        {
+            Transform weaponTransform = GetComponent<AttackController>().weaponPrefab.transform;
+
+            if (smoothedDirection.x < 0)
+            {
+                weaponTransform.localScale = new Vector3(-0.33f, 0.33f, 0.33f);
+            }
+            else
+            {
+                weaponTransform.localScale = new Vector3(0.33f, 0.33f, 0.33f);
+            }
+        }
+
+
     }
 
     /// <summary>

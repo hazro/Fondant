@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public List<GameObject> playerUnits = new List<GameObject>(); // プレイヤーユニットのリスト
     public List<GameObject> livingUnits = new List<GameObject>(); // 生存しているユニットのリスト
+    public List<GameObject> deadPanelList = new List<GameObject>(); // 死亡したユニットのスキルパネルを塞ぐオブジェクトのリスト
     public int enemyCount = 0; // 敵の数
     private Transform playerGroup; // プレイヤーグループのTransform
     [SerializeField] private float zoomSpeed = 15.0f; // ズームスピード

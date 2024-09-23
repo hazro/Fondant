@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Unit : MonoBehaviour
 {
     public UnitStatus unitStatus;
+    public SpriteRenderer unitSprite; // ユニットのスプライト
     private JobStatus jobStatus;
     private EqpStats StatusWeapons;
     private EqpStats StatusShields;
@@ -32,11 +34,14 @@ public class Unit : MonoBehaviour
     [SerializeField] public float Speed;
     [SerializeField] public int attackUnitThrough;
     [SerializeField] public int attackObjectThrough;
+    [SerializeField] public float attackRange;
     [SerializeField] public float attackSize;
     [SerializeField] public float knockBack;
     [SerializeField] public int targetJob;
-    [SerializeField] public bool teleportation;
-    [SerializeField] public bool escape;
+    [SerializeField] public float teleportation;
+    [SerializeField] public float escape;
+    [SerializeField] public float attackStanceDuration;
+    [SerializeField] public float attackStanceDelay;
 
     [SerializeField] public int currentWeapons;
     [SerializeField] public int currentAttackEffects;
@@ -44,8 +49,14 @@ public class Unit : MonoBehaviour
     [SerializeField] public int currentArmor;
     [SerializeField] public int currentAccessories;
 
+    // 武器prefab設定
+    public GameObject weaponPosition; // 武器の生成位置
+
+    public GameObject HPBarRoot; // HPバーのルートオブジェクト
+    private Animator HPBarAnimator; // HPバーのAnimatorコンポーネント
     public Slider hpBar;
     public Image hpColor;
+    public TextMeshProUGUI damageText; // ダメージ数値表示テキスト
     private float maxHp;
     private float currentHp;
 
@@ -58,6 +69,9 @@ public class Unit : MonoBehaviour
         animator = GetComponent<Animator>();
         // ランダムなオフセットを設定 (0から1の範囲で)
         float randomOffset = UnityEngine.Random.Range(0f, animator.GetCurrentAnimatorStateInfo(0).length);
+
+        // HPバーのAnimatorコンポーネントを取得
+        HPBarAnimator = HPBarRoot.GetComponent<Animator>();
 
         // GameManagerのインスタンスを取得
         gameManager = GameManager.Instance;
@@ -122,8 +136,8 @@ public class Unit : MonoBehaviour
         float levelAttackObjectThrough = jobStatus.levelAttackObjectThrough;
         float levelKnockBack = jobStatus.levelKnockBack;
         int JtargetJob = jobStatus.targetJob;
-        float teleportation = jobStatus.teleportation;
-        float escape = jobStatus.escape;
+        float teleportations = jobStatus.teleportation;
+        float escapes = jobStatus.escape;
 
         // EqpStatsからステータスを読み込む
         StatusWeapons = Resources.Load<EqpStats>("WpnStatus/WpnStatus_" + currentWeapons.ToString("D6"));
@@ -157,18 +171,160 @@ public class Unit : MonoBehaviour
         physicalDefensePower = (currentStr + (currentLevel - 1) * levelStr) / 10 + StatusWeapons.physicalDefensePower + StatusShields.physicalDefensePower + StatusArmor.physicalDefensePower + StatusAccessories.physicalDefensePower;
         magicalDefensePower = (currentMagic + (currentLevel - 1) * levelMagic) / 10 + StatusWeapons.magicalDefensePower + StatusShields.magicalDefensePower + StatusArmor.magicalDefensePower + StatusAccessories.magicalDefensePower;
         resistCondition = (currentResidtCondition + (currentLevel - 1) * levelResidtCondition) / 10 + StatusWeapons.resistCondition + StatusShields.resistCondition + StatusArmor.resistCondition + StatusAccessories.resistCondition;
-        attackDelay =  (currentDex + (currentLevel - 1) * levelDex) / 10 + StatusWeapons.attackDelay + StatusShields.attackDelay + StatusArmor.attackDelay + StatusAccessories.attackDelay;
+        attackDelay =  2.0f + (currentDex + (currentLevel - 1) * levelDex) / 10 + StatusWeapons.attackDelay + StatusShields.attackDelay + StatusArmor.attackDelay + StatusAccessories.attackDelay;
         Speed =  3 + (currentDex + (currentLevel - 1) * levelDex) / 10 + StatusWeapons.Speed + StatusShields.Speed + StatusArmor.Speed + StatusAccessories.Speed;
         attackUnitThrough = (int)(currentAttackUnitThrough + (currentLevel - 1) * levelAttackUnitThrough) + StatusWeapons.attackUnitThrough + StatusShields.attackUnitThrough + StatusArmor.attackUnitThrough + StatusAccessories.attackUnitThrough;
         attackObjectThrough = (int)(currentAttackObjectThrough + (currentLevel - 1) * levelAttackObjectThrough) + StatusWeapons.attackObjectThrough + StatusShields.attackObjectThrough + StatusArmor.attackObjectThrough + StatusAccessories.attackObjectThrough;
         attackSize = 1;
         knockBack = (currentKnockBack + (currentLevel - 1) * levelKnockBack) / 10 + StatusWeapons.knockBack + StatusShields.knockBack + StatusArmor.knockBack + StatusAccessories.knockBack;
         targetJob = JtargetJob;
-        teleportation = teleportation + StatusWeapons.teleportation + StatusShields.teleportation + StatusArmor.teleportation + StatusAccessories.teleportation;
-        escape = escape + StatusWeapons.escape + StatusShields.escape + StatusArmor.escape + StatusAccessories.escape;
+        teleportation = teleportations + StatusWeapons.teleportation + StatusShields.teleportation + StatusArmor.teleportation + StatusAccessories.teleportation;
+        escape = escapes + StatusWeapons.escape + StatusShields.escape + StatusArmor.escape + StatusAccessories.escape;
+        attackRange = StatusWeapons.attackRange;
+        attackStanceDuration = StatusWeapons.attackStanceDuration;
+        attackStanceDelay = StatusWeapons.attackStanceDelay;
 
         // HPの初期化
         maxHp = (currentStr + (currentLevel - 1) * levelStr) * 10;
+
+        // 武器プレファブを変更する
+        GameObject wpn = Resources.Load<GameObject>("Prefabs/Weapons/" + currentWeapons.ToString("D6"));
+        ChangeWeapon(wpn);
+
+        // UnitControllerとAttackControllerにステータスを設定する
+        SetStatusUnitController(GetComponent<UnitController>(), GetComponent<AttackController>());
+    }
+
+    // 武器プレファブを変更する
+    public void ChangeWeapon(GameObject wpn)
+    {
+        //// 武器prefabの変更
+        if(weaponPosition!=null)
+        {
+            //unitのweaponPositionの子オブジェクトをすべて削除
+            foreach (Transform child in weaponPosition.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            // 武器prefabを生成
+            GameObject weapon = Instantiate(wpn, weaponPosition.transform.position, Quaternion.identity);
+            weapon.transform.SetParent(weaponPosition.transform);
+            // weaponPrefabにセットしてあるコンポーネントをすべて非アクティブにする
+            DisableAll(weapon);
+            //weaponPrefabの子オブジェクトをアクティブにする
+            foreach (Transform child in weapon.transform)
+            {
+                child.gameObject.SetActive(true);
+            }
+            weapon.SetActive(false);
+            // unitのweaponPrefabにweaponをセット
+            // weaponの名前から(Clone)を削除
+            weapon.name = weapon.name.Replace("(Clone)", "");
+            AttackController attackController = GetComponent<AttackController>();
+            attackController.weaponPrefab = weapon;
+            attackController.projectilePrefab = weapon.GetComponent<ItemDandDHandler>().wpnAef;
+        }
+    }
+
+    // 指定したゲームオブジェクトのすべてのコンポーネントを無効化するメソッド
+    public void DisableAll(GameObject targetObject)
+    {
+        // ゲームオブジェクトにアタッチされているすべてのコンポーネントを取得
+        Component[] components = targetObject.GetComponents<Component>();
+
+        // 各コンポーネントを順番に無効化
+        foreach (Component component in components)
+        {
+            // コンポーネントの型に応じて、enabled プロパティがあるものを無効化
+            if (component is Behaviour)
+            {
+                ((Behaviour)component).enabled = false;
+            }
+            else if (component is Renderer)
+            {
+                ((Renderer)component).enabled = false;
+            }
+            else if (component is Collider)
+            {
+                ((Collider)component).enabled = false;
+            }
+            else if (component is Rigidbody) 
+            {
+                ((Rigidbody)component).isKinematic = true; // Rigidbodyは enabled を持たないため isKinematic を使う
+            }
+            // その他のタイプのコンポーネントに対応する場合は、ここに追加する
+        }
+    }
+
+    // statusをUnitControllerとAttackControllerに設定する
+    public void SetStatusUnitController(UnitController unitController, AttackController attackController)
+    {
+        // ProjectileBehaviorコンポーネントを取得
+        ProjectileBehavior projectileBehavior = attackController.projectilePrefab.GetComponent<ProjectileBehavior>();
+
+        // テレポート設定
+        if(teleportation  >= 1) 
+        {
+            unitController.enableTeleport = true;
+            unitController.teleportDistance = Speed;
+        }
+        // 逃走機能設定
+        if(escape >= 1)
+        {
+            unitController.enableEscape = true;
+        }
+        // ターゲット設定(回復の場合は自分と同じtagをターゲットにする)
+        // attackController.projectilePrefab.attributesの要素が1つでもHealingの場合はtargetTagを自分と同じtagにする
+        if (projectileBehavior != null)
+        {
+            // attributesのすべての要素を文字列として取得
+            List<ProjectileBehavior.Attribute> attributes = projectileBehavior.attributes;
+
+            for (int i = 0; i < attributes.Count; i++)
+            {
+                string attributeName = attributes[i].ToString();  // Enumから文字列を取得
+                if (attributeName == "Healing")
+                {
+                    unitController.targetSameTag = true;
+                }
+            }
+        }
+        // 移動速度
+        unitController.movementSpeed = Speed / 10.0f;
+        // 攻撃範囲
+        unitController.approachRange = attackRange;
+        // 立ち止まり攻撃の設定
+        if (attackStanceDuration > 0)
+        {
+            unitController.enableAttackStance = true;
+            unitController.attackStanceDuration = attackStanceDuration;
+            unitController.attackDelay = attackStanceDelay;
+        }
+
+        /*
+        unitController.unitName = unitName;
+        unitController.condition = condition;
+        unitController.job = job;
+        unitController.totalExp = totalExp;
+        unitController.currentLevel = currentLevel;
+        unitController.nextLevelExp = nextLevelExp;
+        unitController.addLevel = addLevel;
+        unitController.Hp = Hp;
+        unitController.physicalAttackPower = physicalAttackPower;
+        unitController.magicalAttackPower = magicalAttackPower;
+        unitController.physicalDefensePower = physicalDefensePower;
+        unitController.magicalDefensePower = magicalDefensePower;
+        unitController.resistCondition = resistCondition;
+        unitController.attackDelay = attackDelay;
+        unitController.Speed = Speed;
+        unitController.attackUnitThrough = attackUnitThrough;
+        unitController.attackObjectThrough = attackObjectThrough;
+        unitController.attackSize = attackSize;
+        unitController.knockBack = knockBack;
+        unitController.targetJob = targetJob;
+        unitController.teleportation = teleportation;
+        unitController.escape = escape;
+        */
     }
 
     // HPの初期化(全回復)
@@ -206,8 +362,28 @@ public class Unit : MonoBehaviour
     // HPを減少させるメソッド
     public void TakeDamage(float damage)
     {
+        // tagがEnemyの場合はダメージを表示する
+        if (gameObject.tag == "Enemy")
+        {
+            // ダメージ数値のRectTransformを取得し、PosXとPosYを-10.0~10.0のランダム値に変更
+            RectTransform damageTextRect = damageText.GetComponent<RectTransform>();
+            damageTextRect.localPosition = new Vector3(UnityEngine.Random.Range(-10.0f, 10.0f), UnityEngine.Random.Range(-10.0f, 10.0f), 0);
+            // ダメージ数値を四捨五入して表示
+            damageText.text = Mathf.Round(damage).ToString();
+            // ダメージの桁数にが上がるにつれてフォントサイズを拡大(10の位を基準にする)
+            damageText.fontSize = 18 + (int)(Mathf.Log10(damage) * 10);
+            damageText.color = Color.white;
+            // ダメージ数値のアニメーションstateを直接再生
+            HPBarAnimator.Play("HPBar_damage", 0, 0);
+        }
+
         currentHp -= damage;
         UpdateHpBar();
+        // unitSpriteを光らせる
+        if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
+        {
+            StartCoroutine(FlashSprite(new Color(0.75f, 0.75f, 0.75f, 1.0f)));
+        }
 
         // すでにユニットが死亡していたら何もしない(消滅するまでに複数回呼び出されることがあるため)
         if(live == false)
@@ -224,26 +400,59 @@ public class Unit : MonoBehaviour
 
     } 
 
+    // unitSpriteを光らせる
+    private IEnumerator FlashSprite(Color flashColor)
+    {
+        // ハードライトの色を設定
+        unitSprite.material.SetColor("_HardlightColor", flashColor);
+        yield return new WaitForSeconds(0.1f);
+        // ハードライトの色を元に戻す
+        unitSprite.material.SetColor("_HardlightColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));
+    }
+
     // HPを回復させるメソッド
     public void Heal(float amount)
     {
+        // 回復値を表示する
+        // 値のRectTransformを取得し、PosXとPosYを-10.0~10.0のランダム値に変更
+        RectTransform damageTextRect = damageText.GetComponent<RectTransform>();
+        damageTextRect.localPosition = new Vector3(UnityEngine.Random.Range(-10.0f, 10.0f), UnityEngine.Random.Range(-10.0f, 10.0f), 0);
+        // 値を四捨五入して表示
+        damageText.text = Mathf.Round(amount).ToString();
+        // 桁数にが上がるにつれてフォントサイズを拡大(10の位を基準にする)
+        damageText.fontSize = 12 + (int)(Mathf.Log10(amount) * 10);
+        damageText.color = Color.green;
+        // 値のアニメーションstateを直接再生
+        HPBarAnimator.Play("HPBar_damage", 0, 0);
+
         currentHp += amount;
         if (currentHp > maxHp)
         {
             currentHp = maxHp;
         }
         UpdateHpBar();
+        // unitSpriteを光らせる
+        if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
+        {
+            StartCoroutine(FlashSprite(new Color(0.75f, 1.0f, 0.75f, 1.0f)));
+        }
     }
 
     // ユニットが死亡したら呼び出されるメソッド
     public void Die()
     {
+        // AttackControllerとUnitControllerを無効にする
+        GetComponent<AttackController>().enabled = false;
+        GetComponent<UnitController>().enabled = false;
+
         // Drop経験値&Goldを加算
         gameManager.AddExperience(unitStatus.dropExp);
         gameManager.AddGold(unitStatus.dropGold);
         //tagがEnemyの場合UnitStatusのdrop1～3のアイテムを各ドロップ確率によってドロップする
         if (gameObject.tag == "Enemy")
         {
+            // unitSpriteのオブジェクトを取得してrotetionZを-90にして寝かせる
+            unitSprite.gameObject.transform.rotation = Quaternion.Euler(0, 0, -90);
             float dropRate = UnityEngine.Random.Range(0.0f, 1.0f);
             if (dropRate < unitStatus.drop1Rate)
             {
@@ -294,6 +503,14 @@ public class Unit : MonoBehaviour
             // プレイヤーが死亡した場合はSetActive(false)にして非表示にする
             condition = 1;
             gameObject.SetActive(false);
+            // livingUnitsのどの要素が死亡したかを判定し、その要素番号と同じ番号のdeadPanelListをSetActive(true)にして表示する
+            for (int i = 0; i < gameManager.livingUnits.Count; i++)
+            {
+                if (gameManager.livingUnits[i] == gameObject)
+                {
+                    gameManager.deadPanelList[i].SetActive(true);
+                }
+            }
             // プレイヤーが全員死亡したらゲームオーバー処理を行い、ゲームオーバーシーンに遷移する
             // gameManager.livingUnitsの全unitのconditionが1の場合、ゲームオーバーシーンに遷移する
             foreach (GameObject player in gameManager.livingUnits)

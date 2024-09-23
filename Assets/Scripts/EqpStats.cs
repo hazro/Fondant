@@ -22,5 +22,8 @@ public class EqpStats : ScriptableObject
     public int targetJob;
     public float teleportation;
     public float escape;
+    public float attackRange; // 攻撃範囲
+    public float attackStanceDuration; // 立ち止まって攻撃する時間
+    public float attackStanceDelay; // 立ち止まって攻撃するまでの待ち時間
     public string ability; // とくしゅ能力
 }

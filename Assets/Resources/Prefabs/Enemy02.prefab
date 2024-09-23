@@ -84,6 +84,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5699122096759128037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8462372288614581170}
+  m_Layer: 0
+  m_Name: weapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8462372288614581170
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5699122096759128037}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.7692308, y: 0.7692308, z: 0.7692308}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5845159640445041639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6733682485709165052
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,6 +153,7 @@ Transform:
   - {fileID: 3655056607164217983}
   - {fileID: 6907637430623229147}
   - {fileID: 6964116814495009093}
+  - {fileID: 8462372288614581170}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6791963454181619953
@@ -137,9 +169,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatus: {fileID: 11400000, guid: 835464c8ae7cc404e92df5aaba6f969f, type: 2}
+  unitSprite: {fileID: 5481343229145555122}
   unitName: Bat
+  condition: 0
+  job: 0
+  totalExp: 0
   currentLevel: 0
   nextLevelExp: 0
+  addLevel: 0
   Hp: 0
   physicalAttackPower: 0
   magicalAttackPower: 0
@@ -160,8 +197,11 @@ MonoBehaviour:
   currentShields: 0
   currentArmor: 0
   currentAccessories: 0
+  weaponPosition: {fileID: 5699122096759128037}
+  HPBarRoot: {fileID: 2375985714009319062}
   hpBar: {fileID: 4960554671700043760}
   hpColor: {fileID: 4524243696298252816}
+  damageText: {fileID: 6709818824622926044}
 --- !u!61 &6376528810690273896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -263,12 +303,13 @@ MonoBehaviour:
   shootEightDirections: 0
   useRandomPosition: 0
   numberOfShots: 1
+  weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
   speed: 5
   sizeMultiplier: 1
-  delayBetweenShots: 0.3
+  delayBetweenShots: 2
   projectileLifetime: 1
   attackCharThrough: 1
   attackObjectThrough: 1
@@ -357,7 +398,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: -876546973899608171, guid: 6ce9ab8f309390b4baa4a48022065f58, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -498,6 +539,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+--- !u!1 &2375985714009319062 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5046924127575445051, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+  m_PrefabInstance: {fileID: 7418401284745996461}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4524243696298252816 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6357432314841952957, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
@@ -518,6 +564,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6709818824622926044 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4318217576371372145, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+  m_PrefabInstance: {fileID: 7418401284745996461}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &6907637430623229147 stripped

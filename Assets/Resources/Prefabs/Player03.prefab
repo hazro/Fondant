@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4901107925359128262
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8937057896641431991}
+  m_Layer: 0
+  m_Name: weapon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8937057896641431991
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4901107925359128262}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5845159640445041639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5595935769935620948
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,6 +154,7 @@ Transform:
   - {fileID: 8933564048065537399}
   - {fileID: 1313477561264520468}
   - {fileID: 1738860818063653908}
+  - {fileID: 8937057896641431991}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6791963454181619953
@@ -138,6 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitStatus: {fileID: 11400000, guid: bf035e8bcc9cc5d47b2b9343d90aff9c, type: 2}
+  unitSprite: {fileID: 557714916906620844}
   unitName: P3
   condition: 0
   job: 0
@@ -165,8 +198,11 @@ MonoBehaviour:
   currentShields: 0
   currentArmor: 0
   currentAccessories: 0
+  weaponPosition: {fileID: 4901107925359128262}
+  HPBarRoot: {fileID: 7863145500391690073}
   hpBar: {fileID: 662554119301926463}
   hpColor: {fileID: 8300104343781848031}
+  damageText: {fileID: 1222907535623946515}
 --- !u!114 &9019184999729696590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,7 +216,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 8894279849393891494, guid: 5faea5395ce58a946830c80d3749011e, type: 3}
-  followSpeed: 10
   minDragBounds: {x: -4.6, y: -2.4}
   maxDragBounds: {x: -2.25, y: 2.4}
 --- !u!61 &-2948037429210421779
@@ -284,12 +319,13 @@ MonoBehaviour:
   shootEightDirections: 0
   useRandomPosition: 0
   numberOfShots: 1
+  weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
   speed: 5
   sizeMultiplier: 1
-  delayBetweenShots: 0.3
+  delayBetweenShots: 2
   projectileLifetime: 1
   attackCharThrough: 1
   attackObjectThrough: 1
@@ -378,7 +414,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: -876546973899608171, guid: 6ce9ab8f309390b4baa4a48022065f58, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -526,9 +562,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1222907535623946515 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4318217576371372145, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+  m_PrefabInstance: {fileID: 3104607339273339234}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1313477561264520468 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4120704663495081078, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+  m_PrefabInstance: {fileID: 3104607339273339234}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7863145500391690073 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5046924127575445051, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
   m_PrefabInstance: {fileID: 3104607339273339234}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8300104343781848031 stripped

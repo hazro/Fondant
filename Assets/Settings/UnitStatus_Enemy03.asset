@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: UnitStatus_Enemy03
   m_EditorClassIdentifier: 
   job: 30
-  totalExp: 0
   addLevel: 2
-  weapons: 0
+  weapons: 111901
   shields: 0
   armor: 0
   accessories: 0

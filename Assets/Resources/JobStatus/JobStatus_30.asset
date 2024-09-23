@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: JobStatus_30
   m_EditorClassIdentifier: 
   Magic: 1
-  Str: 5
+  Str: 500
   Dex: 2
   ResidtCondition: 0
   AttackUnitThrough: 0
   AttackObjectThrough: 0
-  KnockBack: 3
+  InitKnockBack: 0
   levelScaleFactor: 1
   levelMagic: 0.33
   levelStr: 2

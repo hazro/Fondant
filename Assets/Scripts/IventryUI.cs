@@ -26,7 +26,6 @@ public class IventryUI : MonoBehaviour
     
     // IventryPanelの子オブジェクトをすべて取得
     private List<Transform> children = new List<Transform>();
-
     private GameManager gameManager; // GameManagerの参照
 
     private void Start()
@@ -91,7 +90,7 @@ public class IventryUI : MonoBehaviour
         }
     }
 
-    // 指定UnitのSkillリストを更新する
+    // 指定UnitのSkillリストを更新し、キャラの武器を変更する
     public void UpdateUnitSkillUI(GameObject unitObject)
     {
         // unitObjectがnullならエラーログを出力して終了
@@ -155,20 +154,27 @@ public class IventryUI : MonoBehaviour
         }
 
         GameObject wpnImage = Resources.Load<GameObject>("Prefabs/Weapons/" + unit.currentWeapons.ToString("D6"));
-        GameObject AtkImage = Resources.Load<GameObject>("Prefabs/AttackEffects/" + unit.currentAttackEffects.ToString("D6"));
+        //GameObject AtkImage = Resources.Load<GameObject>("Prefabs/AttackEffects/" + unit.currentAttackEffects.ToString("D6"));
         GameObject shieldImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentShields.ToString("D6"));
         GameObject armorImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentArmor.ToString("D6"));
         GameObject accsseImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentAccessories.ToString("D6"));
 
         // IventrySkillList[0]の子オブジェクトのTextMeshProコンポーネントを取得
         TextMeshProUGUI unitNameText = IventrySkillList[0].GetComponentInChildren<TextMeshProUGUI>();
-        unitNameText.text = unit.unitName;
+        // 現在のフォントサイズを取得
+        float originalFontSize = unitNameText.fontSize;
+        // 75%のサイズを計算
+        float reducedFontSize = originalFontSize * 0.75f;
+
+        // unitNameTextにunitの名前とレベルを設定 (レベルは小さく表示)
+        unitNameText.text = unit.unitName + "\n" + "<size={" + reducedFontSize + "}>" + "Lv." + unit.currentLevel + "</size>";
 
         // IventrySkillList[1]の子オブジェクトのImageコンポーネントを取得し、スプライトを設定
         Sprite sprite = wpnImage.GetComponent<SpriteRenderer>().sprite;
         IventrySkillList[1].GetComponent<Image>().sprite = sprite;
-        sprite = AtkImage.GetComponent<SpriteRenderer>().sprite;
-        IventrySkillList[2].GetComponent<Image>().sprite = sprite;
+        //sprite = AtkImage.GetComponent<SpriteRenderer>().sprite;
+        // 顔グラ設定
+        IventrySkillList[2].GetComponent<Image>().sprite = unit.unitSprite.sprite;
         sprite = shieldImage.GetComponent<SpriteRenderer>().sprite;
         IventrySkillList[3].GetComponent<Image>().sprite = sprite;
         sprite = armorImage.GetComponent<SpriteRenderer>().sprite;

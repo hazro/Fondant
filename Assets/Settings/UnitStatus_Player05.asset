@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   job: 4
   addLevel: 0
-  weapons: 0
+  weapons: 113001
   shields: 211001
   armor: 213002
   accessories: 215001
