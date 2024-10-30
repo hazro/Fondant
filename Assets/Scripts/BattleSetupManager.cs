@@ -26,10 +26,20 @@ public class BattleSetupManager : MonoBehaviour
 
     private void Start()
     {
-        // WorldManagerのインスタンスを動的に取得
-        worldManager = WorldManager.Instance;
         // GameManagerのインスタンスを取得
         gameManager = GameManager.Instance;
+        // WorldManagerのインスタンスを動的に取得
+        worldManager = WorldManager.Instance;
+        // 現在のワールドが0の場合、1に設定
+        if (worldManager.currentWorld == 0)
+        {
+            worldManager.currentWorld = 1;
+        }
+        // 現在のルームイベントが0の場合、1に設定
+        if (worldManager.currentRoomEvent == 0)
+        {
+            worldManager.currentRoomEvent = 1;
+        }
         iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
 
         if (startBattleButton == null || worldManager == null || enemyGridPoint == null || PlayerGridPoint == null)
@@ -37,13 +47,17 @@ public class BattleSetupManager : MonoBehaviour
             Debug.LogError("必要なフィールドが設定されていません。");
             return;
         }
+        // gameManagerのlivingUnitsリストが空の場合、プレイヤーキャラクターを生成
+        if (gameManager.livingUnits.Count == 0)
+        {
+            gameManager.createCharacter();
+        }
         SetupCharacterPlacement(); // プレイヤーキャラクターの配置
         SetupEnemies(); // 敵キャラクターの配置
 
         // 戦闘開始ボタンがクリックされたときの処理を設定
         startBattleButton.onClick.AddListener(OnStartBattleButtonClicked);
     }
-
 
     /// <summary>
     /// 敵キャラクターをグリッド上に配置するメソッド。
@@ -57,14 +71,29 @@ public class BattleSetupManager : MonoBehaviour
         {
             GameObject enemyGroupObj = new GameObject("EnemyGroup");
             enemyGroup = enemyGroupObj.transform;
+            // gameManagerのenemyGroupにenemyGroupを設定
+            gameManager.enemyGroup = enemyGroupObj;
 
             // 次のシーンに持っていくために、DontDestroyOnLoadを設定
             DontDestroyOnLoad(enemyGroupObj);
         }
 
-        var roomEventSettings = worldManager.GetCurrentRoomEventSettings();
+        // gameManagerから現在のワールド番号を取得
+        int currentWorld = worldManager.GetCurrentWorld();
+        // gameManagerから現在のルームイベント番号を取得
+        int currentRoomEvent = worldManager.GetCurrentRoomEvent();
+        // キャラクター情報を格納するリストを作成
+        List<ItemData.EnemySpawnSettingsData> worldEnemySpawn = new List<ItemData.EnemySpawnSettingsData>();
 
-        if (roomEventSettings.enemyTypeSpawnChances.Length == 0)
+        // gameManager.itemData.enemySpawnSettingsから現在のワールド番号とルームイベント番号(currentRoomEvent→stage)に対応するEnemySpawnSettingsDataをすべて取得
+        foreach (var enemySpawn in gameManager.itemData.enemySpawnSettings)
+        {
+            if (enemySpawn.world == currentWorld && enemySpawn.stage == currentRoomEvent)
+            {
+                worldEnemySpawn.Add(enemySpawn);
+            }
+        }
+        if (worldEnemySpawn.Count == 0)
         {
             Debug.LogWarning("現在のルームイベントに対する敵キャラクター設定がありません。");
             return;
@@ -78,8 +107,9 @@ public class BattleSetupManager : MonoBehaviour
         }
 
         // 敵キャラクターのスポーン設定を集める
-        Dictionary<EnemySpawnSettings.EnemyTypeSpawnChance, int> enemyCounts = new Dictionary<EnemySpawnSettings.EnemyTypeSpawnChance, int>();
-        foreach (var spawnSetting in roomEventSettings.enemyTypeSpawnChances)
+        // それぞれのスポーン設定に対して、最小数から最大数までのランダムな数の敵を生成
+        Dictionary<ItemData.EnemySpawnSettingsData, int> enemyCounts = new Dictionary<ItemData.EnemySpawnSettingsData, int>();
+        foreach (var spawnSetting in worldEnemySpawn)
         {
             int enemyCount = Random.Range(spawnSetting.minCount, spawnSetting.maxCount + 1);
             enemyCounts[spawnSetting] = enemyCount;
@@ -103,12 +133,15 @@ public class BattleSetupManager : MonoBehaviour
         List<Transform> availablePositions = gridPositions.ToList();
 
         // 敵キャラクターを優先順位でソート
-        var sortedSpawnSettings = roomEventSettings.enemyTypeSpawnChances
+        var sortedSpawnSettings = worldEnemySpawn
             .OrderByDescending(s => s.priority)
             .ToList();
 
         foreach (var spawnSetting in sortedSpawnSettings)
         {
+            // Assets/Resources/Prefabs/Unit/Enemyにある敵キャラクターのPrefabをEnemy + (string)spawnSetting.ID(2桁)で取得
+            GameObject enemyPrefab = Resources.Load<GameObject>("Prefabs/Unit/Enemy/Enemy" + spawnSetting.ID.ToString("00"));
+            
             int numEnemies = enemyCounts.ContainsKey(spawnSetting) ? enemyCounts[spawnSetting] : 0;
             for (int i = 0; i < numEnemies; i++)
             {
@@ -129,7 +162,7 @@ public class BattleSetupManager : MonoBehaviour
                     if (index < availablePositions.Count && availablePositions[index] != null)
                     {
                         Transform availablePosition = availablePositions[index];
-                        GameObject enemy = Instantiate(spawnSetting.enemyPrefab, availablePosition.position, Quaternion.identity, enemyGroup);
+                        GameObject enemy = Instantiate(enemyPrefab, availablePosition.position, Quaternion.identity, enemyGroup);
                         enemy.transform.SetParent(enemyGroup);
                         enemy.transform.position = availablePosition.position + new Vector3(0, 0, -0.1f);
                         availablePositions[index] = null; // この位置を利用済みとしてマーク
@@ -159,7 +192,7 @@ public class BattleSetupManager : MonoBehaviour
                             if (index < availablePositions.Count && availablePositions[index] != null)
                             {
                                 Transform availablePosition = availablePositions[index];
-                                GameObject enemy = Instantiate(spawnSetting.enemyPrefab, availablePosition.position, Quaternion.identity, enemyGroup);
+                                GameObject enemy = Instantiate(enemyPrefab, availablePosition.position, Quaternion.identity, enemyGroup);
                                 enemy.transform.SetParent(enemyGroup);
                                 enemy.transform.position = availablePosition.position + new Vector3(0, 0, -0.1f);
                                 availablePositions[index] = null; // この位置を利用済みとしてマーク
@@ -179,7 +212,7 @@ public class BattleSetupManager : MonoBehaviour
                 if (!placed && availablePositions.Count > 0)
                 {
                     Transform fallbackPosition = availablePositions[0];
-                    GameObject enemy = Instantiate(spawnSetting.enemyPrefab, fallbackPosition.position, Quaternion.identity, enemyGroup);
+                    GameObject enemy = Instantiate(enemyPrefab, fallbackPosition.position, Quaternion.identity, enemyGroup);
                     enemy.transform.SetParent(enemyGroup);
                     enemy.transform.position = fallbackPosition.position + new Vector3(0, 0, -0.1f);
                     availablePositions.RemoveAt(0);
@@ -209,6 +242,11 @@ public class BattleSetupManager : MonoBehaviour
         // GridPanelの子オブジェクト（セル）に対して順番にPlayerPrefabを配置する
         for (int i = 0; i < livingUnits.Length; i++)
         {
+            // SetActive(false)で、Unit.ConditionがDeadの場合は処理をスキップ
+            if (!livingUnits[i].activeSelf && livingUnits[i].GetComponent<Unit>().condition == 1)
+            {
+                continue;
+            }
             // 各セルのTransformを取得
             Transform cellTransform = PlayerGridPoint.GetChild(i);
 

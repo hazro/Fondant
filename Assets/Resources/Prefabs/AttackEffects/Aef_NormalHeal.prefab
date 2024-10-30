@@ -9806,7 +9806,7 @@ GameObject:
   - component: {fileID: 1991525947910659637}
   m_Layer: 0
   m_Name: Aef_NormalHeal
-  m_TagString: Untagged
+  m_TagString: Aef
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9917,6 +9917,9 @@ MonoBehaviour:
   trailWidth: 0.05
   trailStartColor: {r: 0.70980394, g: 1, b: 0.5254902, a: 1}
   trailEndColor: {r: 0.5372549, g: 1, b: 0.5686275, a: 0}
+  useDistance: 0
+  maxDistance: 3
+  lifetime: 1
 --- !u!1 &4005015342315961555
 GameObject:
   m_ObjectHideFlags: 0

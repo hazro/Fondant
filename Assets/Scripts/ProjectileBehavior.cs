@@ -9,7 +9,6 @@ public class ProjectileBehavior : MonoBehaviour
 {
     private Vector2 moveDirection;
     private float moveSpeed;
-    private float lifetime;
     private int remainingCharThrough;
     private int remainingObjectThrough;
     private string shooterTag; // 発射元のタグ
@@ -31,6 +30,13 @@ public class ProjectileBehavior : MonoBehaviour
     [SerializeField] private float trailWidth = 0.1f; // 軌跡の幅
     [SerializeField] private Color trailStartColor = Color.white; // 軌跡の開始色
     [SerializeField] private Color trailEndColor = new Color(1, 1, 1, 0); // 軌跡の終了色
+
+    // 消滅条件
+    [Header("Destruction Conditions")]
+    [SerializeField] private bool useDistance = false; // 到達距離で消滅するかどうか、falseの場合はlifetimeで消滅
+    [SerializeField] private float maxDistance = 3.0f; // 到達距離(物理攻撃)
+    [SerializeField] private float lifetime = 1.0f; // 消滅までの時間(魔法攻撃)
+    private Vector3 startPosition; // 発生位置
 
     // 発射元のユニット
     public Unit shooterUnit { get; private set; }
@@ -101,11 +107,33 @@ public class ProjectileBehavior : MonoBehaviour
     /// <summary>
     /// 発射物の初期化
     /// </summary>
-    public void Initialize(Vector2 direction, float speed, float lifetime, int charThrough, int objectThrough, string shooterTag, Transform target = null, bool enableTrail = false, bool enableSpiralMovement = false, float spiralExpansionSpeed = 1f, float shakeAmplitude = 0f, bool scaleOverTime = false, List<Attribute> attributes = null, StatusAilment? statusAilment = null, StatusEffect? statusEffect = null)
+    public void Initialize(
+        // 必須パラメータ
+        Vector2 direction, 
+        float speed, 
+        float adjustedLifetime, 
+        int charThrough, 
+        int objectThrough, 
+        string shooterTag, 
+        float attackMultiplier, 
+        float maxDistanceMultiplier, 
+        float weaponScaleMultiplier, //未設定
+        float knockbackMultiplier, //未設定
+        // オプションパラメータ
+        Transform target = null, 
+        bool enableTrail = false, 
+        bool enableSpiralMovement = false, 
+        float spiralExpansionSpeed = 1f, 
+        float shakeAmplitude = 0f, 
+        bool scaleOverTime = false, 
+        List<Attribute> attributes = null, 
+        StatusAilment? statusAilment = null, 
+        StatusEffect? statusEffect = null
+        )
     {
         this.moveDirection = direction.normalized;
         this.moveSpeed = speed;
-        this.lifetime = lifetime;
+        this.lifetime = lifetime * adjustedLifetime;
         this.remainingCharThrough = charThrough;
         this.remainingObjectThrough = objectThrough;
         this.shooterTag = shooterTag;
@@ -114,6 +142,8 @@ public class ProjectileBehavior : MonoBehaviour
         this.spiralExpansionSpeed = spiralExpansionSpeed;
         this.shakeAmplitude = shakeAmplitude;
         this.scaleOverTime = scaleOverTime;
+        this.power = power * attackMultiplier;
+        this.maxDistance = maxDistance * maxDistanceMultiplier;
 
         if (attributes != null)
         {
@@ -149,7 +179,18 @@ public class ProjectileBehavior : MonoBehaviour
         }
 
         timeSinceLaunch = 0f; // 発射時に経過時間をリセット
-        StartCoroutine(DestroyAfterLifetime());
+
+        // 消滅条件によってコルーチンを選択
+        if (useDistance)
+        {
+            // 到達距離で消滅する場合
+            StartCoroutine(CheckDistance());
+        }
+        else
+        {
+            // 指定時間経過後に消滅する場合
+            StartCoroutine(DestroyAfterLifetime());
+        }
     }
 
     /// <summary>
@@ -237,11 +278,38 @@ public class ProjectileBehavior : MonoBehaviour
     }
 
     /// <summary>
+    /// 発射物の開始距離からのトータル移動距離がmaxDistanceに到達したときに消滅する
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator  CheckDistance()
+    {
+        startPosition = transform.position;
+        while (Vector3.Distance(startPosition, transform.position) < maxDistance)
+        {
+            yield return null;
+        }
+        Destroy(gameObject);
+    }
+
+    /// <summary>
     /// 発射物が他のオブジェクトに衝突したときの処理
     /// </summary>
     /// <param name="collision">衝突したオブジェクトの情報</param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // 発射元が設定されていない場合は処理を行わない
+        if (shooterUnit == null)
+        {
+            return;
+        }
+
+        // 衝突したオブジェクトが発射物の場合は無視する
+        if (collision.CompareTag("Aef"))
+        {
+            return;
+        }
+
+        // 発射元のtargetSameTagを取得
         bool targetSameTag = shooterUnit.GetComponent<UnitController>().targetSameTag;
 
         // 衝突したオブジェクトが障害物タグを持つ場合の処理
@@ -286,7 +354,7 @@ public class ProjectileBehavior : MonoBehaviour
                             break;
 
                         case Attribute.Healing:
-                            float healing = shooterUnit.magicalAttackPower;
+                            float healing = shooterUnit.magicalAttackPower * power;
                             totalHealing += healing;
                             break;
                     }
@@ -302,10 +370,13 @@ public class ProjectileBehavior : MonoBehaviour
                     targetUnit.Heal(totalHealing);
                 }
             }
+            // 通過回数を減らす
             remainingCharThrough--;
+            // 通過回数が0以下になったら消滅する
             if (remainingCharThrough <= 0)
             {
-                StartCoroutine(FadeOutAndDestroy());
+                Destroy(gameObject);
+                //StartCoroutine(FadeOutAndDestroy());
             }
         }
     }

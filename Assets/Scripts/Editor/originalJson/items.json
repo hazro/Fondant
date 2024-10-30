@@ -1,0 +1,1845 @@
+{
+  "jobList": [
+    {
+      "ID": 0,
+      "name": "fighter",
+      "magic": 1,
+      "str": 5,
+      "dex": 2,
+      "levelScaleFactor": 1,
+      "levelMagic": 0.33,
+      "levelStr": 2,
+      "levelDex": 1,
+      "levelKnockBack": 0.2,
+      "equeLargeSwordAxe": 1,
+      "spWeapon": 1,
+      "equeShield": 1,
+      "equeHeavyArmor": 1,
+      "equeLightArmor": 1,
+      "equeAccessories": 1,
+      "initWeapon": 111001,
+      "initShield": 211001,
+      "initArmor": 213001,
+      "initAccessories": 215001
+    },
+    {
+      "ID": 1,
+      "name": "mage",
+      "magic": 5,
+      "str": 1,
+      "dex": 2,
+      "levelScaleFactor": 1,
+      "levelMagic": 2,
+      "levelStr": 0.33,
+      "levelDex": 1,
+      "equeStickStaffBook": 1,
+      "equeShield": 1,
+      "equeRobe": 1,
+      "equeAccessories": 1,
+      "initWeapon": 114001,
+      "initShield": 211001,
+      "initArmor": 213001,
+      "initAccessories": 215001
+    },
+    {
+      "ID": 2,
+      "name": "assasin",
+      "magic": 1,
+      "str": 3,
+      "dex": 5,
+      "residCondition": 3,
+      "levelScaleFactor": 1,
+      "levelMagic": 0.33,
+      "levelStr": 1.5,
+      "levelDex": 2,
+      "levelResidtCondition": 0.33,
+      "equeSwordDagger": 1,
+      "arrow": 1,
+      "spWeapon": 1,
+      "equeShield": 1,
+      "equeLightArmor": 1,
+      "equeAccessories": 1,
+      "initWeapon": 116001,
+      "initShield": 211001,
+      "initArmor": 213001,
+      "initAccessories": 215001
+    },
+    {
+      "ID": 3,
+      "name": "helar",
+      "magic": 5,
+      "str": 1,
+      "dex": 1,
+      "residCondition": 10,
+      "attackObjectThrough": 99,
+      "levelScaleFactor": 1,
+      "levelMagic": 2,
+      "levelStr": 0.33,
+      "levelDex": 0.33,
+      "levelResidtCondition": 1,
+      "escape": 0.07,
+      "equeStickStaffBook": 1,
+      "equeRobe": 1,
+      "equeAccessories": 1,
+      "initWeapon": 115001,
+      "initShield": 211001,
+      "initArmor": 213002,
+      "initAccessories": 215001
+    },
+    {
+      "ID": 4,
+      "name": "tank",
+      "magic": 3,
+      "str": 3,
+      "dex": 2,
+      "residCondition": 3,
+      "initKnockBack": 5,
+      "levelScaleFactor": 1,
+      "levelMagic": 1,
+      "levelStr": 1,
+      "levelDex": 1,
+      "levelResidtCondition": 1,
+      "levelKnockBack": 0.4,
+      "equeLargeSwordAxe": 1,
+      "spWeapon": 1,
+      "equeShield": 1,
+      "equeHeavyArmor": 1,
+      "equeAccessories": 1,
+      "initWeapon": 113001,
+      "initShield": 211001,
+      "initArmor": 213001,
+      "initAccessories": 215001
+    },
+    {
+      "ID": 30,
+      "name": "pysicalMonster",
+      "magic": 1,
+      "str": 5,
+      "dex": 2,
+      "levelScaleFactor": 1,
+      "levelMagic": 0.33,
+      "levelStr": 2,
+      "levelDex": 1,
+      "levelKnockBack": 0.2,
+      "equeLargeSwordAxe": 1,
+      "spWeapon": 1,
+      "equeShield": 1,
+      "equeHeavyArmor": 1,
+      "equeLightArmor": 1,
+      "equeAccessories": 1
+    },
+    {
+      "ID": 31,
+      "name": "mageMonster",
+      "magic": 5,
+      "str": 1,
+      "dex": 2,
+      "levelScaleFactor": 1,
+      "levelMagic": 2,
+      "levelStr": 0.33,
+      "levelDex": 1,
+      "equeStickStaffBook": 1,
+      "equeShield": 1,
+      "equeRobe": 1,
+      "equeAccessories": 1
+    },
+    {
+      "ID": 32,
+      "name": "assasinMonster",
+      "magic": 1,
+      "str": 3,
+      "dex": 5,
+      "residCondition": 3,
+      "levelScaleFactor": 1,
+      "levelMagic": 0.33,
+      "levelStr": 1.5,
+      "levelDex": 2,
+      "levelResidtCondition": 0.33,
+      "equeSwordDagger": 1,
+      "arrow": 1,
+      "spWeapon": 1,
+      "equeShield": 1,
+      "equeLightArmor": 1,
+      "equeAccessories": 1
+    },
+    {
+      "ID": 33,
+      "name": "helarMonster",
+      "magic": 5,
+      "str": 1,
+      "dex": 1,
+      "residCondition": 10,
+      "attackObjectThrough": 99,
+      "levelScaleFactor": 1,
+      "levelMagic": 2,
+      "levelStr": 0.33,
+      "levelDex": 0.33,
+      "levelResidtCondition": 1,
+      "escape": 0.07,
+      "equeStickStaffBook": 1,
+      "equeRobe": 1,
+      "equeAccessories": 1
+    },
+    {
+      "ID": 34,
+      "name": "tankMonster",
+      "magic": 3,
+      "str": 3,
+      "dex": 2,
+      "residCondition": 3,
+      "initKnockBack": 5,
+      "levelScaleFactor": 1,
+      "levelMagic": 1,
+      "levelStr": 1,
+      "levelDex": 1,
+      "levelResidtCondition": 1,
+      "levelKnockBack": 0.4,
+      "equeLargeSwordAxe": 1,
+      "spWeapon": 1,
+      "equeShield": 1,
+      "equeHeavyArmor": 1,
+      "equeAccessories": 1
+    }
+  ],
+  "eqpList": [
+    {
+      "ID": 0
+    },
+    {
+      "ID": 211001,
+      "name": "wood shield",
+      "ability": "Raise physical defense just a little.",
+      "world": 1,
+      "price": 30,
+      "physicalDefensePower": 1
+    },
+    {
+      "ID": 213001,
+      "name": "leather armor",
+      "ability": "Raise physical defense just a little.",
+      "world": 1,
+      "price": 30,
+      "physicalDefensePower": 1
+    },
+    {
+      "ID": 213002,
+      "name": "cloth clothes",
+      "ability": "Increase physical defense and speed just a little",
+      "world": 1,
+      "price": 30,
+      "physicalDefensePower": 0.5,
+      "speed": 0.5
+    },
+    {
+      "ID": 215001,
+      "name": "normal magic ring",
+      "ability": "Increase magic defense and attack power just a little",
+      "world": 1,
+      "price": 30,
+      "magicalAttackPower": 1,
+      "magicalDefensePower": 1
+    }
+  ],
+  "wpnList": [
+    {
+      "ID": 0
+    },
+    {
+      "ID": 111001,
+      "name": "wood sord",
+      "world": 1,
+      "price": 30,
+      "socketCount": 3,
+      "physicalAttackPower": 2,
+      "attackRange": 0.6
+    },
+    {
+      "ID": 111901,
+      "world": 1,
+      "price": 30,
+      "attackRange": 0.6
+    },
+    {
+      "ID": 112001,
+      "name": "wood dager",
+      "world": 1,
+      "price": 30,
+      "socketCount": 3,
+      "physicalAttackPower": 1,
+      "speed": 1,
+      "attackRange": 0.35
+    },
+    {
+      "ID": 112002,
+      "name": "iron dager",
+      "world": 1,
+      "price": 30,
+      "socketCount": 3,
+      "physicalAttackPower": 2,
+      "speed": 2,
+      "attackRange": 0.35
+    },
+    {
+      "ID": 113001,
+      "name": "wood axe",
+      "world": 1,
+      "price": 30,
+      "socketCount": 3,
+      "physicalAttackPower": 3,
+      "attackRange": 0.6
+    },
+    {
+      "ID": 114001,
+      "name": "wood staff",
+      "world": 1,
+      "price": 30,
+      "socketCount": 12,
+      "magicalAttackPower": 3,
+      "attackRange": 2.5
+    },
+    {
+      "ID": 115001,
+      "name": "wood wand",
+      "world": 1,
+      "price": 30,
+      "socketCount": 3,
+      "magicalAttackPower": 1,
+      "attackRange": 2
+    },
+    {
+      "ID": 116001,
+      "name": "wood arrow",
+      "world": 1,
+      "price": 30,
+      "socketCount": 3,
+      "physicalAttackPower": 1,
+      "attackRange": 2.5
+    }
+  ],
+  "enemyList": [
+    {
+      "ID": 1,
+      "name": "slime",
+      "job": 30,
+      "addLevel": 0,
+      "weapons": 111901,
+      "drop1": 211001,
+      "drop2": 213001,
+      "drop3": 215001,
+      "drop1Rate": 1,
+      "drop2Rate": 3,
+      "drop3Rate": 1,
+      "dropExp": 2,
+      "dropGold": 10
+    },
+    {
+      "ID": 2,
+      "name": "bat",
+      "job": 30,
+      "addLevel": 0,
+      "weapons": 111901,
+      "drop1": 211001,
+      "drop2": 213001,
+      "drop3": 215001,
+      "drop1Rate": 1,
+      "drop2Rate": 3,
+      "drop3Rate": 1,
+      "dropExp": 3,
+      "dropGold": 10
+    },
+    {
+      "ID": 3,
+      "name": "skelton",
+      "job": 30,
+      "addLevel": 2,
+      "weapons": 111901,
+      "drop1": 211001,
+      "drop2": 213001,
+      "drop3": 215001,
+      "drop1Rate": 1,
+      "drop2Rate": 3,
+      "drop3Rate": 1,
+      "dropExp": 5,
+      "dropGold": 20
+    }
+  ],
+  "runeList": [
+    {
+      "ID": 0
+    },
+    {
+      "ID": 411001,
+      "name": "fanning",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Fanning out the attack range",
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
+    },
+    {
+      "ID": 411002,
+      "name": "cross4Directions",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Divided into 4-way crosses",
+      "pysicalPowerLv1": 0.33,
+      "pysicalPowerLv2": 0.5,
+      "pysicalPowerLv3": 0.75,
+      "magicalPowerLv1": 0.33,
+      "magicalPowerLv2": 0.5,
+      "magicalPowerLv3": 0.75
+    },
+    {
+      "ID": 411003,
+      "name": "8Directions",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Diagonally divided in 4 directions",
+      "pysicalPowerLv1": 0.25,
+      "pysicalPowerLv2": 0.33,
+      "pysicalPowerLv3": 0.5,
+      "magicalPowerLv1": 0.25,
+      "magicalPowerLv2": 0.33,
+      "magicalPowerLv3": 0.5
+    },
+    {
+      "ID": 411004,
+      "name": "diagonal4Directions",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Divided into 8 directions",
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
+    },
+    {
+      "ID": 411005,
+      "name": "fullPerimeter",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Extends all around",
+      "pysicalPowerLv1": 0.25,
+      "pysicalPowerLv2": 0.33,
+      "pysicalPowerLv3": 0.5,
+      "magicalPowerLv1": 0.25,
+      "magicalPowerLv2": 0.33,
+      "magicalPowerLv3": 0.5
+    },
+    {
+      "ID": 411006,
+      "name": "frontAndBack",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Instant attack back and forth",
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
+    },
+    {
+      "ID": 411007,
+      "name": "tornado",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "tornado attack",
+      "delayLv1": 0.33,
+      "delayLv2": 0.5,
+      "delayLv3": 0.5,
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
+    },
+    {
+      "ID": 411008,
+      "name": "3Directions",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Simultaneous attacks in 3 directions",
+      "pysicalPowerLv1": 0.33,
+      "pysicalPowerLv2": 0.5,
+      "pysicalPowerLv3": 0.75,
+      "magicalPowerLv1": 0.33,
+      "magicalPowerLv2": 0.5,
+      "magicalPowerLv3": 0.75
+    },
+    {
+      "ID": 411009,
+      "name": "2Directions",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Simultaneous attacks in 2 directions",
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
+    },
+    {
+      "ID": 412001,
+      "name": "followTarget",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Connects the starting point of the attack to the point where it reaches the target. Contacted parties take damage every 0.33 seconds.",
+      "pysicalPowerLv1": 0.33,
+      "pysicalPowerLv2": 0.5,
+      "pysicalPowerLv3": 0.75,
+      "magicalPowerLv1": 0.33,
+      "magicalPowerLv2": 0.5,
+      "magicalPowerLv3": 0.75
+    },
+    {
+      "ID": 412002,
+      "name": "laser",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "laser",
+      "pysicalPowerLv1": 0.33,
+      "pysicalPowerLv2": 0.5,
+      "pysicalPowerLv3": 0.75,
+      "magicalPowerLv1": 0.33,
+      "magicalPowerLv2": 0.5,
+      "magicalPowerLv3": 0.75
+    },
+    {
+      "ID": 412003,
+      "name": "randomPosition",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Random position within the attack range is used as the attack start position"
+    },
+    {
+      "ID": 412004,
+      "name": "randomDirectHit",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Direct hit to a random target within the attack range",
+      "pysicalPowerLv1": 0.25,
+      "pysicalPowerLv2": 0.33,
+      "pysicalPowerLv3": 0.5,
+      "magicalPowerLv1": 0.25,
+      "magicalPowerLv2": 0.33,
+      "magicalPowerLv3": 0.5
+    },
+    {
+      "ID": 412005,
+      "name": "targetYourGroup",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Target your own people."
+    },
+    {
+      "ID": 412006,
+      "name": "targetLowHp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Target the lowest HP opponent."
+    },
+    {
+      "ID": 412007,
+      "name": "targetAnomaly",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Target those with abnormalities (priority over low HP)"
+    },
+    {
+      "ID": 412008,
+      "name": "directHit",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Direct attack on targets in range",
+      "pysicalPowerLv1": 0.25,
+      "pysicalPowerLv2": 0.33,
+      "pysicalPowerLv3": 0.5,
+      "magicalPowerLv1": 0.25,
+      "magicalPowerLv2": 0.33,
+      "magicalPowerLv3": 0.5
+    },
+    {
+      "ID": 412009,
+      "name": "weaponGiant",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "weapon magnification",
+      "delayLv1": 0.33,
+      "delayLv2": 0.33,
+      "delayLv3": 0.33,
+      "scaleLv1": 1.25,
+      "scaleLv2": 1.5,
+      "scaleLv3": 1.75,
+      "distanceLv1": 1.5,
+      "distanceLv2": 2,
+      "distanceLv3": 3,
+      "pysicalPowerLv1": 1.5,
+      "pysicalPowerLv2": 2,
+      "pysicalPowerLv3": 3,
+      "magicalPowerLv1": 1.5,
+      "magicalPowerLv2": 2,
+      "magicalPowerLv3": 3
+    },
+    {
+      "ID": 412010,
+      "name": "spiral",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Attacks spread in a spiral (spiral) pattern around the character."
+    },
+    {
+      "ID": 412011,
+      "name": "wave",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "The attack proceeds in waves."
+    },
+    {
+      "ID": 412012,
+      "name": "speedAttack",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "High-speed attacks that penetrate objects and enemies",
+      "delayLv1": 0.33,
+      "delayLv2": 0.33,
+      "delayLv3": 0.33,
+      "distanceLv1": 1.5,
+      "distanceLv2": 2,
+      "distanceLv3": 3,
+      "speedLv1": 1.5,
+      "speedLv2": 2,
+      "speedLv3": 3,
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1,
+      "attackUnitThroughLv1": 1,
+      "attackUnitThroughLv2": 2,
+      "attackUnitThroughLv3": 3,
+      "attackObjectThroughLv1": 1,
+      "attackObjectThroughLv2": 2,
+      "attackObjectThroughLv3": 3
+    },
+    {
+      "ID": 412013,
+      "name": "barrageAttack",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "3 quick attacks on delay at 1, but with reduced attack power.",
+      "delayLv1": 3,
+      "delayLv2": 3,
+      "delayLv3": 3,
+      "pysicalPowerLv1": 0.33,
+      "pysicalPowerLv2": 0.5,
+      "pysicalPowerLv3": 0.75,
+      "magicalPowerLv1": 0.33,
+      "magicalPowerLv2": 0.5,
+      "magicalPowerLv3": 0.75
+    },
+    {
+      "ID": 412014,
+      "name": "enhanceKnockback",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Double knockback"
+    },
+    {
+      "ID": 412015,
+      "name": "spread",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "If it penetrates the target, the attack scatters in two directions",
+      "distanceLv1": 3,
+      "distanceLv2": 3,
+      "distanceLv3": 3,
+      "timeLv1": 0.5,
+      "timeLv2": 0.5,
+      "timeLv3": 0.5,
+      "pysicalPowerLv1": 0.125,
+      "pysicalPowerLv2": 0.167,
+      "pysicalPowerLv3": 0.25,
+      "magicalPowerLv1": 0.125,
+      "magicalPowerLv2": 0.167,
+      "magicalPowerLv3": 0.25
+    },
+    {
+      "ID": 412016,
+      "name": "backStep",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Backstep (Backward while attacking)",
+      "pysicalPowerLv1": 1,
+      "pysicalPowerLv2": 1.25,
+      "pysicalPowerLv3": 1.5,
+      "magicalPowerLv1": 1,
+      "magicalPowerLv2": 1.25,
+      "magicalPowerLv3": 1.5
+    },
+    {
+      "ID": 412017,
+      "name": "scaleUpBlow",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Attacks get bigger over time.",
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
+    },
+    {
+      "ID": 412018,
+      "name": "chargeAttack",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Charge shot (longer preliminary movement increases speed and power)",
+      "delayLv1": 0.5,
+      "delayLv2": 0.5,
+      "delayLv3": 0.5,
+      "speedLv1": 1.25,
+      "speedLv2": 1.5,
+      "speedLv3": 3,
+      "pysicalPowerLv1": 1.25,
+      "pysicalPowerLv2": 1.5,
+      "pysicalPowerLv3": 2,
+      "magicalPowerLv1": 1.25,
+      "magicalPowerLv2": 1.5,
+      "magicalPowerLv3": 2
+    },
+    {
+      "ID": 412019,
+      "name": "penetrate",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Penetrating attack with increased distance",
+      "distanceLv1": 2,
+      "distanceLv2": 2.5,
+      "distanceLv3": 3,
+      "timeLv1": 1.25,
+      "timeLv2": 1.5,
+      "timeLv3": 1.75,
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1,
+      "attackUnitThroughLv1": 1,
+      "attackUnitThroughLv2": 2,
+      "attackUnitThroughLv3": 3,
+      "attackObjectThroughLv1": 1,
+      "attackObjectThroughLv2": 2,
+      "attackObjectThroughLv3": 3
+    },
+    {
+      "ID": 412020,
+      "name": "changeTarget",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Changes target within range with every shot."
+    },
+    {
+      "ID": 412021,
+      "name": "changeTargetAll",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Change targets, including out of range with every shot."
+    },
+    {
+      "ID": 412022,
+      "name": "chainAttack",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "If you penetrate the target, target another opposing hand that is closer."
+    },
+    {
+      "ID": 413001,
+      "name": "delayReduction",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Delay Shortening (x multiplier)",
+      "delayLv1": 1.25,
+      "delayLv2": 1.75,
+      "delayLv3": 2
+    },
+    {
+      "ID": 413002,
+      "name": "delayRandom",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Randomly varies delay time from 0.3 to 3  multiplier",
+      "delayLv1": 3,
+      "delayLv2": 3,
+      "delayLv3": 3
+    },
+    {
+      "ID": 413003,
+      "name": "distanceUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increased attack speed & attack distance (x multiplier)",
+      "distanceLv1": 1.1,
+      "distanceLv2": 1.33,
+      "distanceLv3": 1.5,
+      "speedLv1": 1.1,
+      "speedLv2": 1.33,
+      "speedLv3": 1.5
+    },
+    {
+      "ID": 413004,
+      "name": "moveSpeedUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Movement speed up (x multiplier)",
+      "moveSpeedLv1": 1.1,
+      "moveSpeedLv2": 1.33,
+      "moveSpeedLv3": 1.5
+    },
+    {
+      "ID": 413005,
+      "name": "physicalDefenseUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Physical defense up (x multiplier)",
+      "physicalDefenseLv1": 1.2,
+      "physicalDefenseLv2": 1.33,
+      "physicalDefenseLv3": 1.5
+    },
+    {
+      "ID": 413006,
+      "name": "physicalPowerUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Physical attack power up (x multiplier)",
+      "pysicalPowerLv1": 1.2,
+      "pysicalPowerLv2": 1.33,
+      "pysicalPowerLv3": 1.5
+    },
+    {
+      "ID": 413007,
+      "name": "magicDefenseUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Magic defense up (x multiplier)",
+      "magicalDefenseLv1": 1.2,
+      "magicalDefenseLv2": 1.33,
+      "magicalDefenseLv3": 1.5
+    },
+    {
+      "ID": 413008,
+      "name": "magicPowerUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Magic attack up (x multiplier)",
+      "magicalPowerLv1": 1.2,
+      "magicalPowerLv2": 1.33,
+      "magicalPowerLv3": 1.5
+    },
+    {
+      "ID": 413009,
+      "name": "TargetPenetrateUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increased target penetration(x number)",
+      "attackUnitThroughLv1": 1,
+      "attackUnitThroughLv2": 2,
+      "attackUnitThroughLv3": 3
+    },
+    {
+      "ID": 413010,
+      "name": "obstaclePenetrateUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increased obstacle penetration (x number)",
+      "attackObjectThroughLv1": 1,
+      "attackObjectThroughLv2": 2,
+      "attackObjectThroughLv3": 3
+    },
+    {
+      "ID": 413011,
+      "name": "physicalUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Slightly increase physical defense and attack power (x multiplier)",
+      "physicalDefenseLv1": 1.1,
+      "physicalDefenseLv2": 1.2,
+      "physicalDefenseLv3": 1.3,
+      "pysicalPowerLv1": 1.1,
+      "pysicalPowerLv2": 1.2,
+      "pysicalPowerLv3": 1.3
+    },
+    {
+      "ID": 413012,
+      "name": "magicUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increase magic defense and attack power slightly  (x multiplier)",
+      "magicalDefenseLv1": 1.1,
+      "magicalDefenseLv2": 1.2,
+      "magicalDefenseLv3": 1.3,
+      "magicalPowerLv1": 1.1,
+      "magicalPowerLv2": 1.2,
+      "magicalPowerLv3": 1.3
+    },
+    {
+      "ID": 413013,
+      "name": "bloodTimeUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Burns and bleeds last longer and increase effectiveness (x multiplier)",
+      "bloodTimeLv1": 1.25,
+      "bloodTimeLv2": 1.5,
+      "bloodTimeLv3": 2
+    },
+    {
+      "ID": 413014,
+      "name": "poisonTimeUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Poison Duration of effect, increase effect (x multiplier)",
+      "poisonTimeLv1": 1.25,
+      "poisonTimeLv2": 1.5,
+      "poisonTimeLv3": 2
+    },
+    {
+      "ID": 413015,
+      "name": "creticalChanceUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increased Critical Establishment (x multiplier)",
+      "cretecalChanceLv1": 1.5,
+      "cretecalChanceLv2": 2,
+      "cretecalChanceLv3": 3
+    },
+    {
+      "ID": 413016,
+      "name": "guardChanceUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increased guard probability (x multiplier)",
+      "guardChanceLv1": 1.25,
+      "guardChanceLv2": 1.5,
+      "guardChanceLv3": 2
+    },
+    {
+      "ID": 413017,
+      "name": "priorityOthers",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Targets other than yourself in the enemy's attack range are given priority."
+    },
+    {
+      "ID": 413018,
+      "name": "regenerative",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Gradual HP recovery  (x% second)"
+    },
+    {
+      "ID": 413019,
+      "name": "bloodSuck",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Recovers HP by x-multiplier of the damage inflicted.",
+      "bloodSuckLv1": 0.1,
+      "bloodSuckLv2": 0.2,
+      "bloodSuckLv3": 0.3
+    },
+    {
+      "ID": 413020,
+      "name": "guardPoison",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Prevent poison (x * 100% add)",
+      "poisonGuardLv1": 0.25,
+      "poisonGuardLv2": 0.5,
+      "poisonGuardLv3": 1
+    },
+    {
+      "ID": 413021,
+      "name": "guardBleed",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Prevents bleeding (x * 100% add)",
+      "bleedGuardLv1": 0.25,
+      "bleedGuardLv2": 0.5,
+      "bleedGuardLv3": 1
+    },
+    {
+      "ID": 413022,
+      "name": "stunGuard",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Prevent stun (x * 100% add)",
+      "stunGuardLv1": 0.25,
+      "stunGuardLv2": 0.5,
+      "stunGuardLv3": 1
+    },
+    {
+      "ID": 413023,
+      "name": "guardParalysis",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Prevents paralysis (x * 100% add)",
+      "paralysisGuardLv1": 0.25,
+      "paralysisGuardLv2": 0.5,
+      "paralysisGuardLv3": 1
+    },
+    {
+      "ID": 413024,
+      "name": "guardWakeing",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Prevent Weakness (x * 100% add)",
+      "wakeGuardLv1": 0.25,
+      "wakeGuardLv2": 0.5,
+      "wakeGuardLv3": 1
+    },
+    {
+      "ID": 413025,
+      "name": "defenseDownGurad",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Prevent vulnerability (x * 100% add)",
+      "defenceDownGuardLv1": 0.25,
+      "defenceDownGuardLv2": 0.5,
+      "defenceDownGuardLv3": 1
+    },
+    {
+      "ID": 413026,
+      "name": "nonAttackMagicUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Significantly increases the magic defense when non-attacking (x multiplied)",
+      "magicalDefenseLv1": 1.33,
+      "magicalDefenseLv2": 1.5,
+      "magicalDefenseLv3": 2
+    },
+    {
+      "ID": 413027,
+      "name": "nonAttackGuardChanceUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Significantly increase the guard probability on non-attacks (x multiplier)",
+      "guardChanceLv1": 1.33,
+      "guardChanceLv2": 1.5,
+      "guardChanceLv3": 2
+    },
+    {
+      "ID": 413028,
+      "name": "conditionGuardUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Abnormality resistance up (x multiplier added)",
+      "conditionGuardLv1": 0.1,
+      "conditionGuardLv2": 0.2,
+      "conditionGuardLv3": 0.3
+    },
+    {
+      "ID": 413029,
+      "name": "comboUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Increased damage for combos (combo count * x%)",
+      "comboDamageLv1": 1,
+      "comboDamageLv2": 2,
+      "comboDamageLv3": 3
+    },
+    {
+      "ID": 413030,
+      "name": "comboCritical",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Critical every x number of combos.",
+      "comboCriticalLv1": 5,
+      "comboCriticalLv2": 4,
+      "comboCriticalLv3": 3
+    },
+    {
+      "ID": 413031,
+      "name": "creticalDamageUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Critical damage increase (x multiplier)",
+      "criticalDamageLv1": 1.25,
+      "criticalDamageLv2": 1.5,
+      "criticalDamageLv3": 2
+    },
+    {
+      "ID": 413032,
+      "name": "conditionRecavery",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Recovery Attacks with Condition Recovery"
+    },
+    {
+      "ID": 413033,
+      "name": "changeRegenerative",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Changed recovery attack to grant automatic HP recovery  (x% second)"
+    },
+    {
+      "ID": 413034,
+      "name": "priorityTarget",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Easier to be selected as a target and harder to be released once selected"
+    },
+    {
+      "ID": 413035,
+      "name": "levelUp",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Raise level x",
+      "addLevelLv1": 1,
+      "addLevelLv2": 3,
+      "addLevelLv3": 5
+    },
+    {
+      "ID": 413036,
+      "name": "teleportation",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "Granted teleportation movement"
+    },
+    {
+      "ID": 413037,
+      "name": "escape",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 1,
+      "ability": "If attacked, run away."
+    },
+    {
+      "ID": 414001,
+      "name": "poison",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Inflicts a poison effect on the attack with a probability of. Damage level * x (every 2 seconds)",
+      "poisonLv1": 0.033,
+      "poisonLv2": 0.05,
+      "poisonLv3": 0.075
+    },
+    {
+      "ID": 414002,
+      "name": "bleed",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Inflicts a bleeding effect on attacks with a probability of.   Damage level * x (every 2 seconds)",
+      "bleedLv1": 0.75,
+      "bleedLv2": 0.1,
+      "bleedLv3": 0.15
+    },
+    {
+      "ID": 414003,
+      "name": "stun",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Inflicts a stun effect on attacks with a probability of.   (level * x second)",
+      "stunLv1": 0.05,
+      "stunLv2": 0.1,
+      "stunLv3": 0.15
+    },
+    {
+      "ID": 414004,
+      "name": "paralysis",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Gives a paralyzing effect to attacks with a probability of paralysis.   (level * x second)",
+      "paralysisLv1": 0.05,
+      "paralysisLv2": 0.1,
+      "paralysisLv3": 0.15
+    },
+    {
+      "ID": 414005,
+      "name": "defenseDown",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Adds vulnerability to attacks with a probability of.   (level * x second)",
+      "wakeLv1": 0.05,
+      "wakeLv2": 0.1,
+      "wakeLv3": 0.15
+    },
+    {
+      "ID": 414006,
+      "name": "weakening",
+      "world": 1,
+      "price": 10,
+      "maxLevel": 3,
+      "ability": "Probability of inflicting a weakening to the attack.   (level * x second)",
+      "defenceDownLv1": 0.05,
+      "defenceDownLv2": 0.1,
+      "defenceDownLv3": 0.15
+    }
+  ],
+  "enemySpawnSettings": [
+    {
+      "world": 1,
+      "stage": 1,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 1,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 1,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 2,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 2,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 2,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 3,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 3,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 3,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 4,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 4,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 4,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 5,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 5,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 5,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 6,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 6,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 6,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 7,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 7,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 7,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 8,
+      "ID": 1,
+      "minCount": 2,
+      "maxCount": 5,
+      "preferredColumn": 0,
+      "priority": 2
+    },
+    {
+      "world": 1,
+      "stage": 8,
+      "ID": 2,
+      "minCount": 1,
+      "maxCount": 2,
+      "preferredColumn": 2,
+      "priority": 3
+    },
+    {
+      "world": 1,
+      "stage": 8,
+      "ID": 3,
+      "minCount": 0,
+      "maxCount": 1,
+      "preferredColumn": 1,
+      "priority": 2
+    }
+  ],
+  "runeSpawnSettings": [
+    {
+      "world": 1,
+      "ID": 411001,
+      "name": "fanning"
+    },
+    {
+      "world": 1,
+      "ID": 411002,
+      "name": "cross4Directions"
+    },
+    {
+      "world": 1,
+      "ID": 411003,
+      "name": "8Directions"
+    },
+    {
+      "world": 1,
+      "ID": 411004,
+      "name": "diagonal4Directions"
+    },
+    {
+      "world": 1,
+      "ID": 411005,
+      "name": "fullPerimeter"
+    },
+    {
+      "world": 1,
+      "ID": 411006,
+      "name": "frontAndBack"
+    },
+    {
+      "world": 1,
+      "ID": 411007,
+      "name": "tornado"
+    },
+    {
+      "world": 1,
+      "ID": 411008,
+      "name": "3Directions"
+    },
+    {
+      "world": 1,
+      "ID": 411009,
+      "name": "2Directions"
+    },
+    {
+      "world": 1,
+      "ID": 412001,
+      "name": "followTarget"
+    },
+    {
+      "world": 1,
+      "ID": 412002,
+      "name": "laser"
+    },
+    {
+      "world": 1,
+      "ID": 412003,
+      "name": "randomPosition"
+    },
+    {
+      "world": 1,
+      "ID": 412004,
+      "name": "randomDirectHit"
+    },
+    {
+      "world": 1,
+      "ID": 412005,
+      "name": "targetYourGroup"
+    },
+    {
+      "world": 1,
+      "ID": 412006,
+      "name": "targetLowHp"
+    },
+    {
+      "world": 1,
+      "ID": 412007,
+      "name": "targetAnomaly"
+    },
+    {
+      "world": 1,
+      "ID": 412008,
+      "name": "directHit"
+    },
+    {
+      "world": 1,
+      "ID": 412009,
+      "name": "weaponGiant"
+    },
+    {
+      "world": 1,
+      "ID": 412010,
+      "name": "spiral"
+    },
+    {
+      "world": 1,
+      "ID": 412011,
+      "name": "wave"
+    },
+    {
+      "world": 1,
+      "ID": 412012,
+      "name": "speedAttack"
+    },
+    {
+      "world": 1,
+      "ID": 412013,
+      "name": "barrageAttack"
+    },
+    {
+      "world": 1,
+      "ID": 412014,
+      "name": "enhanceKnockback"
+    },
+    {
+      "world": 1,
+      "ID": 412015,
+      "name": "spread"
+    },
+    {
+      "world": 1,
+      "ID": 412016,
+      "name": "backStep"
+    },
+    {
+      "world": 1,
+      "ID": 412017,
+      "name": "scaleUpBlow"
+    },
+    {
+      "world": 1,
+      "ID": 412018,
+      "name": "chargeAttack"
+    },
+    {
+      "world": 1,
+      "ID": 412019,
+      "name": "penetrate"
+    },
+    {
+      "world": 1,
+      "ID": 412020,
+      "name": "changeTarget"
+    },
+    {
+      "world": 1,
+      "ID": 412021,
+      "name": "changeTargetAll"
+    },
+    {
+      "world": 1,
+      "ID": 412022,
+      "name": "chainAttack"
+    },
+    {
+      "world": 1,
+      "ID": 413001,
+      "name": "delayReduction"
+    },
+    {
+      "world": 1,
+      "ID": 413002,
+      "name": "delayRandom"
+    },
+    {
+      "world": 1,
+      "ID": 413003,
+      "name": "distanceUp"
+    },
+    {
+      "world": 1,
+      "ID": 413004,
+      "name": "moveSpeedUp"
+    },
+    {
+      "world": 1,
+      "ID": 413005,
+      "name": "physicalDefenseUp"
+    },
+    {
+      "world": 1,
+      "ID": 413006,
+      "name": "physicalPowerUp"
+    },
+    {
+      "world": 1,
+      "ID": 413007,
+      "name": "magicDefenseUp"
+    },
+    {
+      "world": 1,
+      "ID": 413008,
+      "name": "magicPowerUp"
+    },
+    {
+      "world": 1,
+      "ID": 413009,
+      "name": "TargetPenetrateUp"
+    },
+    {
+      "world": 1,
+      "ID": 413010,
+      "name": "obstaclePenetrateUp"
+    },
+    {
+      "world": 1,
+      "ID": 413011,
+      "name": "physicalUp"
+    },
+    {
+      "world": 1,
+      "ID": 413012,
+      "name": "magicUp"
+    },
+    {
+      "world": 1,
+      "ID": 413013,
+      "name": "bloodTimeUp"
+    },
+    {
+      "world": 1,
+      "ID": 413014,
+      "name": "poisonTimeUp"
+    },
+    {
+      "world": 1,
+      "ID": 413015,
+      "name": "creticalChanceUp"
+    },
+    {
+      "world": 1,
+      "ID": 413016,
+      "name": "guardChanceUp"
+    },
+    {
+      "world": 1,
+      "ID": 413017,
+      "name": "priorityOthers"
+    },
+    {
+      "world": 1,
+      "ID": 413018,
+      "name": "regenerative"
+    },
+    {
+      "world": 1,
+      "ID": 413019,
+      "name": "bloodSuck"
+    },
+    {
+      "world": 1,
+      "ID": 413020,
+      "name": "guardPoison"
+    },
+    {
+      "world": 1,
+      "ID": 413021,
+      "name": "guardBleed"
+    },
+    {
+      "world": 1,
+      "ID": 413022,
+      "name": "stunGuard"
+    },
+    {
+      "world": 1,
+      "ID": 413023,
+      "name": "guardParalysis"
+    },
+    {
+      "world": 1,
+      "ID": 413024,
+      "name": "guardWakeing"
+    },
+    {
+      "world": 1,
+      "ID": 413025,
+      "name": "defenseDownGurad"
+    },
+    {
+      "world": 1,
+      "ID": 413026,
+      "name": "nonAttackMagicUp"
+    },
+    {
+      "world": 1,
+      "ID": 413027,
+      "name": "nonAttackGuardChanceUp"
+    },
+    {
+      "world": 1,
+      "ID": 413028,
+      "name": "conditionGuardUp"
+    },
+    {
+      "world": 1,
+      "ID": 413029,
+      "name": "comboUp"
+    },
+    {
+      "world": 1,
+      "ID": 413030,
+      "name": "comboCritical"
+    },
+    {
+      "world": 1,
+      "ID": 413031,
+      "name": "creticalDamageUp"
+    },
+    {
+      "world": 1,
+      "ID": 413032,
+      "name": "conditionRecavery"
+    },
+    {
+      "world": 1,
+      "ID": 413034,
+      "name": "priorityTarget"
+    },
+    {
+      "world": 1,
+      "ID": 413035,
+      "name": "levelUp"
+    },
+    {
+      "world": 1,
+      "ID": 413036,
+      "name": "teleportation"
+    },
+    {
+      "world": 1,
+      "ID": 413037,
+      "name": "escape"
+    },
+    {
+      "world": 1,
+      "ID": 414001,
+      "name": "poison"
+    },
+    {
+      "world": 1,
+      "ID": 414002,
+      "name": "bleed"
+    },
+    {
+      "world": 1,
+      "ID": 414003,
+      "name": "stun"
+    },
+    {
+      "world": 1,
+      "ID": 414004,
+      "name": "paralysis"
+    },
+    {
+      "world": 1,
+      "ID": 414005,
+      "name": "defenseDown"
+    },
+    {
+      "world": 1,
+      "ID": 414006,
+      "name": "weakening"
+    }
+  ]
+}

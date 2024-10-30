@@ -7,22 +7,19 @@ using TMPro;
 
 public class Unit : MonoBehaviour
 {
-    public UnitStatus unitStatus;
+    //public UnitStatus unitStatus;
     public SpriteRenderer unitSprite; // ユニットのスプライト
-    private JobStatus jobStatus;
-    private EqpStats StatusWeapons;
-    private EqpStats StatusShields;
-    private EqpStats StatusArmor;
-    private EqpStats StatusAccessories;
     private Animator animator; // Animatorコンポーネントの参照
     private bool live = true; // ユニットが生存しているかどうか
+    private int RuneDropChance = 70; // ルーンドロップの確率(%)
 
     [SerializeField] public string unitName;
     [SerializeField] public int condition; // 0:通常, 1:死亡 2:火傷(時間xダメージ) 3:麻痺(動きが遅くなる), 4:毒(重ねがけ), 5:凍結(動けない、防御力上がる)、6:弱体化(攻撃力が下がる)、7:脆弱化 (防御力が下がる)
     [SerializeField] public int job;
     [SerializeField] public int totalExp;
     [SerializeField] public int currentLevel;
-    [SerializeField] public int nextLevelExp;
+    [SerializeField] public float nextLevelExp;
+    [SerializeField] public int remainingExp;
     [SerializeField] public int addLevel;
     [SerializeField] public float Hp;
     [SerializeField] public float physicalAttackPower;
@@ -42,16 +39,18 @@ public class Unit : MonoBehaviour
     [SerializeField] public float escape;
     [SerializeField] public float attackStanceDuration;
     [SerializeField] public float attackStanceDelay;
-
+    [SerializeField] public int socketCount;
     [SerializeField] public int currentWeapons;
     [SerializeField] public int currentAttackEffects;
     [SerializeField] public int currentShields;
     [SerializeField] public int currentArmor;
     [SerializeField] public int currentAccessories;
+    [SerializeField] public int mainSocket;
+    [SerializeField] public int[] subSocket = new int[11];
 
     // 武器prefab設定
     public GameObject weaponPosition; // 武器の生成位置
-
+    public TextMeshProUGUI hpText; // HP数値表示テキスト
     public GameObject HPBarRoot; // HPバーのルートオブジェクト
     private Animator HPBarAnimator; // HPバーのAnimatorコンポーネント
     public Slider hpBar;
@@ -62,6 +61,7 @@ public class Unit : MonoBehaviour
 
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
+    private WorldManager worldManager; // WorldManagerの参照
 
     void Start()
     {
@@ -77,14 +77,37 @@ public class Unit : MonoBehaviour
         gameManager = GameManager.Instance;
         // IventryItemを取得
         iventryUI = gameManager.GetComponent<IventryUI>();
+        // WorldManagerがあればインスタンスを取得
+        if (WorldManager.Instance != null)
+        {
+            worldManager = WorldManager.Instance;
+        }
 
-        // unitStatusからステータスを読み込む
-        job = unitStatus.job;
-        addLevel = unitStatus.addLevel;
-        currentWeapons = unitStatus.weapons;
-        currentShields = unitStatus.shields;
-        currentArmor = unitStatus.armor;
-        currentAccessories = unitStatus.accessories;
+        // tagがEnemyの場合はEnemyListDataを取得
+        if (gameObject.tag == "Enemy")
+        {
+            // オブジェクト名から(Clone)を削除
+            gameObject.name = gameObject.name.Replace("(Clone)", "");
+            // オブジェクト名末尾2桁の数字を取得
+            int unitId = int.Parse(gameObject.name.Substring(gameObject.name.Length - 2));
+            // Enemyの場合はenemyListからunitIdに対応するデータを取得
+            ItemData.EnemyListData enemyListData = gameManager.itemData.enemyList.Find(x => x.ID == unitId);
+            if(enemyListData != null)
+            {
+                unitName = enemyListData.name;
+                job = enemyListData.job;
+                addLevel = enemyListData.addLevel;
+                currentWeapons = enemyListData.weapons;
+                currentShields = enemyListData.shields;
+                currentArmor = enemyListData.armor;
+                currentAccessories = enemyListData.accessories;
+            }
+        }
+        else
+        {
+            // Allyの場合はjobListからjobに対応する初期装備を取得
+            ChangeEqpByJob();
+        }
 
         updateStatus();
         InitHp();
@@ -113,76 +136,93 @@ public class Unit : MonoBehaviour
     // ステータスの更新
     public void updateStatus()
     {
-        // JobStatusを読み込む
-        jobStatus = Resources.Load<JobStatus>("JobStatus/JobStatus_" + unitStatus.job.ToString("D2"));
-        if (jobStatus == null) {
-            Debug.LogError("jobStatus is not assigned.");
+        // jobListからjobに対応するステータスを取得
+        ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == job);
+        if (jobListData == null)
+        {
+            Debug.LogError("jobListData is not assigned.");
             return;
         }
-        // JobStatusからステータスを読み込む
-        float currentLevelScaleFactor = jobStatus.levelScaleFactor;
-        float currentMagic = jobStatus.Magic;
-        float currentStr = jobStatus.Str;
-        float currentDex = jobStatus.Dex;
-        float currentResidtCondition = jobStatus.ResidtCondition;
-        float currentAttackUnitThrough = jobStatus.AttackUnitThrough;
-        float currentAttackObjectThrough = jobStatus.AttackObjectThrough;
-        float currentKnockBack = jobStatus.InitKnockBack;
-        float levelMagic = jobStatus.levelMagic;
-        float levelStr = jobStatus.levelStr;
-        float levelDex = jobStatus.levelDex;
-        float levelResidtCondition = jobStatus.levelResidtCondition;
-        float levelAttackUnitThrough = jobStatus.levelAttackUnitThrough;
-        float levelAttackObjectThrough = jobStatus.levelAttackObjectThrough;
-        float levelKnockBack = jobStatus.levelKnockBack;
-        int JtargetJob = jobStatus.targetJob;
-        float teleportations = jobStatus.teleportation;
-        float escapes = jobStatus.escape;
+        // JobListからステータスを読み込む
+        float currentLevelScaleFactor = jobListData.levelScaleFactor;
+        float currentMagic = jobListData.magic;
+        float currentStr = jobListData.str;
+        float currentDex = jobListData.dex;
+        float currentResidtCondition = jobListData.levelResidtCondition;
+        float currentAttackUnitThrough = jobListData.attackUnitThrough;
+        float currentAttackObjectThrough = jobListData.attackObjectThrough;
+        float currentKnockBack = jobListData.initKnockBack;
+        float levelMagic = jobListData.levelMagic;
+        float levelStr = jobListData.levelStr;
+        float levelDex = jobListData.levelDex;
+        float levelResidtCondition = jobListData.levelResidtCondition;
+        float levelAttackUnitThrough = jobListData.levelAttackUnitThrough;
+        float levelAttackObjectThrough = jobListData.levelAttackObjectThrough;
+        float levelKnockBack = jobListData.levelKnockBack;
+        int JtargetJob = jobListData.targetJob;
+        float teleportations = jobListData.teleportation;
+        float escapes = jobListData.escape;
 
-        // EqpStatsからステータスを読み込む
-        StatusWeapons = Resources.Load<EqpStats>("WpnStatus/WpnStatus_" + currentWeapons.ToString("D6"));
-        if (StatusWeapons == null) {
-            Debug.LogError("StatusWeapons is not assigned.: WpnStatus/WpnStatus_" + currentWeapons.ToString("D6"));
+        // itemDataからステータスを読み込む
+        // 武器のステータスを取得
+        ItemData.WpnListData wpnListData = gameManager.itemData.wpnList.Find(x => x.ID == currentWeapons);
+        if (wpnListData == null)
+        {
+            Debug.LogError("unit name: " + gameObject.name + " currentWeapons: " + currentWeapons + " wpnListData is not assigned.");
             return;
         }
-        StatusShields = Resources.Load<EqpStats>("EqpStatus/EqpStatus_" + currentShields.ToString("D6"));
-        if (StatusShields == null) {
-            Debug.LogError("StatusShields is not assigned.");
+        // シールドのステータスを取得
+        ItemData.EqpListData shieldListData = gameManager.itemData.eqpList.Find(x => x.ID == currentShields);
+        if (shieldListData == null)
+        {
+            Debug.LogError("unit name: " + gameObject.name + " currentShields: " + currentShields + " shieldListData is not assigned.");
             return;
         }
-        StatusArmor = Resources.Load<EqpStats>("EqpStatus/EqpStatus_" + currentArmor.ToString("D6"));
-        if (StatusArmor == null) {
-            Debug.LogError("StatusArmor is not assigned.");
+        // 防具のステータスを取得
+        ItemData.EqpListData armorListData = gameManager.itemData.eqpList.Find(x => x.ID == currentArmor);
+        if (armorListData == null)
+        {
+            Debug.LogError("unit name: " + gameObject.name + " currentArmor: " + currentArmor + "armorListData is not assigned.");
             return;
-        }
-        StatusAccessories = Resources.Load<EqpStats>("EqpStatus/EqpStatus_" + currentAccessories.ToString("D6"));
-        if (StatusAccessories == null) {
-            Debug.LogError("StatusAccessories is not assigned.");
+        }// アクセサリのステータスを取得
+        ItemData.EqpListData accessoriesListData = gameManager.itemData.eqpList.Find(x => x.ID == currentAccessories);
+        if (accessoriesListData == null)
+        {
+            Debug.LogError("unit name: " + gameObject.name + " currentAccessories: " + currentAccessories + "accessoriesListData is not assigned.");
             return;
         }
 
         // ステータスを計算する
         int baseExperience = 10; // レベルアップに必要な基本経験値
         currentLevel = (int)Math.Sqrt(totalExp / (baseExperience * currentLevelScaleFactor)) + addLevel + 1;
-        nextLevelExp = (int)Math.Pow(currentLevel * currentLevelScaleFactor, 2) * baseExperience;
-        Hp = (currentStr + (currentLevel - 1) * levelStr) * 10 + StatusWeapons.HP + StatusShields.HP + StatusArmor.HP + StatusAccessories.HP;
-        physicalAttackPower = (currentStr + (currentLevel - 1) * levelStr) / 1 + StatusWeapons.physicalAttackPower + StatusShields.physicalAttackPower + StatusArmor.physicalAttackPower + StatusAccessories.physicalAttackPower;
-        magicalAttackPower = (currentMagic + (currentLevel - 1) * levelMagic) / 1 + StatusWeapons.magicalAttackPower + StatusShields.magicalAttackPower + StatusArmor.magicalAttackPower + StatusAccessories.magicalAttackPower;
-        physicalDefensePower = (currentStr + (currentLevel - 1) * levelStr) / 10 + StatusWeapons.physicalDefensePower + StatusShields.physicalDefensePower + StatusArmor.physicalDefensePower + StatusAccessories.physicalDefensePower;
-        magicalDefensePower = (currentMagic + (currentLevel - 1) * levelMagic) / 10 + StatusWeapons.magicalDefensePower + StatusShields.magicalDefensePower + StatusArmor.magicalDefensePower + StatusAccessories.magicalDefensePower;
-        resistCondition = (currentResidtCondition + (currentLevel - 1) * levelResidtCondition) / 10 + StatusWeapons.resistCondition + StatusShields.resistCondition + StatusArmor.resistCondition + StatusAccessories.resistCondition;
-        attackDelay =  2.0f + (currentDex + (currentLevel - 1) * levelDex) / 10 + StatusWeapons.attackDelay + StatusShields.attackDelay + StatusArmor.attackDelay + StatusAccessories.attackDelay;
-        Speed =  3 + (currentDex + (currentLevel - 1) * levelDex) / 10 + StatusWeapons.Speed + StatusShields.Speed + StatusArmor.Speed + StatusAccessories.Speed;
-        attackUnitThrough = (int)(currentAttackUnitThrough + (currentLevel - 1) * levelAttackUnitThrough) + StatusWeapons.attackUnitThrough + StatusShields.attackUnitThrough + StatusArmor.attackUnitThrough + StatusAccessories.attackUnitThrough;
-        attackObjectThrough = (int)(currentAttackObjectThrough + (currentLevel - 1) * levelAttackObjectThrough) + StatusWeapons.attackObjectThrough + StatusShields.attackObjectThrough + StatusArmor.attackObjectThrough + StatusAccessories.attackObjectThrough;
+
+        // 次のレベルに必要な経験値を計算
+        int nextLevel = currentLevel + 1;
+        nextLevelExp = Mathf.Pow((nextLevel - addLevel - 1), 2) * baseExperience * currentLevelScaleFactor;
+
+        // 残りの必要経験値
+        remainingExp = (int)nextLevelExp - totalExp;
+
+        // ステータスを計算
+        Hp = (currentStr + (currentLevel - 1) * levelStr) * 10 + wpnListData.hp + shieldListData.hp + armorListData.hp + accessoriesListData.hp;
+        physicalAttackPower = (currentStr + (currentLevel - 1) * levelStr) / 1 + wpnListData.physicalAttackPower + shieldListData.physicalAttackPower + armorListData.physicalAttackPower + accessoriesListData.physicalAttackPower;
+        magicalAttackPower = (currentMagic + (currentLevel - 1) * levelMagic) / 1 + wpnListData.magicalAttackPower + shieldListData.magicalAttackPower + armorListData.magicalAttackPower + accessoriesListData.magicalAttackPower;
+        physicalDefensePower = (currentStr + (currentLevel - 1) * levelStr) / 10 + wpnListData.physicalDefensePower + shieldListData.physicalDefensePower + armorListData.physicalDefensePower + accessoriesListData.physicalDefensePower;
+        magicalDefensePower = (currentMagic + (currentLevel - 1) * levelMagic) / 10 + wpnListData.magicalDefensePower + shieldListData.magicalDefensePower + armorListData.magicalDefensePower + accessoriesListData.magicalDefensePower;
+        resistCondition = (currentResidtCondition + (currentLevel - 1) * levelResidtCondition) / 10 + wpnListData.resistCondition + shieldListData.resistCondition + armorListData.resistCondition + accessoriesListData.resistCondition;
+        attackDelay =  2.0f + (currentDex + (currentLevel - 1) * levelDex) / 10 + wpnListData.attackDelay + shieldListData.attackDelay + armorListData.attackDelay + accessoriesListData.attackDelay;
+        Speed =  3 + (currentDex + (currentLevel - 1) * levelDex) / 10 + wpnListData.speed + shieldListData.speed + armorListData.speed + accessoriesListData.speed;
+        attackUnitThrough = (int)(currentAttackUnitThrough + (currentLevel - 1) * levelAttackUnitThrough) + wpnListData.attackUnitThrough + shieldListData.attackUnitThrough + armorListData.attackUnitThrough + accessoriesListData.attackUnitThrough;
+        attackObjectThrough = (int)(currentAttackObjectThrough + (currentLevel - 1) * levelAttackObjectThrough) + wpnListData.attackObjectThrough + shieldListData.attackObjectThrough + armorListData.attackObjectThrough + accessoriesListData.attackObjectThrough;
         attackSize = 1;
-        knockBack = (currentKnockBack + (currentLevel - 1) * levelKnockBack) / 10 + StatusWeapons.knockBack + StatusShields.knockBack + StatusArmor.knockBack + StatusAccessories.knockBack;
+        knockBack = (currentKnockBack + (currentLevel - 1) * levelKnockBack) / 10 + wpnListData.knockBack + shieldListData.knockBack + armorListData.knockBack + accessoriesListData.knockBack;
         targetJob = JtargetJob;
-        teleportation = teleportations + StatusWeapons.teleportation + StatusShields.teleportation + StatusArmor.teleportation + StatusAccessories.teleportation;
-        escape = escapes + StatusWeapons.escape + StatusShields.escape + StatusArmor.escape + StatusAccessories.escape;
-        attackRange = StatusWeapons.attackRange;
-        attackStanceDuration = StatusWeapons.attackStanceDuration;
-        attackStanceDelay = StatusWeapons.attackStanceDelay;
+        teleportation = teleportations + wpnListData.teleportation + shieldListData.teleportation + armorListData.teleportation + accessoriesListData.teleportation;
+        escape = escapes + wpnListData.escape + shieldListData.escape + armorListData.escape + accessoriesListData.escape;
+        attackRange = wpnListData.attackRange;
+        attackStanceDuration = wpnListData.attackStanceDuration;
+        attackStanceDelay = wpnListData.attackStanceDelay;
+        socketCount = wpnListData.socketCount + shieldListData.socketCount + armorListData.socketCount + accessoriesListData.socketCount;
 
         // HPの初期化
         maxHp = (currentStr + (currentLevel - 1) * levelStr) * 10;
@@ -301,30 +341,6 @@ public class Unit : MonoBehaviour
             unitController.attackDelay = attackStanceDelay;
         }
 
-        /*
-        unitController.unitName = unitName;
-        unitController.condition = condition;
-        unitController.job = job;
-        unitController.totalExp = totalExp;
-        unitController.currentLevel = currentLevel;
-        unitController.nextLevelExp = nextLevelExp;
-        unitController.addLevel = addLevel;
-        unitController.Hp = Hp;
-        unitController.physicalAttackPower = physicalAttackPower;
-        unitController.magicalAttackPower = magicalAttackPower;
-        unitController.physicalDefensePower = physicalDefensePower;
-        unitController.magicalDefensePower = magicalDefensePower;
-        unitController.resistCondition = resistCondition;
-        unitController.attackDelay = attackDelay;
-        unitController.Speed = Speed;
-        unitController.attackUnitThrough = attackUnitThrough;
-        unitController.attackObjectThrough = attackObjectThrough;
-        unitController.attackSize = attackSize;
-        unitController.knockBack = knockBack;
-        unitController.targetJob = targetJob;
-        unitController.teleportation = teleportation;
-        unitController.escape = escape;
-        */
     }
 
     // HPの初期化(全回復)
@@ -357,6 +373,16 @@ public class Unit : MonoBehaviour
                 }
             }
         }
+        if (hpText != null)
+        {
+            int dispHp = (int)currentHp;
+            // HPの表示が0未満にならないようにする
+            if (dispHp < 0)
+            {
+                dispHp = 0;
+            }
+            hpText.text = dispHp.ToString("000") + " / " + maxHp.ToString("000");
+        }
     }
 
     // HPを減少させるメソッド
@@ -379,6 +405,10 @@ public class Unit : MonoBehaviour
 
         currentHp -= damage;
         UpdateHpBar();
+
+        //// ダメージを記録
+        gameManager.statusLog.totalDamage += (int)damage;
+
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
         {
@@ -431,6 +461,10 @@ public class Unit : MonoBehaviour
             currentHp = maxHp;
         }
         UpdateHpBar();
+
+        //// 回復を記録
+        gameManager.statusLog.totalDamage += (int)amount;
+
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
         {
@@ -445,34 +479,71 @@ public class Unit : MonoBehaviour
         GetComponent<AttackController>().enabled = false;
         GetComponent<UnitController>().enabled = false;
 
-        // Drop経験値&Goldを加算
-        gameManager.AddExperience(unitStatus.dropExp);
-        gameManager.AddGold(unitStatus.dropGold);
         //tagがEnemyの場合UnitStatusのdrop1～3のアイテムを各ドロップ確率によってドロップする
         if (gameObject.tag == "Enemy")
         {
+            // オブジェクト名末尾2桁の数字を取得
+            int unitId = int.Parse(gameObject.name.Substring(gameObject.name.Length - 2));
+            ItemData.EnemyListData enemyListData = gameManager.itemData.enemyList.Find(x => x.ID == unitId);
+
+            // Drop経験値&Goldを加算
+            gameManager.AddExperience(enemyListData.dropExp);
+            gameManager.AddGold(enemyListData.dropGold);
+
+            //// 獲得経験値とGoldを記録
+            gameManager.statusLog.expGained += enemyListData.dropExp;
+            gameManager.statusLog.goldGained += enemyListData.dropGold;
+
+            // 現在のワールドidを取得
+            int currentWorldId = worldManager.currentWorld;
+
             // unitSpriteのオブジェクトを取得してrotetionZを-90にして寝かせる
             unitSprite.gameObject.transform.rotation = Quaternion.Euler(0, 0, -90);
-            float dropRate = UnityEngine.Random.Range(0.0f, 1.0f);
-            if (dropRate < unitStatus.drop1Rate)
+
+            // worldManagerがあればWorldRuneDropSettingsを取得
+            if (worldManager != null)
             {
-                print("****** " + unitStatus.drop1 + "をドロップ");
-                iventryUI.AddItem(unitStatus.drop1);
+                if(gameManager.itemData != null)
+                {
+                    // Runeをドロップする
+                    // ルーンドロップの確率を計算
+                    int runeDropRate = UnityEngine.Random.Range(0, 100);
+                    if (runeDropRate < RuneDropChance)
+                    {
+                        // ルーンドロップの確率に合致した場合はランダムなルーンをドロップ
+                        int randomRuneId = UnityEngine.Random.Range(0, gameManager.itemData.runeSpawnSettings.Count);
+                        int dropItem = gameManager.itemData.runeSpawnSettings[randomRuneId].ID;
+                        print("****** Rune: " + dropItem + "をドロップ");
+                        iventryUI.AddItem(dropItem);
+                    }
+                }
             }
-            dropRate = UnityEngine.Random.Range(0.0f, 1.0f);
-            if (dropRate < unitStatus.drop2Rate)
+
+
+            // Dropアイテムをドロップする
+            float dropRate = UnityEngine.Random.Range(1.0f, 10.0f);
+            if (dropRate < enemyListData.drop1Rate)
             {
-                print("****** " + unitStatus.drop2 + "をドロップ");
-                iventryUI.AddItem(unitStatus.drop2);
+                print("****** " + enemyListData.drop1 + "をドロップ");
+                iventryUI.AddItem(enemyListData.drop1);
             }
-            dropRate = UnityEngine.Random.Range(0.0f, 1.0f);
-            if (dropRate < unitStatus.drop3Rate)
+            dropRate = UnityEngine.Random.Range(1.0f, 10.0f);
+            if (dropRate < enemyListData.drop2Rate)
             {
-                print("****** " + unitStatus.drop3 + "をドロップ");
-                iventryUI.AddItem(unitStatus.drop3);
+                print("****** " + enemyListData.drop2 + "をドロップ");
+                iventryUI.AddItem(enemyListData.drop2);
+            }
+            dropRate = UnityEngine.Random.Range(1.0f, 10.0f);
+            if (dropRate < enemyListData.drop3Rate)
+            {
+                print("****** " + enemyListData.drop3 + "をドロップ");
+                iventryUI.AddItem(enemyListData.drop3);
             }
             // Enemyの数を減らす
             gameManager.enemyCount--;
+
+            //// 敵を倒した数を記録
+            gameManager.statusLog.totalKill++;
 
             // Enemmyが全滅したら勝利演出を行う
             if (gameManager.enemyCount == 0)
@@ -502,6 +573,8 @@ public class Unit : MonoBehaviour
             }
             // プレイヤーが死亡した場合はSetActive(false)にして非表示にする
             condition = 1;
+            // ユニットの色を元に戻す(念のため)
+            unitSprite.material.SetColor("_HardlightColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));
             gameObject.SetActive(false);
             // livingUnitsのどの要素が死亡したかを判定し、その要素番号と同じ番号のdeadPanelListをSetActive(true)にして表示する
             for (int i = 0; i < gameManager.livingUnits.Count; i++)
@@ -520,9 +593,31 @@ public class Unit : MonoBehaviour
                 {
                     return; // 1人でも生存していればゲームオーバー処理を行わない
                 }
-                // すべてのプレイヤーが死亡している場合、ゲームオーバーシーンに遷移する
-                //gameManager.LoadScene("GameOverScene");
             }
+            // すべてのプレイヤーが死亡している場合、ゲームオーバーシーンに遷移する
+            //gameManager.LoadScene("GameOverScene");
+            // EnemyTagのオブジェクトを全て削除
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            foreach (GameObject enemy in enemies)
+            {
+                Destroy(enemy);
+            }
+            gameManager.LoadScene("InToTownScene"); // 仮でタウンシーンに遷移
+        }
+    }
+
+    // ジョブによる初期装備に変更するメソッド
+    public void ChangeEqpByJob()
+    {
+        int jobId = job;
+        // JobListDataを取得
+        ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == job);
+        if (jobListData != null)
+        {
+            currentWeapons = jobListData.initWeapon;
+            currentShields = jobListData.initShield;
+            currentArmor = jobListData.initArmor;
+            currentAccessories = jobListData.initAccessories;
         }
     }
 }

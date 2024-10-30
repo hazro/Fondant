@@ -22,26 +22,58 @@ public class InfomationPanelDisplay : MonoBehaviour
     }
 
     // アクティブにしてテキストを変更するメソッド
-    public void SetActiveAndChangeText(string text, GameObject selectObject)
+    public void SetActiveAndChangeText(string text)
     {
-        infomationPanel.SetActive(true); // アクティブにする
-        infoText.text = text; // テキストを変更
-
-        // infoTextのtextを黒字にして初めの行がnameから始まる場合、白字&太字にして改行を増やし、その後は通常のフォントに戻して黒字にし、最後の行の前に改行を入れる
-        if (infoText.text.StartsWith("eqpName"))
+        // infomationPanelがnullでないことを確認
+        if (infomationPanel == null)
         {
-            //"eqpName: "の文字列を削除
-            infoText.text = infoText.text.Substring(8);
-            //最初の行を白字&太字にして改行を増やす
-            infoText.text = "<color=white><b>" + infoText.text.Replace("\n", "\n\n") + "</b></color>\n";
-            infoText.text = infoText.text.Replace("\n", "</color>\n<color=black>");
-            infoText.text = infoText.text.Substring(0, infoText.text.Length - 13) + "\n";
-        }
-        else
-        {
-            infoText.text = "<color=black>" + infoText.text + "</color>";
+            Debug.LogError("InfomationPanel is null.");
+            return;
         }
         
+        infomationPanel.SetActive(true); // パネルをアクティブにする
+        infoText.text = text; // テキストを設定
+
+        // テキストを行ごとに分割して処理する
+        string[] lines = infoText.text.Split('\n'); // 改行で各行を分割
+        List<string> processedLines = new List<string>();
+        string abilityLine = null; // abilityで始まる行を保存するための変数
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            // 最初の行がnameで始まる場合、白字＆太字にする
+            if (lines[i].StartsWith("name"))
+            {
+                // 最初の「:」までを削除して内容を取得
+                lines[i] = lines[i].Substring(lines[i].IndexOf(":") + 1);
+                lines[i] = "<size=+2><color=white><b>" + lines[i] + "</b></color></size>\n";
+                processedLines.Add(lines[i]);
+            }
+            // abilityで始まる行は後で黒字にして最後に移動
+            else if (lines[i].StartsWith("ability"))
+            {
+                abilityLine = "<color=black>" + lines[i] + "</color>\n"; // 黒字にして保存
+            }
+            //worldで始まる行は飛ばす
+            else if (lines[i].StartsWith("world"))
+            {
+                continue;
+            }
+            else
+            {
+                // 他の行は通常の黒字に設定
+                processedLines.Add("<color=black>" + lines[i] + "</color>");
+            }
+        }
+
+        // abilityで始まる行が存在した場合、テキストの最後に移動
+        if (abilityLine != null)
+        {
+            processedLines.Add(abilityLine);
+        }
+
+        // 行を結合してinfoText.textに設定
+        infoText.text = string.Join("\n", processedLines);
     }
 
     // 非アクティブにするメソッド

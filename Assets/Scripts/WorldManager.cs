@@ -8,9 +8,9 @@ public class WorldManager : MonoBehaviour
 {
     public static WorldManager Instance { get; private set; } // シングルトンのインスタンス
 
-    public EnemySpawnSettings enemySpawnSettings; // 敵キャラクターの出現設定をアタッチする
-    private int currentWorld; // 現在のワールド番号
-    private int currentRoomEvent; // 現在のルームイベント番号
+    //public EnemySpawnSettings enemySpawnSettings; // 敵キャラクターの出現設定をアタッチする
+    public int currentWorld; // 現在のワールド番号
+    public int currentRoomEvent; // 現在のルームイベント番号
 
     private void Awake()
     {
@@ -35,6 +35,14 @@ public class WorldManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 現在のワールド番号に1を加算するメソッド。
+    /// </summary>
+    public void IncrementWorld()
+    {
+        currentWorld++;
+    }
+
+    /// <summary>
     /// 現在のルームイベント番号を取得するメソッド。
     /// </summary>
     /// <returns>現在のルームイベント番号</returns>
@@ -44,19 +52,10 @@ public class WorldManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 現在のルームイベント番号に基づいて敵キャラクターの出現設定を取得するメソッド。
+    /// 現在のルームイベント番号に1を加算するメソッド。
     /// </summary>
-    /// <returns>敵キャラクターの出現設定の配列</returns>
-    public EnemySpawnSettings.RoomEventSettings GetCurrentRoomEventSettings()
+    public void IncrementRoomEvent()
     {
-        foreach (var eventSetting in enemySpawnSettings.roomEventSettings)
-        {
-            if (eventSetting.roomEventNumber == currentRoomEvent)
-            {
-                return eventSetting;
-            }
-        }
-
-        return default;
+        currentRoomEvent++;
     }
 }

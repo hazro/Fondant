@@ -29,6 +29,30 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
 
     /// <summary>
+    /// SetActive(true) で有効化されたときに呼び出される
+    /// </summary>
+    private void OnEnable()
+    {
+        // シーンがロードされるたびにOnSceneLoadedメソッドを呼び出す
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    /// <summary>
+    /// SetActive(false) で無効化されたときに呼び出される
+    /// </summary>
+    private void OnDisable()
+    {
+        // イベントの登録を解除
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // シーンがロードされるたびにシーン名を更新
+        currentSceneName = SceneManager.GetActiveScene().name;
+    }
+
+    /// <summary>
     /// ドラッグが開始されたときに呼び出されるメソッド。プレイヤーの透明度を半分にし、ドラッグの準備をします。
     /// </summary>
     /// <param name="eventData">ドラッグイベントのデータ</param>

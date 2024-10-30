@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// ユニットをランダムな目標地点に向かって移動させ、目標地点に到達したら新しい目標地点を設定します。
@@ -27,6 +28,7 @@ public class UnitController : MonoBehaviour
 
     [Header("ターゲット設定")]
     public bool targetSameTag = false; // 自分と同じタグを持つオブジェクトをターゲットにするかどうか
+    [HideInInspector] public bool targetLowHpFirst = false; // 低HPのターゲットを優先するかどうか
 
     [Header("通常移動設定")]
     public float movementSpeed = 1.0f; // 移動速度
@@ -44,6 +46,9 @@ public class UnitController : MonoBehaviour
     public float targetUpdateInterval = 0.5f; // ターゲット再評価の間隔
     private float lastTeleportTime; // 最後にテレポートした時間を記録
     private bool isEscaping = false; // 逃走中かどうかのフラグ
+
+    public bool MoveBackFlag = false; // ユニットが後退するかどうかのフラグ
+    public float MoveBackDistance = 1.0f; // 後退する距離
 
     private Camera mainCamera;
     private Transform targetTransform; // ターゲットのTransform
@@ -153,6 +158,14 @@ public class UnitController : MonoBehaviour
             float randomRatio = 1f - followRatio;
 
             newPosition = (randomMovePosition * randomRatio) + (followMovePosition * followRatio);
+
+            // ターゲットの方向を向いた状態で一定距離ターゲットの反対方向に移動する
+            if (MoveBackFlag)
+            {
+                Vector2 directionToTarget = ((Vector2)targetTransform.position - currentPosition).normalized;
+                newPosition = currentPosition - directionToTarget * MoveBackDistance;
+                MoveBackFlag = false;
+            }
 
             newPosition = KeepWithinCameraBounds(newPosition);
 
@@ -401,25 +414,78 @@ public class UnitController : MonoBehaviour
     /// <summary>
     /// ターゲットとの距離を評価し、最も近いターゲットを設定します。
     /// </summary>
-    public void SetClosestTarget()
+    public void SetClosestTarget(bool randomSelection = false)
     {
         string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy");
         float closestDistance = Mathf.Infinity;
-        Transform closestTarget = null;
+        Transform selectedTarget = null;
 
-        foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+        // 低HPターゲット優先の処理
+        if (targetLowHpFirst)
         {
-            if (potentialTarget == gameObject) continue;
+            // HPの低い順にターゲットを選択
+            List<Unit> potentialTargets = new List<Unit>();
 
-            float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
-            if (distance < closestDistance)
+            foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
             {
-                closestDistance = distance;
-                closestTarget = potentialTarget.transform;
+                if (potentialTarget == gameObject) continue;
+
+                Unit targetUnit = potentialTarget.GetComponent<Unit>();
+                if (targetUnit != null && Vector2.Distance(transform.position, potentialTarget.transform.position) <= approachRange)
+                {
+                    potentialTargets.Add(targetUnit); // HPの低い順にリストに追加
+                }
+            }
+
+            if (potentialTargets.Count > 0)
+            {
+                // HPの低い順にソート
+                potentialTargets.Sort((x, y) => x.Hp.CompareTo(y.Hp));
+                selectedTarget = potentialTargets[0].transform; // HPが最も低いユニットを選択
             }
         }
 
-        targetTransform = closestTarget;
+        // randomSelectionがtrueの場合はApproachRange内のターゲットをランダムに選ぶ
+        if (randomSelection && selectedTarget == null)
+        {
+            List<Transform> potentialTargets = new List<Transform>();
+
+            foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+            {
+                if (potentialTarget == gameObject) continue;
+
+                float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
+                if (distance <= approachRange)
+                {
+                    potentialTargets.Add(potentialTarget.transform);
+                }
+            }
+
+            // ターゲットがいる場合、ランダムに1つ選ぶ
+            if (potentialTargets.Count > 0)
+            {
+                int randomIndex = UnityEngine.Random.Range(0, potentialTargets.Count);
+                selectedTarget = potentialTargets[randomIndex];
+            }
+        }
+
+        // randomSelectionがtrueでターゲットがいなかった場合、またはrandomSelectionがfalseの場合、最も近いターゲットを選ぶ
+        if (selectedTarget == null)
+        {
+            foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+            {
+                if (potentialTarget == gameObject) continue;
+
+                float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    selectedTarget = potentialTarget.transform;
+                }
+            }
+        }
+
+        targetTransform = selectedTarget;
 
         if (attackController != null && targetTransform != null)
         {
@@ -430,7 +496,7 @@ public class UnitController : MonoBehaviour
         {
             if (targetTransform != null)
             {
-                Debug.Log($"ターゲット設定: {targetTransform.name} 距離: {closestDistance}");
+                Debug.Log($"ターゲット設定: {targetTransform.name}");
             }
             else
             {
@@ -456,23 +522,47 @@ public class UnitController : MonoBehaviour
 
         Vector2 clampedPosition = new Vector2(clampedX, clampedY);
 
-        // 障害物があるかチェック
+        // **障害物チェック（最優先）**
         float checkRadius = 0.1f; // 進入不可のチェックに使用する半径
         LayerMask obstacleLayerMask = LayerMask.GetMask("Obstacle");
 
-        // 進入しようとしている位置に障害物があるかどうかを確認
         if (Physics2D.OverlapCircle(clampedPosition, checkRadius, obstacleLayerMask))
         {
-            // 障害物がある場合、現在の位置から動かない
+            // 障害物がある場合はその位置に進入を防止
             if (showDebugInfo)
             {
                 Debug.Log("Obstacle detected, cannot move to position: " + clampedPosition);
             }
-            return (Vector2)transform.position; // 現在の位置を返して進入を防止
+            return (Vector2)transform.position; // 障害物がある場合は現在の位置を維持
+        }
+
+        // **EnemyやAllyタグを持つオブジェクトの回避（次に優先）**
+        float avoidRadius = 0.1f; // 回避する範囲
+        string[] tagsToAvoid = { "Enemy", "Ally" };
+
+        foreach (string tag in tagsToAvoid)
+        {
+            Collider2D[] nearbyObjects = Physics2D.OverlapCircleAll(clampedPosition, avoidRadius);
+            foreach (Collider2D col in nearbyObjects)
+            {
+                // 自分自身を含まないように除外
+                if (col.gameObject != this.gameObject && col.CompareTag(tag))
+                {
+                    // タグを持つオブジェクトを回避する処理
+                    Vector2 directionAway = (clampedPosition - (Vector2)col.bounds.center).normalized;
+                    clampedPosition += directionAway * avoidRadius;
+
+                    if (showDebugInfo)
+                    {
+                        Debug.Log($"{tag}タグのオブジェクトを回避: {col.name}, 回避先: {clampedPosition}");
+                    }
+                }
+            }
         }
 
         return clampedPosition;
     }
+
 
 
     /// <summary>

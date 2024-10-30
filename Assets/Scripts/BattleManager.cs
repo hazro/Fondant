@@ -30,12 +30,4 @@ public class BattleManager : MonoBehaviour
         // 自動戦闘ロジックの実装
         // 敵とプレイヤーの戦闘を開始
     }
-
-    /// <summary>
-    /// バトルが終了した後、次のルーム選択を行う
-    /// </summary>
-    private void OnBattleEnd()
-    {
-        RoomSelectionManager.Instance.DisplayRoomOptions();
-    }
 }

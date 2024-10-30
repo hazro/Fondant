@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 /// <summary>
 /// ゲーム全体の管理を行うクラス。
@@ -12,25 +13,40 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    private JsonDecryptor jsonDecryptor; // JsonDecryptorクラスのインスタンスを取得するためのフィールド
+    public ItemData itemData; // デシリアライズしたデータを格納するクラス
     public List<GameObject> playerUnits = new List<GameObject>(); // プレイヤーユニットのリスト
     public List<GameObject> livingUnits = new List<GameObject>(); // 生存しているユニットのリスト
     public List<GameObject> deadPanelList = new List<GameObject>(); // 死亡したユニットのスキルパネルを塞ぐオブジェクトのリスト
+    public GameObject enemyGroup; // 敵グループのGameObject
     public int enemyCount = 0; // 敵の数
     private Transform playerGroup; // プレイヤーグループのTransform
+    private WorldManager worldManager; // WorldManagerの参照
     [SerializeField] private float zoomSpeed = 15.0f; // ズームスピード
     [SerializeField] private float slowMotionDuration = 2.0f; // スローモーションの時間
     [SerializeField] private IventryUI iventryUI; // IventryUIのインスタンスを取得するためのフィールド
 
-    [SerializeField] private StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
+    public StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
 
     [SerializeField] private RectTransform statusLogPanel; // ステータスログパネルのRectTransformを取得するためのフィールド
     [SerializeField] private RectTransform[] UnitSkillPanels; // ユニットスキルパネルのRectTransformを取得するためのフィールド
+    [SerializeField] private TextMeshProUGUI worldUItxt; // ワールド番号UIのテキストを取得するためのフィールド
+    [SerializeField] private TextMeshProUGUI stageUItxt; // ステージ番号UIのテキストを取得するためのフィールド
     [SerializeField] private TextMeshProUGUI currentGold; // 現在のゴールドを表示するためのフィールド
     [SerializeField] private TextMeshProUGUI stockExp; // ストック経験値を表示するためのフィールド
     [SerializeField] private Canvas uiCanvas; // キャンバスを取得するためのフィールド
 
+    [Header("[victoryUI ------------------------ ]")]
+    [SerializeField] private GameObject victoryUI; // 勝利UI
+    [SerializeField] private TextMeshProUGUI[] victoryTexts; // 勝利テキスト
+    [SerializeField] private Button nextButton; // 次へボタン
+
     void Awake()
     {
+        //world番号とstage番号の初期値を設定
+        worldUItxt.text = "01";
+        stageUItxt.text = "00/08";
+
         // シングルトンパターンの設定
         if (Instance == null)
         {
@@ -64,6 +80,15 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // JsonDecryptorクラスを使用する
+        jsonDecryptor = new JsonDecryptor();
+        string filename = "items"; // ファイル名
+        // itemDataにMasterデータを取得
+        itemData = GetItemData(filename);
+
+        //worldManagerのインスタンスを取得
+        worldManager = WorldManager.Instance;
+
         // プレイヤーユニットがいない場合、キャラクターを生成
         if (livingUnits.Count == 0)
         {
@@ -88,6 +113,27 @@ public class GameManager : MonoBehaviour
             // updateStatusを実行
             iventryUI.UpdateUnitSkillUI(livingUnits);
         }
+    }
+
+    // itemDataを取得するメソッド
+    public ItemData GetItemData(string filename)
+    {
+        string encryptedJsonFilePath = "Assets/Resources/MasterData/" + filename + ".json";
+
+        // 暗号化されたJSONファイルを復号化
+        string decryptedJson = jsonDecryptor.ReadAndDecryptJson(encryptedJsonFilePath);
+
+        if (!string.IsNullOrEmpty(decryptedJson))
+        {
+            // 復号化されたJSONをクラスにデシリアライズ
+            ItemData data = JsonUtility.FromJson<ItemData>(decryptedJson);
+            return data;
+        }
+        else
+        {
+            Debug.LogError("復号化に失敗しました");
+        }
+        return null;
     }
 
     /// <summary>
@@ -157,9 +203,31 @@ public class GameManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void LoadScene(string sceneName)
     {
+
         if(sceneName == "InToTownScene")
         {
+            // ワールド番号とステージ番号を初期化する
+            worldManager.currentWorld = 1;
+            worldManager.currentRoomEvent = 0;
+            // UIのワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
+
+            //// チームステータス関連の初期化
             statusLog.currentGold /= 3; // 街には1/3のゴールドしか持ち帰れない
+            statusLog.currentExp = 0; // ストック経験値をリセット
+            statusLog.totalDamage = 0; // 累計ダメージをリセット
+            statusLog.totalKill = 0; // 累計キル数をリセット
+            for (int i = 0; i < statusLog.UnitTotalDamage.Length; i++)
+            {
+                statusLog.UnitTotalDamage[i] = 0; // ユニットごとの累計ダメージをリセット
+                statusLog.UnitTotalKill[i] = 0; // ユニットごとの累計キル数をリセット
+                statusLog.unitDPS[i] = 0; // ユニットごとのDPSをリセット
+                statusLog.unitDamage[i] = 0; // ユニットごとのダメージをリセット
+            }
+            statusLog.expGained = 0; // 獲得経験値をリセット
+            statusLog.goldGained = 0; // 獲得ゴールドをリセット
+
+
             statusLogPanel.gameObject.SetActive(true);
             iventryUI.SetButtonEnabled(true);
             // UnitSkillPanelsの要素をすべてアクティブにする
@@ -168,6 +236,33 @@ public class GameManager : MonoBehaviour
                 panel.gameObject.SetActive(true);
             }
             SceneManager.LoadScene("TownScene");
+            // 全てのユニットをアクティブにし、HPを回復する
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.SetActive(true);
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = true;
+                unit.GetComponent<AttackController>().enabled = false;
+                unit.GetComponent<Unit>().ChangeEqpByJob(); // 初期装備に変更
+                unit.GetComponent<Unit>().condition = 0; // 状態異常を解除
+                // subSocketをすべて0にする
+                for (int i = 0; i < unit.GetComponent<Unit>().subSocket.Length; i++)
+                {
+                    unit.GetComponent<Unit>().subSocket[i] = 0;
+                }
+                IventryUI.UpdateUnitSkillUI(unit); // ユニットのスキルUIを更新
+                unit.GetComponent<Unit>().updateStatus(); // ユニットのステータスを更新
+                unit.GetComponent<Unit>().InitHp(); // ユニットのHPを初期化
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+            // deadPanelをすべて非アクティブにする
+            foreach (GameObject panel in deadPanelList)
+            {
+                panel.SetActive(false);
+            }
+            // iventryのアイテムを空にする
+            iventryUI.ClearItem();
         }
         if(sceneName == "InToWorldEntrance")
         {
@@ -180,6 +275,12 @@ public class GameManager : MonoBehaviour
             }
 
             SceneManager.LoadScene("BattleSetupScene");
+            // ステージ番号を加算する
+            if(worldManager != null){
+                worldManager.IncrementRoomEvent();
+            }
+            // ワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
 
             // 子オブジェクトの指定のコンポーネントを有効化
             foreach (GameObject unit in livingUnits)
@@ -210,6 +311,11 @@ public class GameManager : MonoBehaviour
         {
             statusLogPanel.gameObject.SetActive(false);
             SceneManager.LoadScene("VictoryScene");
+
+            // 勝利テキストを表示
+            victoryUI.SetActive(true);
+            nextButton.gameObject.SetActive(true);
+
             iventryUI.SetButtonEnabled(false);
             // UnitSkillPanelsの要素をすべて非アクティブにする
             foreach (RectTransform panel in UnitSkillPanels)
@@ -233,6 +339,74 @@ public class GameManager : MonoBehaviour
             // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
             GetComponent<CameraController>().whiteoutMask.SetActive(false);
         }
+        if(sceneName == "StatusAdjustmentScene")
+        {
+            // 勝利テキストを非表示
+            victoryUI.SetActive(false);
+            nextButton.gameObject.SetActive(false);
+
+            statusLogPanel.gameObject.SetActive(true);
+            SceneManager.LoadScene("StatusAdjustmentScene");
+            iventryUI.SetButtonEnabled(true);
+            // UnitSkillPanelsの要素をすべて非アクティブにする
+            foreach (RectTransform panel in UnitSkillPanels)
+            {
+                panel.gameObject.SetActive(true);
+            }
+
+            // infomationPanelを非アクティブにする
+            //GetComponent<InfomationPanelDisplay>().infomationPanel.SetActive(false);
+
+            // 子オブジェクトの指定のコンポーネントを有効化
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+
+            // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
+            //GetComponent<CameraController>().whiteoutMask.SetActive(false);
+        }
+        if(sceneName == "ShopScene")
+        {
+            // 勝利テキストを非表示
+            victoryUI.SetActive(false);
+            nextButton.gameObject.SetActive(false);
+
+            statusLogPanel.gameObject.SetActive(true);
+            SceneManager.LoadScene("ShopScene");
+            // ステージ番号を加算する
+            if(worldManager != null){
+                worldManager.IncrementRoomEvent();
+            }
+            // ワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
+            iventryUI.SetButtonEnabled(true);
+            // UnitSkillPanelsの要素をすべて非アクティブにする
+            foreach (RectTransform panel in UnitSkillPanels)
+            {
+                panel.gameObject.SetActive(true);
+            }
+
+            // infomationPanelを非アクティブにする
+            //GetComponent<InfomationPanelDisplay>().infomationPanel.SetActive(false);
+
+            // 子オブジェクトの指定のコンポーネントを有効化
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+
+            // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
+            //GetComponent<CameraController>().whiteoutMask.SetActive(false);
+        }
     }
 
     /// <summary>
@@ -242,7 +416,7 @@ public class GameManager : MonoBehaviour
     public void AddExperience(int exp)
     {
         statusLog.currentExp += exp;
-        stockExp.text = statusLog.currentExp.ToString("D6");
+        UpdateGoldAndExpUI();
     }
 
     /// <summary>
@@ -252,7 +426,16 @@ public class GameManager : MonoBehaviour
     public void AddGold(int gold)
     {
         statusLog.currentGold += gold;
+        UpdateGoldAndExpUI();
+    }
+
+    /// <summary>
+    /// ゴールドとストック経験値のUIを更新する。
+    /// </summary>
+    public void UpdateGoldAndExpUI()
+    {
         currentGold.text = statusLog.currentGold.ToString("D6");
+        stockExp.text = statusLog.currentExp.ToString("D6");
     }
 
     /// <summary>
@@ -325,7 +508,45 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(GetComponent<CameraController>().StartZoomAndSlowMotion(zoomSpeed, slowMotionDuration, lastEnemy));
         
         // ↑の処理が終わったら、次のシーンに遷移
+        // enemyGroupを削除
+        Destroy(enemyGroup);
+        ChangeVictoryText();
         LoadScene("VictoryScene");
+    }
+
+    //現在のワールド番号とステージ番号を取得してUIを更新するメソッド
+    public void UpdateWorldStageUI()
+    {
+        if(worldManager == null){
+            return;
+        }
+        worldUItxt.text = worldManager.GetCurrentWorld().ToString("D2");
+        stageUItxt.text = worldManager.GetCurrentRoomEvent().ToString("D2") + "/08";
+    }
+
+    /// <summary>
+    /// 勝利テキストを変更するメソッド。
+    /// </summary>
+    public void ChangeVictoryText()
+    {
+        for (int i = 0; i < victoryTexts.Length; i++)
+        {
+            if(i == 0 )
+            {
+                // expGaindを入力
+                victoryTexts[i].text = statusLog.expGained.ToString();
+            }
+            else if(i == 1)
+            {
+                // goldGainedを入力
+                victoryTexts[i].text = statusLog.goldGained.ToString();
+            }
+            else if(i == 2)
+            {
+                // totalDamageを入力
+                victoryTexts[i].text = statusLog.totalDamage.ToString();
+            }
+        }
     }
     
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System;
 
 /// <summary>
 /// イベントリーUI
@@ -27,6 +29,19 @@ public class IventryUI : MonoBehaviour
     // IventryPanelの子オブジェクトをすべて取得
     private List<Transform> children = new List<Transform>();
     private GameManager gameManager; // GameManagerの参照
+    private StatusAdjustmentManager statusAdjustmentManager; // StatusAdjustmentManagerの参照
+    
+    private void OnEnable()
+    {
+        // シーンがロードされるたびにOnSceneLoadedメソッドを呼び出す
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        // イベントの登録を解除
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 
     private void Start()
     {
@@ -34,6 +49,13 @@ public class IventryUI : MonoBehaviour
         gameManager = GameManager.Instance;
         // IventryPanelの子オブジェクトをchildrenに格納
         UpdateIventryPanelPosition();
+    }
+
+    // シーンがロードされるたびに呼び出されるメソッド
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // シーンがロードされるたびにStatusAdjustmentManagerを探す
+        statusAdjustmentManager = FindObjectOfType<StatusAdjustmentManager>();
     }
 
     // ボタンの有効無効切り替え
@@ -70,12 +92,14 @@ public class IventryUI : MonoBehaviour
             if (IventryItem[i] == 0)
             {
                 IventryItem[i] = itemID;
-                // itemID6桁の100000の位が1なら武器、2なら防具
+                // itemID6桁の100000の位が1なら武器、2なら防具、4ならルーン
                 if (itemID / 100000 == 1)
                 {
                     GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Weapons/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
+                    //名前から(Clone)を削除
+                    itemSprite.name = itemSprite.name.Replace("(Clone)", "");
                     itemSprite.transform.SetParent(children[i]);
                 }
                 else if (itemID / 100000 == 2)
@@ -83,14 +107,27 @@ public class IventryUI : MonoBehaviour
                     GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Equipment/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
+                    //名前から(Clone)を削除
+                    itemSprite.name = itemSprite.name.Replace("(Clone)", "");
+                    itemSprite.transform.SetParent(children[i]);
+                }
+                else if (itemID / 100000 == 4)
+                {
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Runes/" + itemID);
+                    // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
+                    itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
+                    //名前から(Clone)を削除
+                    itemSprite.name = itemSprite.name.Replace("(Clone)", "");
                     itemSprite.transform.SetParent(children[i]);
                 }
                 break;
             }
         }
+        // イベントリをソート
+        //StartCoroutine(IventrySortingCoroutine(null));
     }
 
-    // 指定UnitのSkillリストを更新し、キャラの武器を変更する
+    // 指定UnitのSkillリストを更新し、キャラの装備を変更する
     public void UpdateUnitSkillUI(GameObject unitObject)
     {
         // unitObjectがnullならエラーログを出力して終了
@@ -145,11 +182,14 @@ public class IventryUI : MonoBehaviour
         {
             foreach (Transform grandChild in child.transform)
             {
-                // 孫オブジェクトの名前がtxNameやwakuでなければ削除
-                if (grandChild.name != "txName" && grandChild.name != "waku" && grandChild.name != "collider")
+                if(grandChild != null)
                 {
-                    Destroy(grandChild.gameObject);
-                }  
+                    // 孫オブジェクトの名前がtxNameやwakuでなければ削除
+                    if (grandChild.name != "txName" && grandChild.name != "waku" && grandChild.name != "collider")
+                    {
+                        Destroy(grandChild.gameObject);
+                    } 
+                }
             }
         }
 
@@ -158,6 +198,42 @@ public class IventryUI : MonoBehaviour
         GameObject shieldImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentShields.ToString("D6"));
         GameObject armorImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentArmor.ToString("D6"));
         GameObject accsseImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentAccessories.ToString("D6"));
+        string mainSoketId = "411000";
+        if(unit.mainSocket != 0) mainSoketId = unit.mainSocket.ToString("D6");
+        GameObject mainSockettImage = Resources.Load<GameObject>("Prefabs/Runes/" + mainSoketId);
+        string subSocketId = "412000";
+        if (unit.subSocket[0] != 0) subSocketId = unit.subSocket[0].ToString("D6");
+        GameObject socket01Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[1] != 0) subSocketId = unit.subSocket[1].ToString("D6");
+        GameObject socket02Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[2] != 0) subSocketId = unit.subSocket[2].ToString("D6");
+        GameObject socket03Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[3] != 0) subSocketId = unit.subSocket[3].ToString("D6");
+        GameObject socket04Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[4] != 0) subSocketId = unit.subSocket[4].ToString("D6");
+        GameObject socket05Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[5] != 0) subSocketId = unit.subSocket[5].ToString("D6");
+        GameObject socket06Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[6] != 0) subSocketId = unit.subSocket[6].ToString("D6");
+        GameObject socket07Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[7] != 0) subSocketId = unit.subSocket[7].ToString("D6");
+        GameObject socket08Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[8] != 0) subSocketId = unit.subSocket[8].ToString("D6");
+        GameObject socket09Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[9] != 0) subSocketId = unit.subSocket[9].ToString("D6");
+        GameObject socket10Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
+        subSocketId = "412000";
+        if (unit.subSocket[10] != 0) subSocketId = unit.subSocket[10].ToString("D6");
+        GameObject socket11Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
 
         // IventrySkillList[0]の子オブジェクトのTextMeshProコンポーネントを取得
         TextMeshProUGUI unitNameText = IventrySkillList[0].GetComponentInChildren<TextMeshProUGUI>();
@@ -181,56 +257,86 @@ public class IventryUI : MonoBehaviour
         IventrySkillList[4].GetComponent<Image>().sprite = sprite;
         sprite = accsseImage.GetComponent<SpriteRenderer>().sprite;
         IventrySkillList[5].GetComponent<Image>().sprite = sprite;
+        sprite = mainSockettImage.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[6].GetComponent<Image>().sprite = sprite;
+        sprite = socket01Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[7].GetComponent<Image>().sprite = sprite;
+        sprite = socket02Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[8].GetComponent<Image>().sprite = sprite;
+        sprite = socket03Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[9].GetComponent<Image>().sprite = sprite;
+        sprite = socket04Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[10].GetComponent<Image>().sprite = sprite;
+        sprite = socket05Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[11].GetComponent<Image>().sprite = sprite; 
+        sprite = socket06Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[12].GetComponent<Image>().sprite = sprite;
+        sprite = socket07Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[13].GetComponent<Image>().sprite = sprite;
+        sprite = socket08Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[14].GetComponent<Image>().sprite = sprite;
+        sprite = socket09Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[15].GetComponent<Image>().sprite = sprite;
+        sprite = socket10Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[16].GetComponent<Image>().sprite = sprite;
+        sprite = socket11Image.GetComponent<SpriteRenderer>().sprite;
+        IventrySkillList[17].GetComponent<Image>().sprite = sprite;
+
+        //socketCountの取得
+        int socketCount = unit.socketCount;
+        //IventrySkillList[6 ~ 6+socketCount]の親オブジェクトを表示し、IventrySkillList[6+socketCount+1]以降の親オブジェクトを非表示にする
+        for (int i = 6; i < IventrySkillList.Count; i++)
+        {
+            if (i < 6 + socketCount)
+            {
+                IventrySkillList[i].transform.parent.gameObject.SetActive(true);
+            }
+            else
+            {
+                IventrySkillList[i].transform.parent.gameObject.SetActive(false);
+            }
+        }
     }
     
-    // アイテムを削除するメソッドをコールーチンで呼び出す
-    public void IventrySorting(GameObject destroyObject)
+    // ソートボタンを押したらアイテムをソートし、アイテムを入れ替える 
+    public void IventrySortingButton()
     {
-        // GameManagerがアクティブであることを確認
-        if (!gameManager.gameObject.activeInHierarchy)
-        {
-            return;
-        }
-        StartCoroutine(IventrySortingCoroutine(destroyObject));
+        // IventryItemをソート
+        IventrySorting();
+        // IventryPanelの画像をすべて再設定
+        UpdateIventryPanel();
     }
 
-    // Iventryをソートする(空きを詰める)メソッド
-    IEnumerator IventrySortingCoroutine(GameObject destroyObject)
+    // iventryItemをソートするメソッド
+    public void IventrySorting()
     {
-        // オブジェクトが存在する間はループを続ける
-        while (destroyObject != null)
+        // IventryItemの要素を昇順に並べ替える
+        Array.Sort(IventryItem);
+        // IventryItemの要素を順番に取り出し、0で有れば0以外の要素が出るまで繰り返し、0以外の要素が出たらSwapItemメソッドで要素を入れ替える
+        for (int i = 0; i < IventryItem.Length; i++)
         {
-            yield return null; // 毎フレームチェック
-        }
-        // オブジェクトが存在しなくなったら処理を続ける
-
-        // IventryPanelの子オブジェクトをすべて取得
-        UpdateIventryPanelPosition();
-        // childrenを順番に取り出し、子オブジェクトの数が0ならば子オブジェクトがあるchildrenまで順番に確認しその子オブジェクトを取得してオブジェクト数が0だったchildrenの子にする。をchildrenの数繰り返す
-        for (int i = 0; i < children.Count; i++)
-        {
-            if (children[i].childCount == 0)
+            if (IventryItem[i] == 0)
             {
-                for (int j = i + 1; j < children.Count; j++)
+                for (int j = i + 1; j < IventryItem.Length; j++)
                 {
-                    if (children[j].childCount != 0)
+                    if (IventryItem[j] != 0)
                     {
-                        Transform child = children[j].GetChild(0);
-                        child.SetParent(children[i]);
-                        child.localPosition = Vector3.zero;
+                        SwapItem(i, j);
                         break;
                     }
                 }
             }
-        }
-
+        } 
     }
 
     // 装備を変更するメソッド(ItemDandDHandlerから呼び出される)
-    public void changeEquipment(Transform[] targetSkillList, string objName, Image image, GameObject obj)
+    public void changeEquipment(Transform[] targetSkillList, string iventryItemID, string skillItemID ,string socketName, GameObject originalObj, GameObject targetObj)
     {
         // unit名を取得  
         string unitName = targetSkillList[0].gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
+        // unit名の0番目が1ならPlayer01、2ならPlayer02、3ならPlayer03、4ならPlayer04、5ならPlayer05
+        unitName = "P" + unitName[1];
+
         // GameManagerがアクティブでない場合は処理を終了
         if (gameManager != null && gameManager.livingUnits != null)
         {
@@ -239,89 +345,182 @@ public class IventryUI : MonoBehaviour
                 Unit unit = unitObj.GetComponent<Unit>();
                 if (unit.unitName == unitName)
                 {
-                    if(objName[0] == '1' && image.name == "charWpn")
+                    if(iventryItemID[0] == '1' && skillItemID[0] == '1')
                     {
-                        print(image.name + "武器を入れ替えます" + objName);
-                        // 現在の装備IDを取得
-                        int keepID = unit.currentWeapons;
-                        unit.currentWeapons = int.Parse(objName);
-                        // イベントリから移動したobjを削除
-                        Destroy(obj);
-                        // イベントリをソート
-                        StartCoroutine(IventrySortingCoroutine(obj));
-                        // もともと持っていた武器があればイベントリに追加
-                        if (keepID != 0)
-                        {
-                            AddItem(keepID);
-                        }
-                        // スキルパネルの更新
-                        UpdateUnitSkillUI(unitObj);
+                        print("武器を入れ替えます");
+                        // アイテムIDをunitのcurrentWeaponsに設定
+                        unit.currentWeapons = int.Parse(skillItemID);
                     }
                     // 名前の0番目が2で1番目が1で2番目が1ならばシールド
-                    if(objName[0] == '2' && objName[1] == '1' && objName[2] == '1' && image.name == "charShild")
+                    else if(iventryItemID[0] == '2' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '2' && skillItemID[1] == '1' && skillItemID[2] == '1')
                     {
-                        print(image.name + " 盾を入れ替えます " + objName);
-                        // 現在の装備IDを取得
-                        int keepID = unit.currentShields;
-                        unit.currentShields = int.Parse(objName);
-                        // イベントリから移動したobjを削除
-                        Destroy(obj);
-                        // イベントリをソート
-                        StartCoroutine(IventrySortingCoroutine(obj));
-                        // もともと持っていた盾があればイベントリに追加
-                        if (keepID != 0)
-                        {
-                            AddItem(keepID);
-                        }
-                        // スキルパネルの更新
-                        UpdateUnitSkillUI(unitObj);
+                        print(" 盾を入れ替えます ");
+                        unit.currentShields = int.Parse(skillItemID);
                     }
                     // 名前の0番目が2で1番目が1で2番目が2~4のいずれかならば防具
-                    else if (objName[0] == '2' && objName[1] == '1' && (objName[2] >= '2' && objName[2] <= '4') && image.name == "charArmor")
+                    else if (iventryItemID[0] == '2' && iventryItemID[1] == '1' && (iventryItemID[2] >= '2' && iventryItemID[2] <= '4') && skillItemID[0] == '2' && skillItemID[1] == '1' && (skillItemID[2] >= '2' && skillItemID[2] <= '4'))
                     {
-                        print(obj + "を削除し" + image.name + "防具を入れ替えます" + objName);
-                        // 現在の装備IDを取得
-                        int keepID = unit.currentArmor;
-                        unit.currentArmor = int.Parse(objName);
-                        // イベントリから移動したobjを削除
-                        Destroy(obj);
-                        // イベントリをソート
-                        StartCoroutine(IventrySortingCoroutine(obj));
-                        // もともと持っていた防具があればイベントリに追加
-                        if (keepID != 0)
-                        {
-                            AddItem(keepID);
-                        }
-                        // スキルパネルの更新
-                        UpdateUnitSkillUI(unitObj);
+                        print("防具を入れ替えます");
+                        unit.currentArmor = int.Parse(skillItemID);
                     }
                     // 名前の0番目が2で1番目が1で2番目が5ならばアクセサリ
-                    else if(objName[0] == '2' && objName[1] == '1' && objName[2] == '5' &&  image.name == "charAccsse")
+                    else if(iventryItemID[0] == '2' && iventryItemID[1] == '1' && iventryItemID[2] == '5' && skillItemID[0] == '2' && skillItemID[1] == '1' && skillItemID[2] == '5')
                     {
-                        print(image.name + "アクセサリを入れ替えます" + objName);
-                        // 現在の装備IDを取得
-                        int keepID = unit.currentAccessories;
-                        unit.currentAccessories = int.Parse(objName);
-                        // イベントリから移動したobjを削除
-                        Destroy(obj);
-                        // イベントリをソート
-                        StartCoroutine(IventrySortingCoroutine(obj));
-                        // もともと持っていたアクセサリがあればイベントリに追加
-                        if (keepID != 0)
-                        {
-                            AddItem(keepID);
-                        }
-                        // スキルパネルの更新
-                        UpdateUnitSkillUI(unitObj);
+                        print("アクセサリを入れ替えます");
+                        unit.currentAccessories = int.Parse(skillItemID);
                     }
+                    // 名前の0番目が4で1番目が1で2番目が1ならばメインルーン
+                    else if(iventryItemID[0] == '4' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '4' && skillItemID[1] == '1' && skillItemID[2] == '1')
+                    {
+                        print("メインルーンを入れ替えます");
+                        unit.mainSocket = int.Parse(skillItemID);
+                    }
+                    // 名前の0番目が4かつ1番目が1で2番目が1でなければサブルーン、image.nameがsubSocket0~11ならばサブルーン
+                    else if(iventryItemID[0] == '4'
+                        && iventryItemID[1] == '1'
+                        && iventryItemID[2] != '1'
+                        && skillItemID[0] == '4'
+                        && skillItemID[1] == '1'
+                        && skillItemID[2] != '1')
+                    {
+                        print("サブルーンを入れ替えます");
+                        print ("socketName = " + socketName);
+                        // どのサブルーンを入れ替えるかを取得
+                        int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
+                        unit.subSocket[socketId] = int.Parse(skillItemID);
+                    }
+                    else
+                    {
+                        Debug.Log("アイテムIDが不正です");
+                        return;
+                    }
+                    // オブジェクトを移動し、イベントリとスキルパネルを更新する
+                    MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj);
+                    
                     // unitのステータスを更新
                     unit.updateStatus();
+                    // ステータス画面UIの表示を更新
+                    if (statusAdjustmentManager != null)
+                    {
+                        statusAdjustmentManager.UpdateUI();
+                    }
                 }
             }
         }
         else
         {
             Debug.LogError("gameManager.playerUnits is null");
+        }
+    }
+
+    /// <summary>
+    /// オブジェクトを移動し、イベントリとスキルパネルを更新する関数
+    /// </summary>
+    /// <param name="originalObj">元のオブジェクト</param>
+    /// <param name="targetObj">ターゲットオブジェクト</param>
+    /// <param name="iventryItemID">イベントリアイテムID</param>
+    /// <param name="unitObj">ユニットオブジェクト</param>
+    public void MoveAndUpdate(GameObject originalObj, GameObject targetObj, string iventryItemID, GameObject unitObj)
+    {
+        // Imageコンポーネントがなければ originalObjを設定、それ以外はtargetObjを設定
+        GameObject obj = originalObj.GetComponent<Image>() == null ? originalObj : targetObj;
+
+        if (obj != null)
+        {
+            // 移動先のオブジェクトを消す
+            Destroy(obj);
+            // 移動先のオブジェクトの親がiventryPanelの何番目の子かを取得 (objの親の名前の下から2文字を取得し、intに変換し-1する)
+            int index = int.Parse(obj.transform.parent.name.Substring(obj.transform.parent.name.Length - 2)) - 1;
+            // SkikkListのメインルーンやサブルーンが空の場合、IDを0にする
+            if(iventryItemID== "411000" || iventryItemID == "412000") iventryItemID = "0";
+            // IventryItemのindex番目にアイテムIDを設定
+            SetItem(index, int.Parse(iventryItemID));
+        }
+
+        // イベントリを入れ替える
+        UpdateIventryPanel();
+        // スキルパネルの更新
+        UpdateUnitSkillUI(unitObj);
+    }
+
+    // イベントリのアイテムをすべて削除するメソッド(townに戻った時などの初期化に)
+    public void ClearItem()
+    {
+        // IventryItemのすべての要素を0にする
+        for (int i = 0; i < IventryItem.Length; i++)
+        {
+            IventryItem[i] = 0;
+        }
+        // IventryPanelの孫オブジェクトをすべて削除
+        foreach (Transform child in IventryPanel)
+        {
+            foreach (Transform grandChild in child)
+            {
+                Destroy(grandChild.gameObject);
+            }
+        }
+    }
+
+    // ivenrtyItemの指定番号と指定番号の要素内容を入れ替えるメソッド
+    public void SwapItem(int index1, int index2)
+    {
+        int temp = IventryItem[index1];
+        IventryItem[index1] = IventryItem[index2];
+        IventryItem[index2] = temp;
+    }
+
+    //  ivenrtyItemの指定番号に指定の要素を代入するメソッド
+    public void SetItem(int index, int itemID)
+    {
+        IventryItem[index] = itemID;
+    }
+
+    // iventryPanelの孫オブジェクトをすべて削除し、IventryItemのオブジェクトに対応するアイテムを生成するメソッド
+    public void UpdateIventryPanel()
+    {
+        // IventryPanelの孫オブジェクトをすべて削除
+        foreach (Transform child in IventryPanel)
+        {
+            foreach (Transform grandChild in child)
+            {
+                Destroy(grandChild.gameObject);
+            }
+        }
+        
+        // IventryItemの要素を順番に取り出し、0でなければアイテムを生成
+        for (int i = 0; i < IventryItem.Length; i++)
+        {
+            if (IventryItem[i] != 0)
+            {
+                // itemID6桁の100000の位が1なら武器、2なら防具、4ならルーン
+                if (IventryItem[i] / 100000 == 1)
+                {
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Weapons/" + IventryItem[i]);
+                    // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
+                    itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
+                    //名前から(Clone)を削除
+                    itemSprite.name = itemSprite.name.Replace("(Clone)", "");
+                    itemSprite.transform.SetParent(children[i]);
+                }
+                else if (IventryItem[i] / 100000 == 2)
+                {
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Equipment/" + IventryItem[i]);
+                    // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
+                    itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
+                    //名前から(Clone)を削除
+                    itemSprite.name = itemSprite.name.Replace("(Clone)", "");
+                    itemSprite.transform.SetParent(children[i]);
+                }
+                else if (IventryItem[i] / 100000 == 4)
+                {
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Runes/" + IventryItem[i]);
+                    // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
+                    itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
+                    //名前から(Clone)を削除
+                    itemSprite.name = itemSprite.name.Replace("(Clone)", "");
+                    itemSprite.transform.SetParent(children[i]);
+                }
+            }
         }
     }
 }

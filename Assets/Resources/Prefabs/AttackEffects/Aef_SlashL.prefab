@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5675681079502434131}
   m_Layer: 0
   m_Name: Aef_SlashL
-  m_TagString: Untagged
+  m_TagString: Aef
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,6 +125,9 @@ MonoBehaviour:
   trailWidth: 0.05
   trailStartColor: {r: 1, g: 1, b: 1, a: 1}
   trailEndColor: {r: 0.49411765, g: 0.49411765, b: 0.49411765, a: 0}
+  useDistance: 1
+  maxDistance: 1
+  lifetime: 1
 --- !u!1 &631865301491240310
 GameObject:
   m_ObjectHideFlags: 0
