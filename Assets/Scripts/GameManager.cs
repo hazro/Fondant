@@ -80,6 +80,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // DebugSheetをHierarchyに生成
+        
         // JsonDecryptorクラスを使用する
         jsonDecryptor = new JsonDecryptor();
         string filename = "items"; // ファイル名
@@ -226,7 +228,8 @@ public class GameManager : MonoBehaviour
             }
             statusLog.expGained = 0; // 獲得経験値をリセット
             statusLog.goldGained = 0; // 獲得ゴールドをリセット
-
+            // ステータスをUIに反映
+            UpdateGoldAndExpUI();
 
             statusLogPanel.gameObject.SetActive(true);
             iventryUI.SetButtonEnabled(true);
@@ -272,6 +275,14 @@ public class GameManager : MonoBehaviour
             foreach (RectTransform panel in UnitSkillPanels)
             {
                 panel.gameObject.SetActive(true);
+            }
+            // 全てのアクティブユニットのHPを回復する
+            foreach (GameObject unit in livingUnits)
+            {
+                // アクティブであったらHPを回復
+                if(unit.activeSelf){
+                    unit.GetComponent<Unit>().InitHp();
+                }
             }
 
             SceneManager.LoadScene("BattleSetupScene");
@@ -406,6 +417,33 @@ public class GameManager : MonoBehaviour
 
             // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
             //GetComponent<CameraController>().whiteoutMask.SetActive(false);
+        }
+        if(sceneName == "GameOverScene")
+        {
+            statusLogPanel.gameObject.SetActive(false);
+            SceneManager.LoadScene("GameOverScene");
+            iventryUI.SetButtonEnabled(false);
+            // UnitSkillPanelsの要素をすべて非アクティブにする
+            foreach (RectTransform panel in UnitSkillPanels)
+            {
+                panel.gameObject.SetActive(false);
+            }
+
+            // infomationPanelを非アクティブにする
+            GetComponent<InfomationPanelDisplay>().infomationPanel.SetActive(false);
+
+            // 子オブジェクトの指定のコンポーネントを有効化
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+
+            // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
+            GetComponent<CameraController>().whiteoutMask.SetActive(false);
         }
     }
 

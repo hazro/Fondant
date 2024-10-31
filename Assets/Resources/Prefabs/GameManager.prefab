@@ -15926,6 +15926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b83a5aab9256b684baa12bb730106fae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugSheet: {fileID: 0}
   itemData:
     jobList: []
     eqpList: []
@@ -15947,7 +15948,7 @@ MonoBehaviour:
   - {fileID: 6268070310758297674}
   - {fileID: 8024954870669566075}
   - {fileID: 1127655305241028924}
-  enemyGroup: {fileID: 0}
+  enemyGroup: {fileID: 6564643838517370666, guid: ca5e6d279e01e413f8bbf07d75aebe7f, type: 3}
   enemyCount: 0
   zoomSpeed: 15
   slowMotionDuration: 2

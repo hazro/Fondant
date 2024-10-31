@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using System.Linq;
+using System.Collections.Generic;
 
 /// <summary>
 /// 発射物を管理し、発射を制御するクラス
@@ -8,31 +10,40 @@ public class AttackController : MonoBehaviour
 {
     [Header("Options")]
     [SerializeField] private bool isShootingEnabled = false; // 発射を行うかどうか
-    [SerializeField] private bool enableChargeAttack = false; // 貯め撃ちを行うかどうか
-    [SerializeField] private bool powerAttack = false; // 強撃の有効/無効を設定
-    [SerializeField] private bool enableContinuousAttack = false; //連続攻撃の有効/無効を設定
-    [SerializeField] private bool moveBackAfterAttack = false; // 攻撃後に後ろに下がるかどうか
-    [SerializeField] private float moveBackDistance = 0.3f; // 後ろに下がる距離
-    [SerializeField] private bool targetLowHpFirst = false; // 低HPのターゲットを優先するかどうか
-    [SerializeField] private bool changeTargetRandomly = false; // 攻撃ごとにターゲットをランダムに変更するかどうか
-    [SerializeField] private bool followTarget = false; // ターゲットを追従するかどうか
+    [SerializeField] private bool enableEqpSkill = true; // 装備によるskillの発動を有効にするかどうか
     [SerializeField] private bool autoUpdateDirection = true; // ターゲットの方向を自動的に設定するかどうか
-    [SerializeField] private bool directHit = false; // ターゲットを直撃するかどうか
-    [SerializeField] private bool enableTrail = false; // すべての発射物の軌跡を有効にするかどうか
-    [SerializeField] private bool spiralMovementEnabled = false; // 螺旋状の動きを有効にするかどうか
-    [SerializeField] private float spiralExpansionSpeed = 0.5f; // 螺旋が外側に広がる速度
-    [SerializeField] private float delayRandomRange = 0.0f; // 発射間の遅延時間に掛けるランダムな範囲の最大値
-    [SerializeField] private float shakeAmplitude = 0.0f; // 振幅的な揺れの強さ
-    [SerializeField] private bool scaleOverTime = false; // 時間経過に応じてスケールする機能を有効にするか
-    [SerializeField] private bool shootThreeDirections = false; // ターゲット前方3方向に同時に発射するかどうか
-    [SerializeField] private bool shootFourDirections = false; // 上下左右4方向に発射する機能を有効にするか
-    [SerializeField] private bool shootFourDiagonalDirections = false; // 斜め4方向に発射する機能を有効にするか
-    [SerializeField] private bool shootEightDirections = false; // 8方向に発射する機能を有効にするか
-    [SerializeField] private bool useRandomPosition = false; // ランダムな位置から発射する機能を有効にするか
-    [SerializeField] private int numberOfShots = 1; // 一度の攻撃で発射する回数
+    [SerializeField] private bool damageZero = false; // ダメージを0にする
 
+    [Header("direction Skill (select one)")]
+    [SerializeField] private bool shoot3Directions = false; // ターゲット前方3方向に同時に発射
+    [SerializeField] private bool shoot4Directions = false; // 上下左右4方向に発射
+    [SerializeField] private bool shoot4DiagonalDirections = false; // 斜め4方向に発射
+    [SerializeField] private bool shoot8Directions = false; // 8方向に発射
 
-    public GameObject weaponPrefab; // 武器のPrefab
+    [Header("Attak Skill (select eny)")]
+    [SerializeField] private bool targetYourGroup = false; // 自分のグループをターゲット
+    [SerializeField] private bool randomPosition = false; // ランダムな位置から発射
+    [SerializeField] [Tooltip("ターゲットを追従")] private bool followTarget = false; // ターゲットを追従
+    [SerializeField] private bool laser = false; // 発射物に軌跡を付ける
+    [SerializeField] private bool spiral = false; // 螺旋状
+    private float spiralExpansionSpeed = 0.5f; // 螺旋が外側に広がる速度
+    [SerializeField] private bool chargeAttack = false; // 貯め撃ち
+    [SerializeField] private bool delayRandomRangeEnabled = false; // 発射間の遅延時間にランダムな範囲を追加 
+    private float delayRandomRange = 3.0f; // 発射間の遅延時間に掛けるランダムな範囲の最大値
+    [SerializeField] private bool wave = false; // 武器の振幅の範囲を設定
+    private float shakeAmplitude = 3.0f; // 振幅的な揺れの強さ
+    [SerializeField] private bool powerAttack = false; // 強撃
+    [SerializeField] private bool enableContinuousAttack = false; //連続攻撃
+    [SerializeField] private bool backStep = false; // 攻撃後に後ろに下がる
+    private float moveBackDistance = 0.3f; // 後ろに下がる距離
+    [SerializeField] private bool targetLowHp = false; // 低HPのターゲットを優先
+    [SerializeField] private bool changeTargetRandomly = false; // 攻撃ごとにターゲットをランダムに変更
+    [SerializeField] private bool randomDirectHit = false; // 直撃するターゲットをランダムに変更
+    [SerializeField] private bool directHit = false; // ターゲットを直撃
+    [SerializeField] private bool scaleUpBlow = false; // 時間経過に応じてスケール
+    [SerializeField] private bool barrageAttack = false; // 一度の攻撃で発射する回数を設定
+    private int numberOfShots = 3; // 一度の攻撃で発射する回数
+    [SerializeField] private bool speedAttack = false; // 速撃
 
     [Header("Parameter Multiplication")]
     [SerializeField] private float attackMultiplier = 1.0f; // 攻撃力の乗算値
@@ -46,6 +57,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] private int attackObjectThroughAdd = 0; // 障害物タグのターゲットに対する貫通回数を加算
 
     [Header("Projectile Settings")]
+    public GameObject weaponPrefab; // 武器のPrefab
     public GameObject projectilePrefab; // 発射するプレハブ
     [SerializeField] private Transform targetObject; // 追従するターゲットオブジェクト
     [SerializeField] private Vector2 direction; // 発射方向
@@ -57,6 +69,7 @@ public class AttackController : MonoBehaviour
 
     private bool isShooting;
     private GameObject attackObjectGroup; // 発射物をまとめるグループオブジェクト
+    private GameManager gameManager; // GameManagerの参照
     private UnitController unitController; // UnitControllerの参照
     private Unit unit; // Unitの参照
     private bool wasShootingEnabled; // 前回の状態を保持する変数
@@ -73,6 +86,8 @@ public class AttackController : MonoBehaviour
         // 攻撃物グループの参照を取得
         attackObjectGroup = BattleManager.Instance.attackObjectGroup;
 
+        // GameManagerの参照を取得
+        gameManager = GameManager.Instance;
         // UnitControllerの参照を取得
         unitController = GetComponent<UnitController>();
         // Unitの参照を取得
@@ -98,12 +113,9 @@ public class AttackController : MonoBehaviour
     private void Update()
     {
         // ターゲットが低HPのものを優先する場合はUnitControllerのフラグを変更する
-        if (targetLowHpFirst && unitController != null)
+        if (unitController != null)
         {
-            unitController.targetLowHpFirst = true;
-        }else if (!targetLowHpFirst && unitController != null)
-        {
-            unitController.targetLowHpFirst = false;
+            unitController.targetLowHpFirst = targetLowHp;
         }
         // 攻撃が有効になる条件をチェック
         if (targetObject != null && unitController != null)
@@ -220,16 +232,60 @@ public class AttackController : MonoBehaviour
         float offset = 3.0f;     // オフセット値
         while (isShooting)
         {
+            // 装備によるskillの発動が有効の場合は、装備しているルーンのスキルをすべて取得し有効無効を判定
+            if (enableEqpSkill)
+            {
+                // UnitのmainSocketとsubSocketに装備しているルーンのIDをすべて取得し配列に格納
+                List<int> eqpRuneIDs = new List<int>();
+                eqpRuneIDs.Add(unit.mainSocket);
+                for (int i = 0; i < unit.subSocket.Length; i++)
+                {
+                    eqpRuneIDs.Add(unit.subSocket[i]);
+                }
+                // IDに該当するルーンのnameを取得
+                List<string> eqpRuneNames = new List<string>();
+                for (int i = 0; i < eqpRuneIDs.Count; i++)
+                {
+                    eqpRuneNames.Add(gameManager.itemData.runeList.Find(x => x.ID == eqpRuneIDs[i]).name);
+                }
+                // skill関連のboolメソッドのメソッド名がeqpRuneNamesに含まれるかどうかで有効無効を切り替える
+                shoot3Directions = eqpRuneNames.Contains(nameof(shoot3Directions));
+                shoot4Directions = eqpRuneNames.Contains(nameof(shoot4Directions));
+                shoot4DiagonalDirections = eqpRuneNames.Contains(nameof(shoot4DiagonalDirections));
+                shoot8Directions = eqpRuneNames.Contains(nameof(shoot8Directions));
+                targetYourGroup = eqpRuneNames.Contains(nameof(targetYourGroup));
+                randomPosition = eqpRuneNames.Contains(nameof(randomPosition));
+                followTarget = eqpRuneNames.Contains(nameof(followTarget));
+                laser = eqpRuneNames.Contains(nameof(laser));
+                spiral = eqpRuneNames.Contains(nameof(spiral));
+                chargeAttack = eqpRuneNames.Contains(nameof(chargeAttack));
+                delayRandomRangeEnabled = eqpRuneNames.Contains(nameof(delayRandomRangeEnabled));
+                wave = eqpRuneNames.Contains(nameof(wave));
+                powerAttack = eqpRuneNames.Contains(nameof(powerAttack));
+                enableContinuousAttack = eqpRuneNames.Contains(nameof(enableContinuousAttack));
+                backStep = eqpRuneNames.Contains(nameof(backStep));
+                targetLowHp = eqpRuneNames.Contains(nameof(targetLowHp));
+                changeTargetRandomly = eqpRuneNames.Contains(nameof(changeTargetRandomly));
+                randomDirectHit = eqpRuneNames.Contains(nameof(randomDirectHit));
+                directHit = eqpRuneNames.Contains(nameof(directHit));
+                scaleUpBlow = eqpRuneNames.Contains(nameof(scaleUpBlow));
+                barrageAttack = eqpRuneNames.Contains(nameof(barrageAttack));
+                speedAttack = eqpRuneNames.Contains(nameof(speedAttack));
+                // 以下同様に設定予定
+            }
             // フラグごとの乗算値を設定
             SetMultiplier();
 
             // コールーチンで-範囲～範囲の範囲で武器を振る(RotationZ)
             if (weaponPrefab != null) StartCoroutine(ShakeWeapon(weapomAmplitude)); // 武器を振るコルーチン
+            // 一度の攻撃で発射するが無効の場合は、numberOfShotsを1に設定
+            if (!barrageAttack) numberOfShots = 1; else numberOfShots = 3;
             // ディレイ時間を乗算
             delayBetweenShots = Mathf.Max(delayBetweenShots * delayMultiplier * (float)numberOfShots, 0);
             // 数値が増えるほどディレイ時間が短くなるようにし最大値と最小値の間に収まるように調整
             float delayShots = Mathf.Max(maxDelay / (delayBetweenShots + offset), minDelay); //(例)delayBetweenShotsが1より5の方がdelayが短くなる
             // ディレイ時間にランダムな範囲を追加
+            if(!delayRandomRangeEnabled) delayRandomRange = 0;
             float adjustedDelay = delayShots + Random.Range(-delayRandomRange / 2f, delayRandomRange / 2f);
 
             /////////////////////////////////////////////////////////////////////////
@@ -239,13 +295,13 @@ public class AttackController : MonoBehaviour
             firingPosition = transform.position; // 発射位置を自分の位置に設定
 
             // ランダムな位置から発射する場合
-            if (useRandomPosition)
+            if (randomPosition)
             {
                 firingPosition = GetRandomPositionWithinRange();
             }
 
             // ターゲットを直撃する場合
-            if (directHit)
+            if (directHit || randomDirectHit)
             {
                 firingPosition = GetDirectHitPosition();
             }
@@ -259,7 +315,7 @@ public class AttackController : MonoBehaviour
             /////////////////////////////////////////////////////////////////////////
             
             // ターゲット前方3方向に同時に発射する場合
-            if (shootThreeDirections)
+            if (shoot3Directions)
             {
                 // ターゲットへの方向を０度として、左右に30度ずつずらした方向に発射する
                 Vector2 targetDirection = ((Vector2)targetObject.position - firingPosition).normalized;
@@ -268,7 +324,7 @@ public class AttackController : MonoBehaviour
                 ShootInMultipleDirections(new Vector2[] { targetDirection, leftDirection, rightDirection });
             }
             // 8方向に発射する場合
-            else if (shootEightDirections)
+            else if (shoot8Directions)
             {
                 ShootInMultipleDirections(new Vector2[] {
                     Vector2.up, Vector2.down, Vector2.left, Vector2.right,
@@ -277,12 +333,12 @@ public class AttackController : MonoBehaviour
                 });
             }
             // 上下左右4方向に発射する場合
-            else if (shootFourDirections)
+            else if (shoot4Directions)
             {
                 ShootInMultipleDirections(new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right });
             }
             // 斜め4方向に発射する場合
-            else if (shootFourDiagonalDirections)
+            else if (shoot4DiagonalDirections)
             {
                 ShootInMultipleDirections(new Vector2[] {
                     new Vector2(1, 1).normalized, new Vector2(1, -1).normalized,
@@ -298,18 +354,19 @@ public class AttackController : MonoBehaviour
             /////////////////////////////////////////////////////////////////////////
             /// 4, 攻撃後の処理を行う ////////////////////////////////////////////////
             /// /////////////////////////////////////////////////////////////////////
+            if (unitController != null)
+            {
+                // 自分のグループをターゲットにするかどうかを設定
+                unitController.targetSameTag = targetYourGroup;
+                // 攻撃後に後ろに下がる
+                unitController.MoveBackFlag = backStep;
+                unitController.MoveBackDistance = moveBackDistance;
+            }
             
             // 攻撃後にターゲットをランダムに変更する
-            if (changeTargetRandomly && unitController != null)
+            if (changeTargetRandomly || randomDirectHit && unitController != null)
             {
                 unitController.SetClosestTarget(true);
-            }
-
-            // 攻撃後に後ろに下がる
-            if (moveBackAfterAttack && unitController != null)
-            {
-                unitController.MoveBackDistance = moveBackDistance;
-                unitController.MoveBackFlag = true;
             }
 
             // ディレイ時間を待つ
@@ -419,13 +476,13 @@ public class AttackController : MonoBehaviour
             attackMultiplier *= 0.5f;
             delayMultiplier *= 3.0f;
         }
-        if(enableChargeAttack) // 貯め撃ちが有効な場合は、攻撃力を1.5倍、ディレイを2倍、発射物速度を1.5倍にする
+        if(chargeAttack) // 貯め撃ちが有効な場合は、攻撃力を1.5倍、ディレイを2倍、発射物速度を1.5倍にする
         {
             attackMultiplier *= 1.5f;
             delayMultiplier *= 2.0f;
             aefSpeedMultiplier *= 1.5f;
         }
-        if (moveBackAfterAttack) // 攻撃後に後ろに下がる場合は、攻撃力を1.25倍にする
+        if (backStep) // 攻撃後に後ろに下がる場合は、攻撃力を1.25倍にする
         {
             attackMultiplier *= 1.25f;
         }
@@ -437,7 +494,7 @@ public class AttackController : MonoBehaviour
         {
             attackMultiplier *= 0.33f;
         }
-        if(enableTrail) // 軌跡を有効にする場合は、攻撃力を0.5倍にする
+        if(laser) // 軌跡を有効にする場合は、攻撃力を0.5倍にする
         {
             attackMultiplier *= 0.5f;
         }
@@ -445,25 +502,43 @@ public class AttackController : MonoBehaviour
         {
             attackMultiplier *= 0.5f;
         }
-        if(scaleOverTime)
+        if(scaleUpBlow) // 時間経過に応じてスケールする場合
         {
             attackMultiplier *= 0.75f;
         }
-        if(shootThreeDirections)
+        if(shoot3Directions) // ターゲット前方3方向に同時に発射する場合
         {
             attackMultiplier *= 0.5f;
         }
-        if(shootFourDirections)
+        if(shoot4Directions) // 上下左右4方向に発射する場合
         {
             attackMultiplier *= 0.5f;
         }
-        if(shootFourDiagonalDirections)
+        if(shoot4DiagonalDirections) // 斜め4方向に発射する場合
         {
             attackMultiplier *= 0.5f;
         }
-        if(shootEightDirections)
+        if(shoot8Directions) // 8方向に発射する場合
         {
             attackMultiplier *= 0.33f;
+        }
+        if(speedAttack) // 速撃
+        {
+            aefSpeedMultiplier *= 2.0f;
+            maxDistanceMultiplier *= 2.0f;
+            attackMultiplier *= 0.75f;
+            attackCharThrough = 2;
+            attackObjectThrough = 2;
+            delayMultiplier *= 0.33f;
+        }
+        if (barrageAttack) // 一度の攻撃で複数回発射する
+        {
+            attackMultiplier *= 0.5f;
+            delayMultiplier *= 0.5f;
+        }
+        if (scaleUpBlow) // 時間経過に応じてスケールする
+        {
+            attackMultiplier *= 0.75f;
         }
     }
 
@@ -471,7 +546,10 @@ public class AttackController : MonoBehaviour
     private void ProjectileInitialize(ProjectileBehavior projectileBehavior, Vector2 dir)
     {
         // 螺旋運動が有効な場合は、経過時間の寿命を3倍にする
-        float adjustedLifetime = spiralMovementEnabled ? projectileLifetime * 3.0f : projectileLifetime;
+        float adjustedLifetime = spiral ? projectileLifetime * 3.0f : projectileLifetime;
+        // 武器の振幅の範囲が無効な場合は、振幅を0にする
+        if(!wave) shakeAmplitude = 0;
+        if(damageZero) attackMultiplier = 0;
 
         // ProjectileBehaviorの初期化
         projectileBehavior.Initialize(
@@ -490,11 +568,11 @@ public class AttackController : MonoBehaviour
             knockbackMultiplier,
             // 以下、オプションパラメータ
             followTarget ? targetObject : null,
-            enableTrail,
-            spiralMovementEnabled,
+            laser,
+            spiral,
             spiralExpansionSpeed,
             shakeAmplitude,
-            scaleOverTime
+            scaleUpBlow
             );
     }
 }

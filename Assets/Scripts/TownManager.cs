@@ -5,27 +5,53 @@ using UnityEngine;
 /// </summary>
 public class TownManager : MonoBehaviour
 {
-    public GameObject playerPrefab; // プレイヤーのプレハブへの参照
-    private GameObject playerInstance; // 生成されたプレイヤーへの参照
+    GameManager gameManager;
 
     private void Start()
     {
-        // タウンシーンが開始されたときにプレイヤーの生成を行います
-        SpawnPlayer();
+        // Get the GameManager instance.
+        gameManager = GameManager.Instance;
     }
 
     /// <summary>
-    /// プレイヤーを生成するメソッドです。
+    /// outボタン(外出)が押されたときに呼び出される関数です。
     /// </summary>
-    public void SpawnPlayer()
+    public void OnOutButtonClicked()
     {
-        if (playerPrefab != null && playerInstance == null)
-        {
-            playerInstance = Instantiate(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        }
-        else if (playerPrefab == null)
-        {
-            Debug.LogError("TownManagerにプレイヤーのプレハブが割り当てられていません。");
-        }
+        Debug.Log("outボタンが押されました。");
+        // バトルシーンへ移動し、キャラクター配置画面を表示
+        gameManager.LoadScene("InToWorldEntrance");
+    }
+
+    /// <summary>
+    /// Shopボタンが押されたときに呼び出される関数です。
+    /// </summary>
+    public void OnShopButtonClicked()
+    {
+        Debug.Log("Shopボタンが押されました。");
+    }
+
+    /// <summary>
+    /// organizationボタン(メンバー編成)が押されたときに呼び出される関数です。
+    /// </summary>
+    public void OnOrganizationButtonClicked()
+    {
+        Debug.Log("organizationボタンが押されました。");
+    }
+
+    /// <summary>
+    /// limitationボタン(制限)が押されたときに呼び出される関数です。
+    /// </summary>
+    public void OnLimitationButtonClicked()
+    {
+        Debug.Log("limitationボタンが押されました。");
+    }
+
+    /// <summary>
+    /// libraryボタン(図書館)が押されたときに呼び出される関数です。
+    /// </summary>
+    public void OnLibraryButtonClicked()
+    {
+        Debug.Log("libraryボタンが押されました。");
     }
 }

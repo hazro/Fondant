@@ -291,6 +291,7 @@
     {
       "ID": 114001,
       "name": "wood staff",
+      "ability": "Release magical energy to attack.",
       "world": 1,
       "price": 30,
       "socketCount": 12,
@@ -300,6 +301,7 @@
     {
       "ID": 115001,
       "name": "wood wand",
+      "ability": "Release the magical energy of recovery.",
       "world": 1,
       "price": 30,
       "socketCount": 3,
@@ -308,7 +310,8 @@
     },
     {
       "ID": 116001,
-      "name": "wood arrow",
+      "name": "wood bow",
+      "ability": "Shooting bows and arrows from a distance",
       "world": 1,
       "price": 30,
       "socketCount": 3,
@@ -383,7 +386,7 @@
     },
     {
       "ID": 411002,
-      "name": "cross4Directions",
+      "name": "shoot4Directions",
       "world": 1,
       "price": 10,
       "maxLevel": 3,
@@ -397,7 +400,7 @@
     },
     {
       "ID": 411003,
-      "name": "8Directions",
+      "name": "shoot8Directions",
       "world": 1,
       "price": 10,
       "maxLevel": 3,
@@ -411,7 +414,7 @@
     },
     {
       "ID": 411004,
-      "name": "diagonal4Directions",
+      "name": "shoot4DiagonalDirections",
       "world": 1,
       "price": 10,
       "maxLevel": 3,
@@ -470,7 +473,7 @@
     },
     {
       "ID": 411008,
-      "name": "3Directions",
+      "name": "shoot3Directions",
       "world": 1,
       "price": 10,
       "maxLevel": 3,
@@ -484,7 +487,7 @@
     },
     {
       "ID": 411009,
-      "name": "2Directions",
+      "name": "shoot2Directions",
       "world": 1,
       "price": 10,
       "maxLevel": 3,

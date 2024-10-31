@@ -254,6 +254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 6880280128357321442}
+  positionID: 8
   unitName: P5
   condition: 0
   job: 4
@@ -380,7 +381,7 @@ MonoBehaviour:
   movementSpeed: 1
   followRange: 7
   approachRange: 0.75
-  followWeight: 99
+  followWeight: 100
   enableAttackStance: 0
   attackStanceDuration: 10
   attackDelay: 5
@@ -400,29 +401,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isShootingEnabled: 0
-  enableChargeAttack: 0
+  enableEqpSkill: 1
+  autoUpdateDirection: 1
+  damageZero: 0
+  shoot3Directions: 0
+  shoot4Directions: 0
+  shoot4DiagonalDirections: 0
+  shoot8Directions: 0
+  targetYourGroup: 0
+  randomPosition: 0
+  followTarget: 0
+  laser: 0
+  spiral: 0
+  chargeAttack: 0
+  delayRandomRangeEnabled: 0
+  wave: 0
   powerAttack: 0
   enableContinuousAttack: 0
-  moveBackAfterAttack: 0
-  moveBackDistance: 0.3
-  targetLowHpFirst: 0
+  backStep: 0
+  targetLowHp: 0
   changeTargetRandomly: 0
-  followTarget: 0
-  autoUpdateDirection: 1
+  randomDirectHit: 0
   directHit: 0
-  enableTrail: 0
-  spiralMovementEnabled: 0
-  spiralExpansionSpeed: 0.5
-  delayRandomRange: 0
-  shakeAmplitude: 0
-  scaleOverTime: 0
-  shootThreeDirections: 0
-  shootFourDirections: 0
-  shootFourDiagonalDirections: 0
-  shootEightDirections: 0
-  useRandomPosition: 0
-  numberOfShots: 1
-  weaponPrefab: {fileID: 0}
+  scaleUpBlow: 0
+  barrageAttack: 0
+  speedAttack: 0
   attackMultiplier: 1
   delayMultiplier: 1
   aefSpeedMultiplier: 1
@@ -432,6 +435,7 @@ MonoBehaviour:
   knockbackMultiplier: 1
   attackCharThroughAdd: 0
   attackObjectThroughAdd: 0
+  weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}

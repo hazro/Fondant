@@ -12,6 +12,7 @@ public class Unit : MonoBehaviour
     private Animator animator; // Animatorコンポーネントの参照
     private bool live = true; // ユニットが生存しているかどうか
     private int RuneDropChance = 70; // ルーンドロップの確率(%)
+    public int positionID; // ユニットの位置ID
 
     [SerializeField] public string unitName;
     [SerializeField] public int condition; // 0:通常, 1:死亡 2:火傷(時間xダメージ) 3:麻痺(動きが遅くなる), 4:毒(重ねがけ), 5:凍結(動けない、防御力上がる)、6:弱体化(攻撃力が下がる)、7:脆弱化 (防御力が下がる)
@@ -421,7 +422,7 @@ public class Unit : MonoBehaviour
             return;
         }
         // HPが0以下になったら死亡
-        if (currentHp < 0)
+        if (currentHp <= 0)
         {
             live = false;
             currentHp = 0;
@@ -602,7 +603,7 @@ public class Unit : MonoBehaviour
             {
                 Destroy(enemy);
             }
-            gameManager.LoadScene("InToTownScene"); // 仮でタウンシーンに遷移
+            gameManager.LoadScene("GameOverScene"); // ゲームオーバーシーンに遷移
         }
     }
 
