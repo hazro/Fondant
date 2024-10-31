@@ -24,6 +24,8 @@ public class ShopManager : MonoBehaviour
     private GameManager gameManager; // ゲームマネージャ
     private WorldManager worldManager; // ワールドマネージャ
     private IventryUI iventryUI; // IventryUIの参照
+    private bool isMethodOKExecuted = false;
+    private bool isMethodCancelExecuted = false;
 
     // Start is called before the first frame update
     void Start()
@@ -258,6 +260,8 @@ public class ShopManager : MonoBehaviour
     {
         // infoPanelを非表示
         infoPanel.SetActive(false);
+        // メソッドOKが実行されたことを示すフラグを立てる
+        isMethodOKExecuted = true;
     }
 
     /// <summary>
@@ -267,6 +271,8 @@ public class ShopManager : MonoBehaviour
     {
         // infoPanelを非表示
         infoPanel.SetActive(false);
+        // メソッドCancelが実行されたことを示すフラグを立てる
+        isMethodCancelExecuted = true;
     }
 
     /// <summary>
@@ -520,5 +526,42 @@ public class ShopManager : MonoBehaviour
         // infoTextに"Are you sure you want to sell \n\n" + itemName(ボールド) + "\n\n for " + itemPrice / 2(ボールド黄色) + " gold?"を表示
         string text = "Are you sure you want to sell \n\n<b>" + itemName + "</b>\n\n for <color=yellow><b>" + itemPrice / 2 + "</b></color> gold?";
         UpdateInfoPanel(text,true); // キャンセルボタンも表示する
+        // OK、Cancelフラグの初期化
+        isMethodOKExecuted = false;
+        isMethodCancelExecuted = false;
+        // OnClickOKButtonかOnClickCancelButtonが押されるまで待ってOKなら売る
+        StartCoroutine(SubmitSell(sellObject, int.Parse(itemID), itemPrice / 2));
+
     }
+    public IEnumerator SubmitSell(GameObject sellObject, int itemID, int Price)
+    {
+        // メソッドBまたはメソッドCが実行されるまで待機
+        yield return new WaitUntil(() => isMethodOKExecuted || isMethodCancelExecuted);
+
+        // OKボタンが押された場合、アイテムを売る
+        if (isMethodOKExecuted)
+        {
+            // sellObjectの親オブジェクトがiventryPanelの何番目の子オブジェクトかを取得
+            int index = sellObject.transform.parent.GetSiblingIndex();
+            // iventryItem[index]がitemIDと一致する場合、iventryItem[index]を0に設定
+            if(iventryUI.IventryItem[index] == itemID)
+            {
+                iventryUI.IventryItem[index] = 0;
+            }
+            // UpdateIventryPanelを実行
+            if (iventryUI != null)
+            {
+                iventryUI.UpdateIventryPanel();
+            }
+            //goldをPrice分増やす
+            statusLog.currentGold += Price;
+            // ゴールドと経験値UIを更新
+            gameManager.UpdateGoldAndExpUI();
+        }
+
+        // フラグのリセット
+        isMethodOKExecuted = false;
+        isMethodCancelExecuted = false;
+    }
+    
 }

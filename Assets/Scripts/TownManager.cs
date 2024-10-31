@@ -6,11 +6,13 @@ using UnityEngine;
 public class TownManager : MonoBehaviour
 {
     GameManager gameManager;
+    [SerializeField] private Canvas canvas;
 
     private void Start()
     {
         // Get the GameManager instance.
         gameManager = GameManager.Instance;
+        canvas.worldCamera = Camera.main;
     }
 
     /// <summary>

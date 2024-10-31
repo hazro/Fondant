@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
     {
         //world番号とstage番号の初期値を設定
         worldUItxt.text = "01";
-        stageUItxt.text = "00/08";
+        stageUItxt.text = "00/12";
 
         // シングルトンパターンの設定
         if (Instance == null)
@@ -276,13 +276,17 @@ public class GameManager : MonoBehaviour
             {
                 panel.gameObject.SetActive(true);
             }
-            // 全てのアクティブユニットのHPを回復する
+            // 全てのアクティブユニットの設定をする
             foreach (GameObject unit in livingUnits)
             {
                 // アクティブであったらHPを回復
                 if(unit.activeSelf){
                     unit.GetComponent<Unit>().InitHp();
                 }
+                
+                unit.GetComponent<PlayerDraggable>().enabled = true;
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
             }
 
             SceneManager.LoadScene("BattleSetupScene");
@@ -292,12 +296,8 @@ public class GameManager : MonoBehaviour
             }
             // ワールド番号とステージ番号を更新
             UpdateWorldStageUI();
-
-            // 子オブジェクトの指定のコンポーネントを有効化
-            foreach (GameObject unit in livingUnits)
-            {
-                unit.GetComponent<PlayerDraggable>().enabled = true;
-            }
+            // ステータスをUIに反映
+            UpdateGoldAndExpUI();
         }
         if(sceneName == "InToBattleScene")
         {
@@ -358,6 +358,16 @@ public class GameManager : MonoBehaviour
 
             statusLogPanel.gameObject.SetActive(true);
             SceneManager.LoadScene("StatusAdjustmentScene");
+
+            // 一旦roomEvent12まで行ったらworldを進めてroomEventを0にする
+            if(worldManager.GetCurrentRoomEvent() == 12){
+                worldManager.IncrementWorld();
+                // まだボスとワールド2以降が実装されていないのでワールド番号を1にする
+                worldManager.currentWorld = 1;
+            }
+            // ワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
+
             iventryUI.SetButtonEnabled(true);
             // UnitSkillPanelsの要素をすべて非アクティブにする
             foreach (RectTransform panel in UnitSkillPanels)
@@ -559,7 +569,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         worldUItxt.text = worldManager.GetCurrentWorld().ToString("D2");
-        stageUItxt.text = worldManager.GetCurrentRoomEvent().ToString("D2") + "/08";
+        stageUItxt.text = worldManager.GetCurrentRoomEvent().ToString("D2") + "/12";
     }
 
     /// <summary>

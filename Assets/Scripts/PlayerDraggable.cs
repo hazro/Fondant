@@ -127,6 +127,10 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
                 // 新しいドロップゾーンにプレイヤーを移動
                 transform.position = collider.transform.position + new Vector3(0, 0, -0.1f);
+                // colliderが親オブジェクトの何番目の子かを取得
+                int siblingIndex = collider.transform.GetSiblingIndex() + 1;
+                // UnitのpositionIDを更新
+                GetComponent<Unit>().positionID = siblingIndex;
                 return;
             }
         }

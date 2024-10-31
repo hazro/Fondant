@@ -357,7 +357,9 @@ public class AttackController : MonoBehaviour
             if (unitController != null)
             {
                 // 自分のグループをターゲットにするかどうかを設定
-                unitController.targetSameTag = targetYourGroup;
+                if (!unitController.targetSameTag){
+                    unitController.targetSameTag = targetYourGroup;
+                }
                 // 攻撃後に後ろに下がる
                 unitController.MoveBackFlag = backStep;
                 unitController.MoveBackDistance = moveBackDistance;

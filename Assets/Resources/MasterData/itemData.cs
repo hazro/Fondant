@@ -7,6 +7,7 @@ public class ItemData {
     public class JobListData {
         public int ID;
         public string name;
+        public string ability;
         public float magic;
         public float str;
         public float dex;
@@ -71,6 +72,7 @@ public class ItemData {
         public float attackRange;
         public float attackStanceDuration;
         public float attackStanceDelay;
+        public int equipable;
     }
 
     public List<EqpListData> eqpList = new List<EqpListData>();
@@ -103,6 +105,7 @@ public class ItemData {
         public float attackRange;
         public float attackStanceDuration;
         public float attackStanceDelay;
+        public int equipable;
     }
 
     public List<WpnListData> wpnList = new List<WpnListData>();

@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [SerializeField] private bool isShopItem = false; // ショップアイテムかどうかのフラグ
+    [SerializeField] private bool isCharaName = false; // キャラクター名かどうかのフラグ 
     private Vector3 offset; // ドラッグ中のオフセット
     private Vector3 originalPosition; // 元の位置を保存する変数
     private BoxCollider2D boxCollider; // 自身のBoxCollider2Dの参照
@@ -48,8 +49,9 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">ドラッグイベントデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
+        string spriteID = "000000"; // SpriteIDを格納する変数
         // ショップアイテムの場合、ドラッグを無効にする
-        if(isShopItem)
+        if(isShopItem || isCharaName)
         {
             isDraggable = false;
             return;
@@ -57,14 +59,11 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         // オブジェクトにImageコンポーネントがアタッチされている場合、そのSprite名を取得し、1つめの_と2つめの_の間の文字列の末尾が"000"の場合、ドラッグを無効にする
         else if (GetComponent<Image>() != null)
         {
-            string spriteName = GetComponent<Image>().sprite.name;
-            string spriteID = spriteName.Substring(spriteName.IndexOf("_") + 1, spriteName.LastIndexOf("_") - spriteName.IndexOf("_") - 1);
-            // spriteIDの末尾が"000"の場合、ドラッグを無効にする
-            if (spriteID.Substring(spriteID.Length - 3) == "000")
-            {
-                isDraggable = false;
-                return;
-            }
+            spriteID = CheckSpriteIDAndSetDraggable(GetComponent<Image>().sprite.name);
+        }
+        else if (GetComponent<SpriteRenderer>() != null)
+        {
+            spriteID = CheckSpriteIDAndSetDraggable(GetComponent<SpriteRenderer>().sprite.name);
         }
         else{
             isDraggable = true;
@@ -85,6 +84,12 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             {
                 childBoxCollider.enabled = false; // 子オブジェクトのBoxCollider2Dを無効にする
             }
+        }
+
+        // 装備可能なアイテムの場合、SkillListの枠の色を黄色くする
+        if(iventryUI != null)
+        {
+            iventryUI.ChangeSkillListFrameColor(spriteID);
         }
     }
 
@@ -151,12 +156,14 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     targetID = targetID.Substring(targetID.IndexOf("_") + 1, targetID.LastIndexOf("_") - targetID.IndexOf("_") - 1);
                 }
 
+                GameObject skillObject = null;
                 if (targetObject.CompareTag("Item"))
                 {
                     Debug.Log("Iventryにドロップしました(iventryがターゲット)");
                     socketName = this.name;
                     SetItemIDs(targetObject, this.gameObject, out skillItemID, out iventryItemID);
                     skillListTransform = this.gameObject.transform;
+                    skillObject = this.gameObject;
                 }
                 else
                 {
@@ -164,7 +171,25 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     socketName = targetObject.transform.parent.name;
                     SetItemIDs(this.gameObject, targetObject.transform.parent.gameObject, out skillItemID, out iventryItemID);
                     skillListTransform = targetObject.transform.parent;
+                    skillObject = targetObject;
                 }
+                // skillListTransformの親の子に名前が"waku"のものがあったらImageコンポーネントを持つものを取得
+                foreach (Transform child in skillListTransform.parent)
+                {
+                    if (child.name == "waku")
+                    {
+                        // Imageコンポーネントを取得
+                        if(child.GetComponent<Image>())
+                        {
+                            if(child.GetComponent<Image>().color != new Color(1, 1, 0, 1))
+                            {
+                                Debug.Log(" 装備不可のスキルスロットにドロップまたは入れ替えようとしました");
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 // Sprite名もImage名も取得できない場合、エラーログを出力して元の位置に戻す
                 if (skillItemID == "" || iventryItemID == "" || socketName == "")
                 {
@@ -210,6 +235,12 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 childBoxCollider.enabled = true;
             }
         }
+
+        // SkillListの枠の色をもとに戻す
+        if(iventryUI != null)
+        {
+            iventryUI.ChangeSkillListFrameColor("000000");
+        }
     }
 
     /// <summary>
@@ -237,9 +268,14 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 if (gameObject.GetComponent<Image>().sprite != null)
                 {
                     objectID = gameObject.GetComponent<Image>().sprite.name;
-                    objectID = objectID.Substring(objectID.IndexOf("_") + 1, objectID.LastIndexOf("_") - objectID.IndexOf("_") - 1);
+                    // objectIDに_が2つ以上含まれているか確認
+                    if (objectID.IndexOf("_") != objectID.LastIndexOf("_"))
+                    {
+                        objectID = objectID.Substring(objectID.IndexOf("_") + 1, objectID.LastIndexOf("_") - objectID.IndexOf("_") - 1);
+                    }
                 }
             }
+
             // オブジェクト名の頭が1の場合は武器の情報を表示
             if (objectID.Substring(0, 1) == "1")
             {
@@ -309,9 +345,25 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     }
                 }
             }
+            // オブジェクトが"teName"の場合、objectIDに"teName"を代入
+            else if (gameObject.name == "txName")
+            {
+                // 親の親の親の名前の末尾2桁をint型に変換して取得
+                int unitID = int.Parse(gameObject.transform.parent.parent.parent.name.Substring(gameObject.transform.parent.parent.parent.name.Length - 2));
+                Debug.Log("unitID: " + unitID);
+                // gameManager.ItemData.jonListのIDとunit.jobが一致するものを取得し、abilityをtextに代入
+                ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == unitID);
+                if (jobListData != null)
+                {
+                    text = jobListData.ability;
+                }
+            }
             else
             {
-                text = "No information available.";
+                // その他の場合はinfomationPanelDisplayを非表示にする
+                infomationPanelDisplay.SetInactive();
+                text = "";
+                return;
             }
             // ここにマウスオーバー時の処理を追加
             infomationPanelDisplay.SetActiveAndChangeText(text);
@@ -399,5 +451,23 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
             Destroy(gameObject); // オブジェクト破棄
         }
+    }
+
+    /// <summary>
+    /// SpriteIDをチェックし、ドラッグ可能かどうかを設定するメソッド。spriteNameを返す。
+    /// </summary>
+    private string CheckSpriteIDAndSetDraggable(string spriteName)
+    {
+        string spriteID = "000000";
+        if (spriteName != null)
+        {
+            spriteID = spriteName.Substring(spriteName.IndexOf("_") + 1, spriteName.LastIndexOf("_") - spriteName.IndexOf("_") - 1);
+            // spriteIDの末尾が"000"の場合、ドラッグを無効にする
+            if (spriteID.Substring(spriteID.Length - 3) == "000")
+            {
+                isDraggable = false;
+            }
+        }
+        return spriteID;
     }
 }

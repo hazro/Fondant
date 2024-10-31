@@ -35,11 +35,12 @@ public class WorldManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 現在のワールド番号に1を加算するメソッド。
+    /// 現在のワールド番号に1を加算してルームイベントを0にするメソッド。
     /// </summary>
     public void IncrementWorld()
     {
         currentWorld++;
+        currentRoomEvent = 0;
     }
 
     /// <summary>

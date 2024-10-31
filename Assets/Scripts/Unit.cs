@@ -321,6 +321,7 @@ public class Unit : MonoBehaviour
             // attributesのすべての要素を文字列として取得
             List<ProjectileBehavior.Attribute> attributes = projectileBehavior.attributes;
 
+            unitController.targetSameTag = false;
             for (int i = 0; i < attributes.Count; i++)
             {
                 string attributeName = attributes[i].ToString();  // Enumから文字列を取得

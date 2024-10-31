@@ -240,22 +240,17 @@ public class BattleSetupManager : MonoBehaviour
         }
 
         // GridPanelの子オブジェクト（セル）に対して順番にPlayerPrefabを配置する
-        for (int i = 0; i < livingUnits.Length; i++)
+        for(int i = 0; i < livingUnits.Length; i++)
         {
             // SetActive(false)で、Unit.ConditionがDeadの場合は処理をスキップ
             if (!livingUnits[i].activeSelf && livingUnits[i].GetComponent<Unit>().condition == 1)
             {
                 continue;
             }
-            // 各セルのTransformを取得
-            Transform cellTransform = PlayerGridPoint.GetChild(i);
-
-            if (cellTransform == null)
-            {
-                Debug.LogError("GridPanelの子オブジェクトがTransformではありません。");
-                continue;
-            }
-
+            int positionID = livingUnits[i].GetComponent<Unit>().positionID;
+            // IDに該当するPlayerGridPointの子オブジェクトを取得
+            Transform cellTransform = PlayerGridPoint.GetChild(positionID-1);
+            // セルの位置にプレイヤーを配置
             Vector3 playerPosition = cellTransform.position;
 
             // プレイヤーの位置をセルの位置に設定

@@ -523,4 +523,185 @@ public class IventryUI : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// 全UnitのスキルリストがspriteIDを装備可能な場合、スキルリストの枠の色を黄色くする
+    /// </summary>
+    public void ChangeSkillListFrameColor(string spriteID)
+    {
+        if(gameManager != null)
+        {
+            // IventrySkillList1~5の各リストの要素を取得
+            foreach (GameObject unitObj in gameManager.livingUnits)
+            {
+                Unit unit = unitObj.GetComponent<Unit>();
+                // 死亡中でない場合
+                if (unit != null && unit.condition != 1)
+                {
+                    // joblistからunit.jonに該当するIDのjobDataを取得
+                    ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == unit.job);
+                    // IventrySkillList1~5の番号がunitNumのものを取得
+                    List<GameObject> IventrySkillList = null;
+                    // unitObj.nameの下2文字を取得し、intに変換
+                    int unitNum = int.Parse(unitObj.name.Substring(unitObj.name.Length - 2));
+                    switch (unitNum)
+                    {
+                        case 1:
+                            IventrySkillList = IventrySkillList1;
+                            break;
+                        case 2:
+                            IventrySkillList = IventrySkillList2;
+                            break;
+                        case 3:
+                            IventrySkillList = IventrySkillList3;
+                            break;
+                        case 4:
+                            IventrySkillList = IventrySkillList4;
+                            break;
+                        case 5:
+                            IventrySkillList = IventrySkillList5;
+                            break;
+                        default:
+                            Debug.LogError("unitNum is invalid");
+                            return;
+                    }
+
+                    // IventrySkillListのオブジェクトをすべて取得
+                    foreach (GameObject obj in IventrySkillList)
+                    {
+                        // objの名前がtxNameやcharFaceであればスキップ
+                        if (obj.name == "txName" || obj.name == "charFace") continue;
+
+                        Image image = null;
+                        // objと同じ改装にあるその他のオブジェクトを取得
+                        foreach (Transform child in obj.transform.parent)
+                        {
+                            // childの名前が"waku"の場合Imageコンポーネントを取得
+                            if (child.name == "waku")
+                            {
+                                image = child.GetComponent<Image>();
+                                // 枠の色を初期化
+                                image.color = new Color(1, 1, 1, 1);
+                            }
+                        }
+                        bool isChangeColor = false;
+                        string equipable = "000000";
+                        // spriteID6桁の111000の位が111ならば剣、112ならば短剣、113ならば斧、114ならば杖、115ならばワンド、116ならば弓、117ならば特殊武器、211ならば盾、212ならば重鎧、213ならば軽鎧、214ならばローブ、215ならばアクセサリ、411ならばメインルーン、412～415ならばサブルーン
+                        bool isInRange = spriteID.StartsWith("412") || spriteID.StartsWith("413") || spriteID.StartsWith("414") || spriteID.StartsWith("415");
+                        if (obj.name.Contains("charWpn") && spriteID[0].ToString() == "1")
+                        {
+                            // ItemDada.wpnListのequipableを取得(装備できる職業のIDが入っている)
+                            equipable = gameManager.itemData.wpnList.Find(x => x.ID == int.Parse(spriteID)).equipable.ToString("D6");
+
+                            if(jobListData.equeLargeSwordAxe == 1 && ( spriteID.Substring(1, 2) == "11" || spriteID.Substring(1, 2) == "13"))
+                            {
+                                isChangeColor = true;
+                            }
+                            else if (jobListData.equeSwordDagger == 1 && spriteID.Substring(1, 2) == "12")
+                            {
+                                isChangeColor = true;
+                            }
+                            else if (jobListData.equeStickStaffBook == 1 && ( spriteID.Substring(1, 2) == "14" || spriteID.Substring(1, 2) == "15"))
+                            {
+                                isChangeColor = true;
+                            }
+                            else if (jobListData.arrow == 1 && spriteID.Substring(1, 2) == "16")
+                            {
+                                isChangeColor = true;
+                            }
+                            else if (jobListData.spWeapon == 1 && spriteID.Substring(1, 2) == "17")
+                            {
+                                isChangeColor = true;
+                            }
+                        }
+                        else if (obj.name.Contains("charShild") && spriteID.Substring(0, 3) == "211")
+                        {
+                            // ItemDada.eqpListのequipableを取得(装備できる職業のIDが入っている)
+                            equipable = gameManager.itemData.eqpList.Find(x => x.ID == int.Parse(spriteID)).equipable.ToString("D6");
+                            //　両手武器を装備している場合はタンク以外盾を装備できない
+                            bool twoHand = false;
+                            if (unit.currentWeapons.ToString("D6").Substring(1, 2) == "11" || unit.currentWeapons.ToString("D6").Substring(1, 2) == "13" || unit.currentWeapons.ToString("D6").Substring(1, 2) == "14" || unit.currentWeapons.ToString("D6").Substring(1, 2) == "16")
+                            {
+                                if (unit.job != 4)
+                                {
+                                    twoHand = true;
+                                }
+                            }
+                            if(jobListData.equeShield == 1 && !twoHand)
+                            {
+                                isChangeColor = true;
+                            }
+                        }
+                        else if (obj.name.Contains("charArmor") && spriteID.Substring(0, 2) == "21")
+                        {
+                            // ItemDada.eqpListのequipableを取得(装備できる職業のIDが入っている)
+                            equipable = gameManager.itemData.eqpList.Find(x => x.ID == int.Parse(spriteID)).equipable.ToString("D6");
+
+                            if(jobListData.equeHeavyArmor == 1 && spriteID.Substring(1, 2) == "12")
+                            {
+                                isChangeColor = true;
+                            }
+                            else if (jobListData.equeLightArmor == 1 && spriteID.Substring(1, 2) == "13")
+                            {
+                                isChangeColor = true;
+                            }
+                            else if (jobListData.equeRobe == 1 && spriteID.Substring(1, 2) == "14")
+                            {
+                                isChangeColor = true;
+                            }
+                        }
+                        else if (obj.name.Contains("charAccsse") && spriteID.Substring(0, 3) == "215")
+                        {
+                            // ItemDada.eqpListのequipableを取得(装備できる職業のIDが入っている)
+                            equipable = gameManager.itemData.eqpList.Find(x => x.ID == int.Parse(spriteID)).equipable.ToString("D6");
+                            
+                            if(jobListData.equeAccessories == 1)
+                            {
+                                isChangeColor = true;
+                            }
+                        }
+                        else if (obj.name.Contains("mainSocket") && spriteID.Substring(0, 3) == "411")
+                        {
+                            isChangeColor = true;
+                        }
+                        else if (obj.name.Contains("socket") && isInRange)
+                        {
+                            isChangeColor = true;
+                        }
+
+                        // unit.jobの値が0の場合equipable[0]が0ならばfalse、unit.jobの値が1の場合equipable[1]が0ならばfalse、unit.jobの値が2の場合equipable[2]が0ならばfalse、unit.jobの値が3の場合equipable[3]が0ならばfalse、unit.jobの値が4の場合equipable[4]が0ならばfalse
+                        if(equipable != "000000")
+                        {
+                            if (unit.job == 0 && equipable[0] == '0')
+                            {
+                                isChangeColor = false;
+                            }
+                            else if (unit.job == 1 && equipable[1] == '0')
+                            {
+                                isChangeColor = false;
+                            }
+                            else if (unit.job == 2 && equipable[2] == '0')
+                            {
+                                isChangeColor = false;
+                            }
+                            else if (unit.job == 3 && equipable[3] == '0')
+                            {
+                                isChangeColor = false;
+                            }
+                            else if (unit.job == 4 && equipable[4] == '0')
+                            {
+                                isChangeColor = false;
+                            }
+                        }
+
+                        if (isChangeColor && image != null)
+                        {
+                            // 枠の色を黄色に変更
+                            image.color = new Color(1, 1, 0, 1);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

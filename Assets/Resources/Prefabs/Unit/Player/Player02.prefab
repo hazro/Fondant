@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 1343940178514009020}
-  positionID: 5
+  positionID: 9
   unitName: P2
   condition: 0
   job: 1
