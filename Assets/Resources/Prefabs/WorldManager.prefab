@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4937ca7ad0392704983b2b8da639b221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemySpawnSettings: {fileID: 11400000, guid: 44f9ee57a0c2b6e4ab570fe2913e22c3, type: 2}
-  currentWorld: 0
+  currentWorld: 1
+  currentWorldBackground: 1
   currentRoomEvent: 0

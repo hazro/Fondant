@@ -223,7 +223,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 8894279849393891494}
+  ID: 1
   positionID: 10
+  IventrySkillList: []
   unitName: P1
   condition: 0
   job: 0
@@ -245,6 +247,10 @@ MonoBehaviour:
   attackRange: 0
   attackSize: 1
   knockBack: 0
+  attackLifetime: 0
+  attackDistance: 0
+  attackSpeed: 0
+  moveSpeed: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -395,24 +401,10 @@ MonoBehaviour:
   scaleUpBlow: 0
   barrageAttack: 0
   speedAttack: 0
-  attackMultiplier: 1
-  delayMultiplier: 1
-  aefSpeedMultiplier: 1
-  maxDistanceMultiplier: 1
-  projectileLifetime: 1
-  weaponScaleMultiplier: 1
-  knockbackMultiplier: 1
-  attackCharThroughAdd: 0
-  attackObjectThroughAdd: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
-  speed: 5
-  sizeMultiplier: 1
-  delayBetweenShots: 2
-  attackCharThrough: 1
-  attackObjectThrough: 1
 --- !u!114 &5217602943116784099
 MonoBehaviour:
   m_ObjectHideFlags: 0

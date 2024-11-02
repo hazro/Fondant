@@ -223,7 +223,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 1343940178514009020}
+  ID: 2
   positionID: 9
+  IventrySkillList: []
   unitName: P2
   condition: 0
   job: 1
@@ -245,6 +247,10 @@ MonoBehaviour:
   attackRange: 0
   attackSize: 1
   knockBack: 0
+  attackLifetime: 0
+  attackDistance: 0
+  attackSpeed: 0
+  moveSpeed: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -395,7 +401,8 @@ MonoBehaviour:
   scaleUpBlow: 0
   barrageAttack: 0
   speedAttack: 0
-  attackMultiplier: 1
+  pysicalAttackMultiplier: 1
+  magicAttackMultiplier: 1
   delayMultiplier: 1
   aefSpeedMultiplier: 1
   maxDistanceMultiplier: 1

@@ -30,11 +30,6 @@ public class BattleSetupManager : MonoBehaviour
         gameManager = GameManager.Instance;
         // WorldManagerのインスタンスを動的に取得
         worldManager = WorldManager.Instance;
-        // 現在のワールドが0の場合、1に設定
-        if (worldManager.currentWorld == 0)
-        {
-            worldManager.currentWorld = 1;
-        }
         // 現在のルームイベントが0の場合、1に設定
         if (worldManager.currentRoomEvent == 0)
         {

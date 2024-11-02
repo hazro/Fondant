@@ -32,6 +32,18 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         //infomationPanelDisplay = FindObjectOfType<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         if(gameManager != null) infomationPanelDisplay = gameManager.GetComponent<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         shopManager = FindObjectOfType<ShopManager>(); // ShopManagerのインスタンスを取得
+        // this.gameObjectのマテリアルのLVにruneLevelを代入
+        Debug.Log("runeLevel: " + runeLevel);
+        if (this.gameObject.GetComponent<Image>() != null)
+        {
+            Debug.Log("Image");
+            this.gameObject.GetComponent<Image>().material.SetFloat("_Lv", runeLevel);
+        }
+        else if (this.gameObject.GetComponent<SpriteRenderer>() != null)
+        {
+            Debug.Log("SpriteRenderer");
+            this.gameObject.GetComponent<SpriteRenderer>().material.SetFloat("_Lv", runeLevel);
+        }
     }
 
 /*

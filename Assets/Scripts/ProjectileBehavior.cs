@@ -23,7 +23,8 @@ public class ProjectileBehavior : MonoBehaviour
 
     [Header("Attributes")]
     [SerializeField] public List<Attribute> attributes = new List<Attribute>(); // Attributesをpublicに変更
-    public float power = 1.0f; // 攻撃力
+    private float pysicalPower = 1.0f; // 物理攻撃力
+    private float magicalPower = 1.0f; // 魔法攻撃力
 
     [Header("Trail Settings")]
     [SerializeField] private float trailTime = 0.5f; // 軌跡が残る時間（秒）
@@ -34,8 +35,8 @@ public class ProjectileBehavior : MonoBehaviour
     // 消滅条件
     [Header("Destruction Conditions")]
     [SerializeField] private bool useDistance = false; // 到達距離で消滅するかどうか、falseの場合はlifetimeで消滅
-    [SerializeField] private float maxDistance = 3.0f; // 到達距離(物理攻撃)
-    [SerializeField] private float lifetime = 1.0f; // 消滅までの時間(魔法攻撃)
+    private float maxDistance = 3.0f; // 到達距離(物理攻撃)
+    private float lifetime = 1.0f; // 消滅までの時間(魔法攻撃)
     private Vector3 startPosition; // 発生位置
 
     // 発射元のユニット
@@ -110,15 +111,14 @@ public class ProjectileBehavior : MonoBehaviour
     public void Initialize(
         // 必須パラメータ
         Vector2 direction, 
-        float speed, 
         float adjustedLifetime, 
-        int charThrough, 
-        int objectThrough, 
         string shooterTag, 
-        float attackMultiplier, 
-        float maxDistanceMultiplier, 
-        float weaponScaleMultiplier, //未設定
-        float knockbackMultiplier, //未設定
+        float pysicalAttackPower,
+        float magicalAttackPower,
+        float attackSpeed,
+        int attackUnitThrough,
+        int attackObjectThrough,
+        float attackDistance,
         // オプションパラメータ
         Transform target = null, 
         bool enableTrail = false, 
@@ -132,18 +132,19 @@ public class ProjectileBehavior : MonoBehaviour
         )
     {
         this.moveDirection = direction.normalized;
-        this.moveSpeed = speed;
+        this.moveSpeed = attackSpeed;
         this.lifetime = lifetime * adjustedLifetime;
-        this.remainingCharThrough = charThrough;
-        this.remainingObjectThrough = objectThrough;
+        this.remainingCharThrough = attackUnitThrough;
+        this.remainingObjectThrough = attackObjectThrough;
         this.shooterTag = shooterTag;
         this.followTarget = target;
         this.spiralMovementEnabled = enableSpiralMovement;
         this.spiralExpansionSpeed = spiralExpansionSpeed;
         this.shakeAmplitude = shakeAmplitude;
         this.scaleOverTime = scaleOverTime;
-        this.power = power * attackMultiplier;
-        this.maxDistance = maxDistance * maxDistanceMultiplier;
+        this.pysicalPower = pysicalAttackPower;
+        this.magicalPower = magicalAttackPower;
+        this.maxDistance = attackDistance;
 
         if (attributes != null)
         {
@@ -344,17 +345,17 @@ public class ProjectileBehavior : MonoBehaviour
                         case Attribute.Magical:
                         case Attribute.Technology:
                         case Attribute.Nature:
-                            float magicDamage = shooterUnit.magicalAttackPower * power - targetUnit.magicalDefensePower * 0.1f;
+                            float magicDamage = magicalPower - (targetUnit.magicalDefensePower * 0.1f);
                             totalDamage += magicDamage;
                             break;
 
                         case Attribute.Physical:
-                            float physicalDamage = shooterUnit.physicalAttackPower * power - targetUnit.physicalDefensePower * 0.1f;
+                            float physicalDamage = pysicalPower - (targetUnit.physicalDefensePower * 0.1f);
                             totalDamage += physicalDamage;
                             break;
 
                         case Attribute.Healing:
-                            float healing = shooterUnit.magicalAttackPower * power;
+                            float healing = magicalPower;
                             totalHealing += healing;
                             break;
                     }

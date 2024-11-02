@@ -10,6 +10,7 @@ using TMPro;
 public class StatusAdjustmentManager : MonoBehaviour
 {
     private GameManager gameManager; // GameManagerの参照
+    private IventryUI iventryUI; // IventryUIの参照
     private int room1Id = 1; // ルーム1のID
     private int room2Id = 2; // ルーム2のID
     [SerializeField] private StatusLog statusLog;
@@ -27,6 +28,11 @@ public class StatusAdjustmentManager : MonoBehaviour
     {
         // GameManagerのインスタンスを取得
         gameManager = GameManager.Instance;
+        if (gameManager != null)
+        {
+            // IventryUIのインスタンスを取得
+            iventryUI = gameManager.GetComponent<IventryUI>();
+        }
 
         // ストック経験値表示用のテキストを更新する
         gameManager.UpdateGoldAndExpUI();
@@ -46,6 +52,16 @@ public class StatusAdjustmentManager : MonoBehaviour
 
         // ジョブによって顔グラフィックを変更するメソッド
         ChangeFaceGraphic();
+
+        if(iventryUI != null)
+        {
+            // gameManager.LivingUnitsの数分オブジェクトを取得
+            for (int i = 0; i < gameManager.livingUnits.Count; i++)
+            {
+                // 全プレイヤーのSkikkUIを更新する
+                iventryUI.UpdateUnitSkillUI(gameManager.livingUnits[i]);
+            }
+        }
 
         // 確率でルームIdを変更する
         // 未実装・・・
@@ -86,6 +102,8 @@ public class StatusAdjustmentManager : MonoBehaviour
         // UIの表示を更新する
         UpdateUI();
         ChangeFaceGraphic();
+        // iventryUIがnullでない場合、UpdateUnitSkillUIメソッドを呼び出してスキルUIを更新する
+        if(iventryUI != null) iventryUI.UpdateUnitSkillUI(gameManager.livingUnits[playerIndex]);
     }
 
     //経験値リセットボタンがクリックされたときの処理メソッド
@@ -104,6 +122,16 @@ public class StatusAdjustmentManager : MonoBehaviour
         // UIの表示を更新する
         UpdateUI();
         ChangeFaceGraphic();
+        // iventryUIがnullでない場合、UpdateUnitSkillUIメソッドを呼び出してスキルUIを更新する
+        if(iventryUI != null)
+        {
+            // gameManager.LivingUnitsの数分オブジェクトを取得
+            for (int i = 0; i < gameManager.livingUnits.Count; i++)
+            {
+                // 全プレイヤーのSkikkUIを更新する
+                iventryUI.UpdateUnitSkillUI(gameManager.livingUnits[i]);
+            }
+        }
     }
 
     // UIの表示を更新するメソッド

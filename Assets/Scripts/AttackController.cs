@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using static ItemData;
 
 /// <summary>
 /// 発射物を管理し、発射を制御するクラス
@@ -45,31 +46,16 @@ public class AttackController : MonoBehaviour
     private int numberOfShots = 3; // 一度の攻撃で発射する回数
     [SerializeField] private bool speedAttack = false; // 速撃
 
-    [Header("Parameter Multiplication")]
-    [SerializeField] private float attackMultiplier = 1.0f; // 攻撃力の乗算値
-    [SerializeField] private float delayMultiplier = 1.0f; // 発射間の遅延時間の乗算値
-    [SerializeField] private float aefSpeedMultiplier = 1.0f; // 発射物速度の乗算値
-    [SerializeField] private float maxDistanceMultiplier = 1.0f; // 最大距離の乗算値
-    [SerializeField] private float projectileLifetime = 1.0f; // プレハブの寿命時間への乗算値（デフォルト1.0f）
-    [SerializeField] private float weaponScaleMultiplier = 1.0f; // 武器のスケールの乗算値
-    [SerializeField] private float knockbackMultiplier = 1.0f; // ノックバックの乗算値
-    [SerializeField] private int attackCharThroughAdd = 0; // 異なるタグのターゲットに対する貫通回数を加算
-    [SerializeField] private int attackObjectThroughAdd = 0; // 障害物タグのターゲットに対する貫通回数を加算
-
     [Header("Projectile Settings")]
     public GameObject weaponPrefab; // 武器のPrefab
     public GameObject projectilePrefab; // 発射するプレハブ
     [SerializeField] private Transform targetObject; // 追従するターゲットオブジェクト
     [SerializeField] private Vector2 direction; // 発射方向
-    [SerializeField] private float speed = 2f; // 発射速度
-    [SerializeField] private float sizeMultiplier = 1f; // サイズ倍率
-    [SerializeField] private float delayBetweenShots = 2.0f; // 発射間の遅延時間
-    [SerializeField] private int attackCharThrough = 1; // 異なるタグのターゲットに対する貫通回数
-    [SerializeField] private int attackObjectThrough = 1; // 障害物タグのターゲットに対する貫通回数
 
     private bool isShooting;
     private GameObject attackObjectGroup; // 発射物をまとめるグループオブジェクト
     private GameManager gameManager; // GameManagerの参照
+    private IventryUI iventryUI; // IventryUIの参照
     private UnitController unitController; // UnitControllerの参照
     private Unit unit; // Unitの参照
     private bool wasShootingEnabled; // 前回の状態を保持する変数
@@ -88,6 +74,10 @@ public class AttackController : MonoBehaviour
 
         // GameManagerの参照を取得
         gameManager = GameManager.Instance;
+        // IventryUIの参照を取得
+        if (gameManager != null){
+            iventryUI = gameManager.GetComponent<IventryUI>();
+        }
         // UnitControllerの参照を取得
         unitController = GetComponent<UnitController>();
         // Unitの参照を取得
@@ -273,15 +263,13 @@ public class AttackController : MonoBehaviour
                 speedAttack = eqpRuneNames.Contains(nameof(speedAttack));
                 // 以下同様に設定予定
             }
-            // フラグごとの乗算値を設定
-            SetMultiplier();
 
             // コールーチンで-範囲～範囲の範囲で武器を振る(RotationZ)
             if (weaponPrefab != null) StartCoroutine(ShakeWeapon(weapomAmplitude)); // 武器を振るコルーチン
             // 一度の攻撃で発射するが無効の場合は、numberOfShotsを1に設定
             if (!barrageAttack) numberOfShots = 1; else numberOfShots = 3;
             // ディレイ時間を乗算
-            delayBetweenShots = Mathf.Max(delayBetweenShots * delayMultiplier * (float)numberOfShots, 0);
+            float delayBetweenShots = Mathf.Max(unit.attackDelay * (float)numberOfShots, 0);
             // 数値が増えるほどディレイ時間が短くなるようにし最大値と最小値の間に収まるように調整
             float delayShots = Mathf.Max(maxDelay / (delayBetweenShots + offset), minDelay); //(例)delayBetweenShotsが1より5の方がdelayが短くなる
             // ディレイ時間にランダムな範囲を追加
@@ -436,7 +424,7 @@ public class AttackController : MonoBehaviour
 
         projectile.transform.SetParent(attackObjectGroup.transform);
         // サイズを変更
-        projectile.transform.localScale *= sizeMultiplier;
+        projectile.transform.localScale *= unit.attackSize;
 
         ProjectileBehavior projectileBehavior = projectile.GetComponent<ProjectileBehavior>();
         if (projectileBehavior != null)
@@ -452,122 +440,32 @@ public class AttackController : MonoBehaviour
         }
     }
 
-    //フラグごとの乗算値を設定するメソッド
-    public void SetMultiplier()
-    {
-        // 乗算値を初期化する
-        attackMultiplier = 1.0f;
-        delayMultiplier = 1.0f;
-        aefSpeedMultiplier = 1.0f;
-        maxDistanceMultiplier = 1.0f;
-        weaponScaleMultiplier = 1.0f;
-        knockbackMultiplier = 1.0f;
-        attackCharThrough = unit.attackUnitThrough;
-        attackObjectThrough = unit.attackObjectThrough;
-
-        if(powerAttack) // 強撃が有効な場合は、攻撃力を2倍にする
-        {
-            aefSpeedMultiplier *= 2.0f;
-            maxDistanceMultiplier *= 2.0f;
-            attackCharThrough = 99;
-            attackObjectThrough = 99;
-            delayMultiplier *= 0.33f;
-        }
-        if(enableContinuousAttack) // 連続攻撃が有効な場合は、攻撃力を0.5倍、ディレイを3倍にする
-        {
-            attackMultiplier *= 0.5f;
-            delayMultiplier *= 3.0f;
-        }
-        if(chargeAttack) // 貯め撃ちが有効な場合は、攻撃力を1.5倍、ディレイを2倍、発射物速度を1.5倍にする
-        {
-            attackMultiplier *= 1.5f;
-            delayMultiplier *= 2.0f;
-            aefSpeedMultiplier *= 1.5f;
-        }
-        if (backStep) // 攻撃後に後ろに下がる場合は、攻撃力を1.25倍にする
-        {
-            attackMultiplier *= 1.25f;
-        }
-        if(changeTargetRandomly && directHit) // ターゲットをランダムに変更し直撃する場合は、攻撃力を0.33倍にする
-        {
-            attackMultiplier *= 0.33f;
-        }
-        if(directHit) // ターゲットを直撃する場合は、攻撃力を0.33倍にする
-        {
-            attackMultiplier *= 0.33f;
-        }
-        if(laser) // 軌跡を有効にする場合は、攻撃力を0.5倍にする
-        {
-            attackMultiplier *= 0.5f;
-        }
-        if(followTarget) // ターゲットを追従する場合は、攻撃力を0.5倍にする
-        {
-            attackMultiplier *= 0.5f;
-        }
-        if(scaleUpBlow) // 時間経過に応じてスケールする場合
-        {
-            attackMultiplier *= 0.75f;
-        }
-        if(shoot3Directions) // ターゲット前方3方向に同時に発射する場合
-        {
-            attackMultiplier *= 0.5f;
-        }
-        if(shoot4Directions) // 上下左右4方向に発射する場合
-        {
-            attackMultiplier *= 0.5f;
-        }
-        if(shoot4DiagonalDirections) // 斜め4方向に発射する場合
-        {
-            attackMultiplier *= 0.5f;
-        }
-        if(shoot8Directions) // 8方向に発射する場合
-        {
-            attackMultiplier *= 0.33f;
-        }
-        if(speedAttack) // 速撃
-        {
-            aefSpeedMultiplier *= 2.0f;
-            maxDistanceMultiplier *= 2.0f;
-            attackMultiplier *= 0.75f;
-            attackCharThrough = 2;
-            attackObjectThrough = 2;
-            delayMultiplier *= 0.33f;
-        }
-        if (barrageAttack) // 一度の攻撃で複数回発射する
-        {
-            attackMultiplier *= 0.5f;
-            delayMultiplier *= 0.5f;
-        }
-        if (scaleUpBlow) // 時間経過に応じてスケールする
-        {
-            attackMultiplier *= 0.75f;
-        }
-    }
-
     // ProjectileBehaviorの初期化処理
     private void ProjectileInitialize(ProjectileBehavior projectileBehavior, Vector2 dir)
     {
         // 螺旋運動が有効な場合は、経過時間の寿命を3倍にする
-        float adjustedLifetime = spiral ? projectileLifetime * 3.0f : projectileLifetime;
+        float adjustedLifetime = spiral ? unit.attackLifetime * 3.0f : unit.attackLifetime;
         // 武器の振幅の範囲が無効な場合は、振幅を0にする
         if(!wave) shakeAmplitude = 0;
-        if(damageZero) attackMultiplier = 0;
+        float pysicalAttackPower = unit.physicalAttackPower;
+        float magicAttackAttackPower = unit.magicalAttackPower;
+        if(damageZero) 
+        {
+            pysicalAttackPower = 0;
+            magicAttackAttackPower = 0;
+        }
 
         // ProjectileBehaviorの初期化
         projectileBehavior.Initialize(
             dir,
-            // 速度に乗算をかける
-            speed*aefSpeedMultiplier,
             adjustedLifetime,
-            // 貫通回数に加算をかける
-            attackCharThrough + attackCharThroughAdd,
-            // 障害物貫通回数に加算をかける
-            attackObjectThrough + attackObjectThroughAdd,
             gameObject.tag,
-            attackMultiplier,
-            maxDistanceMultiplier,
-            weaponScaleMultiplier,
-            knockbackMultiplier,
+            pysicalAttackPower,
+            magicAttackAttackPower,
+            unit.attackSpeed,
+            unit.attackUnitThrough,
+            unit.attackObjectThrough,
+            unit.attackDistance,
             // 以下、オプションパラメータ
             followTarget ? targetObject : null,
             laser,

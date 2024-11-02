@@ -10,6 +10,7 @@ public class WorldManager : MonoBehaviour
 
     //public EnemySpawnSettings enemySpawnSettings; // 敵キャラクターの出現設定をアタッチする
     public int currentWorld; // 現在のワールド番号
+    public int currentWorldBackground; // 現在のワールドの背景番号
     public int currentRoomEvent; // 現在のルームイベント番号
 
     private void Awake()
@@ -22,6 +23,15 @@ public class WorldManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+        // 現在のワールドが0の場合、1に設定
+        if (currentWorld == 0)
+        {
+            currentWorld = 1;
+        }
+        if(currentWorldBackground == 0)
+        {
+            currentWorldBackground = 1;
         }
     }
 
@@ -40,6 +50,7 @@ public class WorldManager : MonoBehaviour
     public void IncrementWorld()
     {
         currentWorld++;
+        currentWorldBackground++;
         currentRoomEvent = 0;
     }
 

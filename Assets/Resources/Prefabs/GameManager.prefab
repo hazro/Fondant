@@ -238,7 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -271,7 +271,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &76484315996465070
 GameObject:
@@ -661,7 +661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -694,7 +694,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &196411344615566978
 GameObject:
@@ -889,7 +889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -922,7 +922,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &206839343656415381
 GameObject:
@@ -2301,7 +2301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -2334,7 +2334,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &482927716877278137
 GameObject:
@@ -2751,7 +2751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -2784,7 +2784,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &585762203882542484
 GameObject:
@@ -4913,7 +4913,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -4946,7 +4946,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &983542557784515934
 GameObject:
@@ -5136,7 +5136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -5169,7 +5169,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &993851480144640594
 GameObject:
@@ -6494,7 +6494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -6527,7 +6527,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &1164532489631452159
 GameObject:
@@ -7206,7 +7206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -7239,7 +7239,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &1307892273699917834
 GameObject:
@@ -7577,7 +7577,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -7610,7 +7610,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &1360766512324744380
 GameObject:
@@ -7959,7 +7959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -7992,7 +7992,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &1497565137448607960
 GameObject:
@@ -9255,7 +9255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -9288,7 +9288,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &1718900387138191194
 GameObject:
@@ -9781,7 +9781,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -9814,7 +9814,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &1829152204227846556
 GameObject:
@@ -10966,7 +10966,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -10999,7 +10999,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &2008247634627103689
 GameObject:
@@ -13229,7 +13229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -13262,7 +13262,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &2554752555924875945
 GameObject:
@@ -14315,7 +14315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -14348,7 +14348,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &2826985506872383714
 GameObject:
@@ -14447,7 +14447,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -14480,7 +14480,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &2848979118349229446
 GameObject:
@@ -14842,7 +14842,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -14875,7 +14875,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &2912046313446161138
 GameObject:
@@ -15544,7 +15544,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -15577,7 +15577,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3145450419064666085
 GameObject:
@@ -15690,7 +15690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -15723,7 +15723,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3167032020691925387
 GameObject:
@@ -16695,7 +16695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -16728,7 +16728,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3277523347864655699
 GameObject:
@@ -16789,7 +16789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -16822,7 +16822,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3300392765881988038
 GameObject:
@@ -17012,7 +17012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -17045,7 +17045,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3343976622316354958
 GameObject:
@@ -17106,7 +17106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -17139,7 +17139,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3349323342997162940
 GameObject:
@@ -17354,7 +17354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -17387,7 +17387,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3448398548101303200
 GameObject:
@@ -17560,7 +17560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -17593,7 +17593,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3509765473701832529
 GameObject:
@@ -18990,7 +18990,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -19023,7 +19023,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3768433314491128837
 GameObject:
@@ -19084,7 +19084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -19117,7 +19117,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3785131097234968370
 GameObject:
@@ -19255,7 +19255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -19288,7 +19288,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &3846121946576006196
 GameObject:
@@ -19949,7 +19949,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -19982,7 +19982,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4009545650804475609
 GameObject:
@@ -20043,7 +20043,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -20076,7 +20076,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4023480481512095502
 GameObject:
@@ -20214,7 +20214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -20247,7 +20247,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4068140785365056072
 GameObject:
@@ -20308,7 +20308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -20341,7 +20341,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4085028012407384755
 GameObject:
@@ -20479,7 +20479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -20512,7 +20512,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4139374152097689825
 GameObject:
@@ -20744,7 +20744,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -20777,7 +20777,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4188782623350398317
 GameObject:
@@ -22178,7 +22178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -22211,7 +22211,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4497247508847789820
 GameObject:
@@ -22955,7 +22955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -22988,7 +22988,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4624697640356920705
 GameObject:
@@ -23996,7 +23996,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -24029,7 +24029,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4792991739290599336
 GameObject:
@@ -24916,7 +24916,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -24949,7 +24949,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4933526031461615699
 GameObject:
@@ -25162,7 +25162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -25195,7 +25195,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &4991573825009235139
 GameObject:
@@ -25762,7 +25762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -25795,7 +25795,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &5103636666950886343
 GameObject:
@@ -26828,7 +26828,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -26861,7 +26861,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &5322368720827944097
 GameObject:
@@ -28769,7 +28769,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -28802,7 +28802,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &5774269674794388869
 GameObject:
@@ -29289,7 +29289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -29322,7 +29322,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &5895132170771394955
 GameObject:
@@ -31486,7 +31486,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -31519,7 +31519,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &6175860347395593637
 GameObject:
@@ -31970,7 +31970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -32003,7 +32003,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &6221325707386780444
 GameObject:
@@ -32486,7 +32486,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -32519,7 +32519,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &6282422552644277180
 GameObject:
@@ -32923,7 +32923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -32956,7 +32956,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &6325271019877799589
 GameObject:
@@ -34211,7 +34211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -34244,7 +34244,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &6553950212769214254
 GameObject:
@@ -34432,7 +34432,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -34465,7 +34465,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &6658226360843102359
 GameObject:
@@ -38228,7 +38228,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -38261,7 +38261,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &7537819965225086053
 GameObject:
@@ -38322,7 +38322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -38355,7 +38355,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &7541401010652464082
 GameObject:
@@ -39091,7 +39091,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -39124,7 +39124,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &7739298357035989045
 GameObject:
@@ -39910,7 +39910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -39943,7 +39943,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &7924366556084499551
 GameObject:
@@ -40588,7 +40588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -40621,7 +40621,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &8024954870669566075
 GameObject:
@@ -42189,7 +42189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -42222,7 +42222,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &8459758259929733784
 GameObject:
@@ -43122,7 +43122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -43155,7 +43155,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &8697631469896596271
 GameObject:
@@ -43343,7 +43343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -43376,7 +43376,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &8778114572801993841
 GameObject:
@@ -44411,7 +44411,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -44444,7 +44444,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &9005784073202474489
 GameObject:
@@ -44505,7 +44505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -44538,7 +44538,7 @@ MonoBehaviour:
   isShopItem: 0
   isCharaName: 0
   infomationPanelDisplay: {fileID: 0}
-  runeLevel: 1
+  runeLevel: 0
   wpnAef: {fileID: 0}
 --- !u!1 &9006432360217001253
 GameObject:
