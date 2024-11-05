@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System;
+using MyGame.Managers;
 
 /// <summary>
 /// イベントリーUI
@@ -30,6 +31,7 @@ public class IventryUI : MonoBehaviour
     private List<Transform> children = new List<Transform>();
     private GameManager gameManager; // GameManagerの参照
     private StatusAdjustmentManager statusAdjustmentManager; // StatusAdjustmentManagerの参照
+    private BlackSmithManager blackSmishManager; // BlackSmishManagerの参照
     
     private void OnEnable()
     {
@@ -56,6 +58,7 @@ public class IventryUI : MonoBehaviour
     {
         // シーンがロードされるたびにStatusAdjustmentManagerを探す
         statusAdjustmentManager = FindObjectOfType<StatusAdjustmentManager>();
+        blackSmishManager = FindObjectOfType<BlackSmithManager>();
     }
 
     // ボタンの有効無効切り替え
@@ -91,7 +94,8 @@ public class IventryUI : MonoBehaviour
         {
             if (IventryItem[i] == 0)
             {
-                IventryItem[i] = itemID;
+                // 入手直後はruneLevel1の為itemIDを10倍して+1(runeLevel1)する
+                IventryItem[i] = itemID*10+1;
                 // itemID6桁の100000の位が1なら武器、2なら防具、4ならルーン
                 if (itemID / 100000 == 1)
                 {
@@ -194,10 +198,10 @@ public class IventryUI : MonoBehaviour
         }
 
         GameObject wpnImage = Resources.Load<GameObject>("Prefabs/Weapons/" + unit.currentWeapons.ToString("D6"));
-        //GameObject AtkImage = Resources.Load<GameObject>("Prefabs/AttackEffects/" + unit.currentAttackEffects.ToString("D6"));
         GameObject shieldImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentShields.ToString("D6"));
         GameObject armorImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentArmor.ToString("D6"));
         GameObject accsseImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentAccessories.ToString("D6"));
+        
         string mainSoketId = "411000";
         if(unit.mainSocket != 0) mainSoketId = unit.mainSocket.ToString("D6");
         GameObject mainSockettImage = Resources.Load<GameObject>("Prefabs/Runes/" + mainSoketId);
@@ -282,6 +286,18 @@ public class IventryUI : MonoBehaviour
         sprite = socket11Image.GetComponent<SpriteRenderer>().sprite;
         IventrySkillList[17].GetComponent<Image>().sprite = sprite;
 
+        for(int i = 6; i < IventrySkillList.Count; i++)
+        {
+            // IventrySkillList[i]の子オブジェクトのItemDandDHandlerコンポーネントを取得
+            ItemDandDHandler item = IventrySkillList[i].GetComponentInChildren<ItemDandDHandler>();
+            float runeLevel = item.runeLevel;
+            Image imageComponent = IventrySkillList[i].GetComponent<Image>();
+            // Materialをinstance化してitemのruneLevelを設定
+            Material materialInstance = new Material(imageComponent.material);
+            imageComponent.material = materialInstance;
+            materialInstance.SetFloat("_Lv", runeLevel);
+        }
+
         //socketCountの取得
         int socketCount = unit.socketCount;
         //IventrySkillList[6 ~ 6+socketCount]の親オブジェクトを表示し、IventrySkillList[6+socketCount+1]以降の親オブジェクトを非表示にする
@@ -301,6 +317,11 @@ public class IventryUI : MonoBehaviour
     // ソートボタンを押したらアイテムをソートし、アイテムを入れ替える 
     public void IventrySortingButton()
     {
+        // 強化武器がセットされている場合はソートできない
+        if (blackSmishManager != null && blackSmishManager.isSetItem)
+        {
+            return;
+        }
         // IventryItemをソート
         IventrySorting();
         // IventryPanelの画像をすべて再設定
@@ -330,7 +351,7 @@ public class IventryUI : MonoBehaviour
     }
 
     // 装備を変更するメソッド(ItemDandDHandlerから呼び出される)
-    public void changeEquipment(Transform[] targetSkillList, string iventryItemID, string skillItemID ,string socketName, GameObject originalObj, GameObject targetObj)
+    public void changeEquipment(Transform[] targetSkillList, string iventryItemID, string skillItemID ,string socketName, GameObject originalObj, GameObject targetObj, int skillItemLv, int iventryItemLv)
     {
         // unit名を取得  
         string unitName = targetSkillList[0].gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
@@ -374,6 +395,7 @@ public class IventryUI : MonoBehaviour
                     {
                         print("メインルーンを入れ替えます");
                         unit.mainSocket = int.Parse(skillItemID);
+                        
                     }
                     // 名前の0番目が4かつ1番目が1で2番目が1でなければサブルーン、image.nameがsubSocket0~11ならばサブルーン
                     else if(iventryItemID[0] == '4'
@@ -394,8 +416,16 @@ public class IventryUI : MonoBehaviour
                         Debug.Log("アイテムIDが不正です");
                         return;
                     }
+
+                    // Iventryのルーンレベルをskillに移す
+                    if(targetObj.transform.parent.GetComponent<ItemDandDHandler>())
+                    {
+                        ItemDandDHandler item = targetObj.transform.parent.GetComponent<ItemDandDHandler>();
+                        item.runeLevel = skillItemLv;
+                    }
+
                     // オブジェクトを移動し、イベントリとスキルパネルを更新する
-                    MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj);
+                    MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj, iventryItemLv);
                     
                     // unitのステータスを更新
                     unit.updateStatus();
@@ -420,7 +450,7 @@ public class IventryUI : MonoBehaviour
     /// <param name="targetObj">ターゲットオブジェクト</param>
     /// <param name="iventryItemID">イベントリアイテムID</param>
     /// <param name="unitObj">ユニットオブジェクト</param>
-    public void MoveAndUpdate(GameObject originalObj, GameObject targetObj, string iventryItemID, GameObject unitObj)
+    public void MoveAndUpdate(GameObject originalObj, GameObject targetObj, string iventryItemID, GameObject unitObj, int iventryItemLv)
     {
         // Imageコンポーネントがなければ originalObjを設定、それ以外はtargetObjを設定
         GameObject obj = originalObj.GetComponent<Image>() == null ? originalObj : targetObj;
@@ -434,7 +464,7 @@ public class IventryUI : MonoBehaviour
             // SkikkListのメインルーンやサブルーンが空の場合、IDを0にする
             if(iventryItemID== "411000" || iventryItemID == "412000") iventryItemID = "0";
             // IventryItemのindex番目にアイテムIDを設定
-            SetItem(index, int.Parse(iventryItemID));
+            SetItem(index, int.Parse(iventryItemID), iventryItemLv);
         }
 
         // イベントリを入れ替える
@@ -470,9 +500,9 @@ public class IventryUI : MonoBehaviour
     }
 
     //  ivenrtyItemの指定番号に指定の要素を代入するメソッド
-    public void SetItem(int index, int itemID)
+    public void SetItem(int index, int itemID, int itemLv)
     {
-        IventryItem[index] = itemID;
+        IventryItem[index] = (itemID * 10) + itemLv;
     }
 
     // iventryPanelの孫オブジェクトをすべて削除し、IventryItemのオブジェクトに対応するアイテムを生成するメソッド
@@ -492,33 +522,43 @@ public class IventryUI : MonoBehaviour
         {
             if (IventryItem[i] != 0)
             {
+                // IventryItem[i]の1の位(1レベル情報)を削除
+                int  itemID = IventryItem[i] / 10;
+                int itemLv = IventryItem[i] % 10;
+
                 // itemID6桁の100000の位が1なら武器、2なら防具、4ならルーン
-                if (IventryItem[i] / 100000 == 1)
+                if (itemID / 100000 == 1)
                 {
-                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Weapons/" + IventryItem[i]);
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Weapons/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
                     //名前から(Clone)を削除
                     itemSprite.name = itemSprite.name.Replace("(Clone)", "");
                     itemSprite.transform.SetParent(children[i]);
+                    // itemLvを設定
+                    itemSprite.GetComponent<ItemDandDHandler>().runeLevel = itemLv;
                 }
-                else if (IventryItem[i] / 100000 == 2)
+                else if (itemID / 100000 == 2)
                 {
-                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Equipment/" + IventryItem[i]);
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Equipment/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
                     //名前から(Clone)を削除
                     itemSprite.name = itemSprite.name.Replace("(Clone)", "");
                     itemSprite.transform.SetParent(children[i]);
+                    // itemLvを設定
+                    itemSprite.GetComponent<ItemDandDHandler>().runeLevel = itemLv;
                 }
-                else if (IventryItem[i] / 100000 == 4)
+                else if (itemID / 100000 == 4)
                 {
-                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Runes/" + IventryItem[i]);
+                    GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Runes/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
                     //名前から(Clone)を削除
                     itemSprite.name = itemSprite.name.Replace("(Clone)", "");
                     itemSprite.transform.SetParent(children[i]);
+                    // itemLvを設定
+                    itemSprite.GetComponent<ItemDandDHandler>().runeLevel = itemLv;
                 }
             }
         }

@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87702fbf89b2bd249b3c2d9b58445901, type: 3}
   m_Name: StatusLog
   m_EditorClassIdentifier: 
-  currentGold: 3720
-  currentExp: 72
-  shopResetCount: 2
-  totalDamage: 5288
-  totalKill: 14
-  expGained: 82
-  goldGained: 140
+  currentGold: 1633
+  currentExp: 26
+  shopResetCount: 3
+  totalDamage: 13147
+  totalKill: 15
+  expGained: 87
+  goldGained: 150
   UnitTotalDamage: 0000000000000000000000000000000000000000
   UnitTotalKill: 0000000000000000000000000000000000000000
   unitDPS: 0000000000000000000000000000000000000000

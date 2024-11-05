@@ -115,6 +115,12 @@ public class GameManager : MonoBehaviour
             // updateStatusを実行
             iventryUI.UpdateUnitSkillUI(livingUnits);
         }
+        // もしGameStartSceneだったら
+        if(SceneManager.GetActiveScene().name == "GameStartScene")
+        {
+            // ゲームスタートシーンの処理を行う
+            LoadScene("GameStartScene");
+        }
     }
 
     // itemDataを取得するメソッド
@@ -205,6 +211,10 @@ public class GameManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void LoadScene(string sceneName)
     {
+        if(sceneName == "GameStartScene")
+        {
+            SceneManager.LoadScene("Title");
+        }
 
         if(sceneName == "InToTownScene")
         {
@@ -288,8 +298,15 @@ public class GameManager : MonoBehaviour
                 unit.GetComponent<UnitController>().enabled = false;
                 unit.GetComponent<AttackController>().enabled = false;
             }
+            // 33%の確率でBattleSetupBSceneに遷移、それ以外はBattleSetupASceneに遷移
+            int random = Random.Range(0, 100);
+            if(random < 33){
+                SceneManager.LoadScene("BattleSetupBScene");
+            }
+            else{
+                SceneManager.LoadScene("BattleSetupAScene");
+            }
 
-            SceneManager.LoadScene("BattleSetupScene");
             // ステージ番号を加算する
             if(worldManager != null){
                 worldManager.IncrementRoomEvent();
@@ -416,6 +433,43 @@ public class GameManager : MonoBehaviour
             //GetComponent<InfomationPanelDisplay>().infomationPanel.SetActive(false);
 
             // 子オブジェクトの指定のコンポーネントを有効化
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+
+            // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
+            //GetComponent<CameraController>().whiteoutMask.SetActive(false);
+        }
+        if(sceneName == "BlackSmithScene")
+        {
+            // 勝利テキストを非表示
+            victoryUI.SetActive(false);
+            nextButton.gameObject.SetActive(false);
+
+            statusLogPanel.gameObject.SetActive(true);
+            SceneManager.LoadScene("BlacksmithScene");
+            // ステージ番号を加算する
+            if(worldManager != null){
+                worldManager.IncrementRoomEvent();
+            }
+            // ワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
+            iventryUI.SetButtonEnabled(true);
+            // UnitSkillPanelsの要素をすべて非アクティブにする
+            foreach (RectTransform panel in UnitSkillPanels)
+            {
+                panel.gameObject.SetActive(true);
+            }
+
+            // infomationPanelを非アクティブにする
+            //GetComponent<InfomationPanelDisplay>().infomationPanel.SetActive(false);
+
+            // 子オブジェクトの指定のコンポーネントを無効化
             foreach (GameObject unit in livingUnits)
             {
                 unit.GetComponent<UnitController>().enabled = false;

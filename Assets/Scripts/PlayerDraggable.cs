@@ -50,6 +50,16 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         // シーンがロードされるたびにシーン名を更新
         currentSceneName = SceneManager.GetActiveScene().name;
+        if (currentSceneName == "BattleSetupAScene")
+        {
+            minDragBounds = new Vector2(-4.6f, -2.4f);
+            maxDragBounds = new Vector2(-2.25f, 2.4f);
+        }
+        else if (currentSceneName == "BattleSetupBScene")
+        {
+            minDragBounds = new Vector2(-1.65f, -2.0f);
+            maxDragBounds = new Vector2(1.65f, 2.0f);
+        }
     }
 
     /// <summary>
@@ -58,7 +68,8 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     /// <param name="eventData">ドラッグイベントのデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (currentSceneName != "BattleSetupScene") return;
+        // バトルセットアップシーン以外ではドラッグを無効化
+        if (currentSceneName != "BattleSetupAScene" && currentSceneName !="BattleSetupBScene") return;
         
         startPos = transform.position;
         isDragging = true;

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using MyGame.Managers;
 
 /// <summary>
 /// オブジェクトをドラッグ＆ドロップで移動し、特定の条件で処理を行うクラス。
@@ -19,6 +20,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public GameObject wpnAef; // 武器のエフェクトを登録するための変数
     private GameManager gameManager; // GameManagerの参照
     private ShopManager shopManager; // ShopManagerの参照
+    private BlackSmithManager blackSmithManager; // BlackSmithManagerの参照
     private bool isDraggable = true; // ドラッグ可能かどうかのフラグ
 
     /// <summary>
@@ -32,16 +34,14 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         //infomationPanelDisplay = FindObjectOfType<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         if(gameManager != null) infomationPanelDisplay = gameManager.GetComponent<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         shopManager = FindObjectOfType<ShopManager>(); // ShopManagerのインスタンスを取得
+        blackSmithManager = FindObjectOfType<BlackSmithManager>(); // BlackSmithManagerのインスタンスを取得
         // this.gameObjectのマテリアルのLVにruneLevelを代入
-        Debug.Log("runeLevel: " + runeLevel);
         if (this.gameObject.GetComponent<Image>() != null)
         {
-            Debug.Log("Image");
             this.gameObject.GetComponent<Image>().material.SetFloat("_Lv", runeLevel);
         }
         else if (this.gameObject.GetComponent<SpriteRenderer>() != null)
         {
-            Debug.Log("SpriteRenderer");
             this.gameObject.GetComponent<SpriteRenderer>().material.SetFloat("_Lv", runeLevel);
         }
     }
@@ -61,6 +61,9 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">ドラッグイベントデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
+        Debug.Log("ドラッグ開始: " + gameObject.name);
+        Debug.Log("blackSmithManager: " + blackSmithManager);
+        Debug.Log("isSetItem: " + blackSmithManager.isSetItem);
         string spriteID = "000000"; // SpriteIDを格納する変数
         // ショップアイテムの場合、ドラッグを無効にする
         if(isShopItem || isCharaName)
@@ -113,6 +116,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public void OnDrag(PointerEventData eventData)
     {
         if(!isDraggable) return; // ドラッグ不可の場合、処理を終了
+        if(blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
         transform.position = GetMouseWorldPosition(eventData) + offset;
     }
 
@@ -124,6 +128,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public void OnEndDrag(PointerEventData eventData)
     {
         if(!isDraggable) return; // ドラッグ不可の場合、処理を終了
+        if(blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
 
         Vector3 mouseWorldPosition = GetMouseWorldPosition(eventData); // マウスのワールド座標を取得
         Collider2D hitCollider = Physics2D.OverlapPoint(mouseWorldPosition); // マウス位置でのヒットテスト
@@ -157,15 +162,19 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 string skillItemID = "";
                 string iventryItemID = "";
                 string socketName = "";
+                int skillItemLv = 0;
+                int iventryItemLv = 0;
                 Transform skillListTransform = null;
 
-                void SetItemIDs(GameObject source, GameObject target, out string sourceID, out string targetID)
+                void SetItemIDs(GameObject source, GameObject target, out string sourceID, out string targetID, out int sourceLv, out int targetLv)
                 {
                     sourceID = source.GetComponent<SpriteRenderer>().sprite.name;
                     sourceID = sourceID.Substring(sourceID.IndexOf("_") + 1, sourceID.LastIndexOf("_") - sourceID.IndexOf("_") - 1);
+                    sourceLv = source.GetComponent<ItemDandDHandler>().runeLevel;
 
                     targetID = target.GetComponent<Image>().sprite.name;
                     targetID = targetID.Substring(targetID.IndexOf("_") + 1, targetID.LastIndexOf("_") - targetID.IndexOf("_") - 1);
+                    targetLv = target.GetComponent<ItemDandDHandler>().runeLevel;
                 }
 
                 GameObject skillObject = null;
@@ -173,7 +182,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 {
                     Debug.Log("Iventryにドロップしました(iventryがターゲット)");
                     socketName = this.name;
-                    SetItemIDs(targetObject, this.gameObject, out skillItemID, out iventryItemID);
+                    SetItemIDs(targetObject, this.gameObject, out skillItemID, out iventryItemID, out skillItemLv, out iventryItemLv);
                     skillListTransform = this.gameObject.transform;
                     skillObject = this.gameObject;
                 }
@@ -181,7 +190,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 {
                     Debug.Log("Skillスロットにドロップしました(skillがターゲット)");
                     socketName = targetObject.transform.parent.name;
-                    SetItemIDs(this.gameObject, targetObject.transform.parent.gameObject, out skillItemID, out iventryItemID);
+                    SetItemIDs(this.gameObject, targetObject.transform.parent.gameObject, out skillItemID, out iventryItemID, out skillItemLv, out iventryItemLv);
                     skillListTransform = targetObject.transform.parent;
                     skillObject = targetObject;
                 }
@@ -214,13 +223,48 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 Transform[] targetSkillList = skillListTransform.parent.parent.GetComponentsInChildren<Transform>();
 
                 // Iventryで装備の入れ替え処理を行う
-                iventryUI.changeEquipment(targetSkillList, iventryItemID, skillItemID, socketName, this.gameObject, targetObject);
+                iventryUI.changeEquipment(targetSkillList, iventryItemID, skillItemID, socketName, this.gameObject, targetObject, skillItemLv, iventryItemLv);
             }
             // ドラッグ先がShopのmainGridの場合、アイテムを半額で売る
             else if (targetObject.name == "SellPosition" && shopManager != null)
             {
                 shopManager.SellItem(gameObject);
                 transform.position = originalPosition;
+            }
+            // ドラッグ先がBlackSmithのArrowRightである場合アイテム強化Panelにアイテムをセットする
+            else if (targetObject.name == "ArrowRight" && blackSmithManager != null)
+            {
+                // ドラッグを元の位置に戻す
+                transform.position = originalPosition;
+
+                // 自身のspriteRendererまたはImageのsprite名を取得
+                string spriteName = "";
+                if (GetComponent<SpriteRenderer>() != null)
+                {
+                    spriteName = GetComponent<SpriteRenderer>().sprite.name;
+                }
+                else if (GetComponent<Image>() != null)
+                {
+                    spriteName = GetComponent<Image>().sprite.name;
+                }
+                // spriteNameがnullでない場合、_で分割して2番目の要素を取得し、setItemIDに代入
+                if (spriteName != "")
+                {
+                    int itemID = int.Parse(spriteName.Split('_')[1]);
+                    // 400000代であればルーンと判定し、それ以外はretuen
+                    if (itemID / 100000 != 4) return;
+
+                    blackSmithManager.setItemID = itemID;
+                    blackSmithManager.setItem = this.gameObject;
+                    // 自身にitemDandDHandlerがアタッチされている場合、runeLevelをblackSmithManager.setItemLvに代入
+                    if (GetComponent<ItemDandDHandler>() != null)
+                    {
+                        blackSmithManager.setItemLv = GetComponent<ItemDandDHandler>().runeLevel;
+                    }
+                    blackSmithManager.isSetItem = true;
+                    blackSmithManager.SetItem();
+                }
+                
             }
             // それ以外の場合は何もせずに元の位置に戻す
             else
@@ -459,7 +503,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             // アイテムを破棄した際に、0(空)を入れる
             int index = this.transform.GetSiblingIndex();
-            iventryUI.SetItem(index, 0);
+            iventryUI.SetItem(index, 0, 0);
 
             Destroy(gameObject); // オブジェクト破棄
         }

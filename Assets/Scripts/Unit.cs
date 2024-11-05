@@ -646,8 +646,8 @@ public class Unit : MonoBehaviour
                     if (runeDropRate < RuneDropChance)
                     {
                         // ルーンドロップの確率に合致した場合はランダムなルーンをドロップ
-                        int randomRuneId = UnityEngine.Random.Range(0, gameManager.itemData.runeSpawnSettings.Count);
-                        int dropItem = gameManager.itemData.runeSpawnSettings[randomRuneId].ID;
+                        int randomRuneId = UnityEngine.Random.Range(0, gameManager.itemData.runeList.Count);
+                        int dropItem = gameManager.itemData.runeList[randomRuneId].ID;
                         print("****** Rune: " + dropItem + "をドロップ");
                         iventryUI.AddItem(dropItem);
                     }

@@ -11,8 +11,11 @@ public class StatusAdjustmentManager : MonoBehaviour
 {
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
+    [SerializeField] private Sprite[] roomImages; // ルームの画像
     private int room1Id = 1; // ルーム1のID
+    [SerializeField] private TextMeshProUGUI room1Text; // ルーム1のテキスト
     private int room2Id = 2; // ルーム2のID
+    [SerializeField] private TextMeshProUGUI room2Text; // ルーム2のテキスト
     [SerializeField] private StatusLog statusLog;
     [SerializeField] private Image[] faceGraphics; // ジョブによって変更する顔グラフィック
     [SerializeField] private Sprite[] faceGraphicsSprites; // ジョブによって変更する顔グラフィックのスプライト
@@ -64,7 +67,7 @@ public class StatusAdjustmentManager : MonoBehaviour
         }
 
         // 確率でルームIdを変更する
-        // 未実装・・・
+        UpdateRoomId();
     }
 
     // Update is called once per frame
@@ -177,6 +180,48 @@ public class StatusAdjustmentManager : MonoBehaviour
         gameManager.UpdateGoldAndExpUI();
     }
 
+    // ルームidを更新するメソッド
+    public void UpdateRoomId()
+    {
+        // 今のところルームの種類が3つしかないので、ランダムな1~3の整数値を生成してroom1Idに代入
+        room1Id = Random.Range(1, 4);
+        // ランダムな1~3の整数値を生成してroom1Idとかぶらない値をroom2Idに代入
+        while (room1Id == room2Id)
+        {
+            room2Id = Random.Range(1, 4);
+        }
+        switch (room1Id)
+        {
+            case 1:
+                room1Text.text = "BATTLE ROOM";
+                room1Text.transform.parent.GetComponent<Image>().sprite = roomImages[0];
+                break;
+            case 2:
+                room1Text.text = "SHOP ROOM";
+                room1Text.transform.parent.GetComponent<Image>().sprite = roomImages[1];
+                break;
+            case 3:
+                room1Text.text = "BLACK SMITH ROOM";
+                room1Text.transform.parent.GetComponent<Image>().sprite = roomImages[2];
+                break;
+        }
+        switch (room2Id)
+        {
+            case 1:
+                room2Text.text = "BATTLE ROOM";
+                room2Text.transform.parent.GetComponent<Image>().sprite = roomImages[0];
+                break;
+            case 2:
+                room2Text.text = "SHOP ROOM";
+                room2Text.transform.parent.GetComponent<Image>().sprite = roomImages[1];
+                break;
+            case 3:
+                room2Text.text = "BLACK SMITH ROOM";
+                room2Text.transform.parent.GetComponent<Image>().sprite = roomImages[2];
+                break;
+        }
+    }
+
     // roomBtn1がクリックされたときの処理
     public void OnRoomBtn1Clicked()
     {
@@ -201,6 +246,10 @@ public class StatusAdjustmentManager : MonoBehaviour
         else if (roomID == 2)
         {
             gameManager.LoadScene("ShopScene");
+        }
+        else if (roomID == 3)
+        {
+            gameManager.LoadScene("BlackSmithScene");
         }
     }
 
