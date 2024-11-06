@@ -17,7 +17,7 @@ public class IventryUI : MonoBehaviour
     [SerializeField] private Transform IventryImage;
     [SerializeField] private Transform IventryPanel;
 
-    private const int MaxItems = 24; // アイテムの最大数
+    private const int MaxItems = 48; // アイテムの最大数
     public int[] IventryItem = new int[MaxItems]; // を格納する配列
 
     // スキルパネルオブジェクトを格納するリスト

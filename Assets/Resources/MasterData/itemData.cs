@@ -62,6 +62,7 @@ public class ItemData {
         public float criticalDamage;
         public float attackDelay;
         public float speed;
+        public float lifeTime;
         public int attackUnitThrough;
         public int attackObjectThrough;
         public float attackSize;
@@ -95,6 +96,7 @@ public class ItemData {
         public float criticalDamage;
         public float attackDelay;
         public float speed;
+        public float lifeTime;
         public int attackUnitThrough;
         public int attackObjectThrough;
         public float attackSize;

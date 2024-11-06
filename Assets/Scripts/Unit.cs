@@ -354,8 +354,18 @@ public class Unit : MonoBehaviour
         attackDistance = wpnListData.attackRange;
         attackDistance = maxDistanceMultiplier; // ルーンの攻撃距離倍率を適用
 
+        // タンクの場合はHP、防御力、を2倍にする代わりに移動速度やDelayを半減
+        if (job == 4 || job == 34) Hp *= 2;
+        {
+            Hp *= 2;
+            physicalDefensePower *= 2;
+            magicalDefensePower *= 2;
+            moveSpeed /= 2;
+            attackDelay /= 2;
+        }
+
         // HPの初期化
-        maxHp = (currentStr + (currentLevel - 1) * levelStr) * 10;
+        maxHp = Hp;
 
         // 武器プレファブを変更する
         GameObject wpn = Resources.Load<GameObject>("Prefabs/Weapons/" + currentWeapons.ToString("D6"));

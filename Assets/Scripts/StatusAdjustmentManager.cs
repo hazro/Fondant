@@ -184,7 +184,11 @@ public class StatusAdjustmentManager : MonoBehaviour
     public void UpdateRoomId()
     {
         // 今のところルームの種類が3つしかないので、ランダムな1~3の整数値を生成してroom1Idに代入
-        room1Id = Random.Range(1, 4);
+        room1Id = Random.Range(1, 6);
+        if (room1Id == 4 || room1Id == 5)
+        {
+            room1Id = 1;
+        }
         // ランダムな1~3の整数値を生成してroom1Idとかぶらない値をroom2Idに代入
         while (room1Id == room2Id)
         {

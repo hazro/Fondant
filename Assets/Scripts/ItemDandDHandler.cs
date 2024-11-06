@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using MyGame.Managers;
+using System.Collections;
 
 /// <summary>
 /// オブジェクトをドラッグ＆ドロップで移動し、特定の条件で処理を行うクラス。
@@ -34,7 +35,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         //infomationPanelDisplay = FindObjectOfType<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         if(gameManager != null) infomationPanelDisplay = gameManager.GetComponent<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         shopManager = FindObjectOfType<ShopManager>(); // ShopManagerのインスタンスを取得
-        blackSmithManager = FindObjectOfType<BlackSmithManager>(); // BlackSmithManagerのインスタンスを取得
+        //blackSmithManager = FindObjectOfType<BlackSmithManager>(); // BlackSmithManagerのインスタンスを取得
         // this.gameObjectのマテリアルのLVにruneLevelを代入
         if (this.gameObject.GetComponent<Image>() != null)
         {
@@ -46,14 +47,6 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
     }
 
-/*
-    void Update()
-    {
-        if(gameManager == null) gameManager = FindObjectOfType<GameManager>(); // GameManagerのインスタンスを取得
-        if(gameManager != null && infomationPanelDisplay == null) infomationPanelDisplay = gameManager.GetComponent<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
-    }
-*/
-
     /// <summary>
     /// ドラッグ開始時に呼び出されるメソッド。
     /// 元の位置を保存し、BoxCollider2Dを無効にします。
@@ -61,9 +54,12 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">ドラッグイベントデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("ドラッグ開始: " + gameObject.name);
-        Debug.Log("blackSmithManager: " + blackSmithManager);
-        Debug.Log("isSetItem: " + blackSmithManager.isSetItem);
+        
+        if(blackSmithManager == null){
+            blackSmithManager = FindObjectOfType<BlackSmithManager>(); // BlackSmithManagerのインスタンスを取得
+        }
+        if(blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
+
         string spriteID = "000000"; // SpriteIDを格納する変数
         // ショップアイテムの場合、ドラッグを無効にする
         if(isShopItem || isCharaName)
@@ -148,6 +144,47 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             {
                 TrashItem();
             }
+            // ドラッグ先がShopのmainGridの場合、アイテムを半額で売る
+            else if (targetObject.name == "SellPosition" && shopManager != null)
+            {
+                shopManager.SellItem(gameObject);
+                transform.position = originalPosition;
+            }
+            // ドラッグ先がBlackSmithのArrowRightである場合アイテム強化Panelにアイテムをセットする
+            else if (targetObject.name == "ArrowRight" && blackSmithManager != null)
+            {
+                // ドラッグを元の位置に戻す
+                transform.position = originalPosition;
+
+                // 自身のspriteRendererまたはImageのsprite名を取得
+                string spriteName = "";
+                if (GetComponent<SpriteRenderer>() != null)
+                {
+                    spriteName = GetComponent<SpriteRenderer>().sprite.name;
+                }
+                else if (GetComponent<Image>() != null)
+                {
+                    spriteName = GetComponent<Image>().sprite.name;
+                }
+                // spriteNameがnullでない場合、_で分割して2番目の要素を取得し、setItemIDに代入
+                if (spriteName != "")
+                {
+                    int itemID = int.Parse(spriteName.Split('_')[1]);
+                    // 400000代であればルーンと判定し、それ以外はretuen
+                    if (itemID / 100000 != 4) return;
+
+                    blackSmithManager.setItemID = itemID;
+                    blackSmithManager.setItem = this.gameObject;
+                    // 自身にitemDandDHandlerがアタッチされている場合、runeLevelをblackSmithManager.setItemLvに代入
+                    if (GetComponent<ItemDandDHandler>() != null)
+                    {
+                        blackSmithManager.setItemLv = GetComponent<ItemDandDHandler>().runeLevel;
+                    }
+                    blackSmithManager.isSetItem = true;
+                    blackSmithManager.SetItem();
+                }
+                
+            }
             //　どちらもItemタグでない場合は何もせずに元の位置に戻す
             else if (!targetObject.CompareTag("Item") && !this.gameObject.CompareTag("Item"))
             {
@@ -224,47 +261,6 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
                 // Iventryで装備の入れ替え処理を行う
                 iventryUI.changeEquipment(targetSkillList, iventryItemID, skillItemID, socketName, this.gameObject, targetObject, skillItemLv, iventryItemLv);
-            }
-            // ドラッグ先がShopのmainGridの場合、アイテムを半額で売る
-            else if (targetObject.name == "SellPosition" && shopManager != null)
-            {
-                shopManager.SellItem(gameObject);
-                transform.position = originalPosition;
-            }
-            // ドラッグ先がBlackSmithのArrowRightである場合アイテム強化Panelにアイテムをセットする
-            else if (targetObject.name == "ArrowRight" && blackSmithManager != null)
-            {
-                // ドラッグを元の位置に戻す
-                transform.position = originalPosition;
-
-                // 自身のspriteRendererまたはImageのsprite名を取得
-                string spriteName = "";
-                if (GetComponent<SpriteRenderer>() != null)
-                {
-                    spriteName = GetComponent<SpriteRenderer>().sprite.name;
-                }
-                else if (GetComponent<Image>() != null)
-                {
-                    spriteName = GetComponent<Image>().sprite.name;
-                }
-                // spriteNameがnullでない場合、_で分割して2番目の要素を取得し、setItemIDに代入
-                if (spriteName != "")
-                {
-                    int itemID = int.Parse(spriteName.Split('_')[1]);
-                    // 400000代であればルーンと判定し、それ以外はretuen
-                    if (itemID / 100000 != 4) return;
-
-                    blackSmithManager.setItemID = itemID;
-                    blackSmithManager.setItem = this.gameObject;
-                    // 自身にitemDandDHandlerがアタッチされている場合、runeLevelをblackSmithManager.setItemLvに代入
-                    if (GetComponent<ItemDandDHandler>() != null)
-                    {
-                        blackSmithManager.setItemLv = GetComponent<ItemDandDHandler>().runeLevel;
-                    }
-                    blackSmithManager.isSetItem = true;
-                    blackSmithManager.SetItem();
-                }
-                
             }
             // それ以外の場合は何もせずに元の位置に戻す
             else
