@@ -444,12 +444,12 @@
       "price": 100,
       "maxLevel": 3,
       "ability": "Diagonally divided in 4 directions",
-      "pysicalPowerLv1": 0.25,
-      "pysicalPowerLv2": 0.33,
-      "pysicalPowerLv3": 0.5,
-      "magicalPowerLv1": 0.25,
-      "magicalPowerLv2": 0.33,
-      "magicalPowerLv3": 0.5
+      "pysicalPowerLv1": 0.5,
+      "pysicalPowerLv2": 0.75,
+      "pysicalPowerLv3": 1,
+      "magicalPowerLv1": 0.5,
+      "magicalPowerLv2": 0.75,
+      "magicalPowerLv3": 1
     },
     {
       "ID": 411004,
@@ -458,12 +458,12 @@
       "price": 100,
       "maxLevel": 3,
       "ability": "Divided into 8 directions",
-      "pysicalPowerLv1": 0.5,
-      "pysicalPowerLv2": 0.75,
-      "pysicalPowerLv3": 1,
-      "magicalPowerLv1": 0.5,
-      "magicalPowerLv2": 0.75,
-      "magicalPowerLv3": 1
+      "pysicalPowerLv1": 0.25,
+      "pysicalPowerLv2": 0.33,
+      "pysicalPowerLv3": 0.5,
+      "magicalPowerLv1": 0.25,
+      "magicalPowerLv2": 0.33,
+      "magicalPowerLv3": 0.5
     },
     {
       "ID": 411005,
@@ -1192,7 +1192,6 @@
     {
       "ID": 413033,
       "name": "changeRegenerative",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Changed recovery attack to grant automatic HP recovery  (x% second)"
@@ -1219,7 +1218,6 @@
     {
       "ID": 413036,
       "name": "teleportation",
-      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "Granted teleportation movement"
@@ -1227,7 +1225,6 @@
     {
       "ID": 413037,
       "name": "escape",
-      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "If attacked, run away."

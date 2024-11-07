@@ -128,6 +128,7 @@ public class UnitController : MonoBehaviour
     {
         Vector2 currentPosition = transform.position;
         Vector2 newPosition;
+        movementSpeed = unit.moveSpeed * 0.3f; // ユニットの移動速度を更新早すぎるのでとりあえずx0.3
 
         // 攻撃モードが有効の場合の処理
         if (enableAttackStance)

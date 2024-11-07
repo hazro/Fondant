@@ -306,10 +306,10 @@ public class Unit : MonoBehaviour
         // ステータスを計算する
         int baseExperience = 10; // レベルアップに必要な基本経験値
         currentLevel = (int)Math.Sqrt(totalExp / (baseExperience * currentLevelScaleFactor)) + addLevel + 1;
-        // タグがEnemyの場合は(currentWorldBackGround-1)*2をレベルに加算
+        // タグがEnemyの場合は(currentWorldBackGround-1)*3をレベルに加算
         if (gameObject.tag == "Enemy")
         {
-            currentLevel += (worldManager.currentWorld - 1) * 2;
+            currentLevel += (worldManager.currentWorld - 1) * 3;
             // HpTextにUnitNameとレベルを表示
             hpText.text = unitName + "  Lv." + currentLevel;
         }
@@ -655,8 +655,10 @@ public class Unit : MonoBehaviour
                     int runeDropRate = UnityEngine.Random.Range(0, 100);
                     if (runeDropRate < RuneDropChance)
                     {
+                        // ルーンドロップの確率に合致した場合はruneList.worldが0でなく、さらにcurrentWorld以下のランダムなルーンをドロップ
+                        List<ItemData.RuneListData> worldRuneList = gameManager.itemData.runeList.FindAll(x => x.world != 0 && x.world <= currentWorldId && (x.ID / 100) % 10 != 9);
                         // ルーンドロップの確率に合致した場合はランダムなルーンをドロップ
-                        int randomRuneId = UnityEngine.Random.Range(0, gameManager.itemData.runeList.Count);
+                        int randomRuneId = UnityEngine.Random.Range(0, worldRuneList.Count);
                         int dropItem = gameManager.itemData.runeList[randomRuneId].ID;
                         print("****** Rune: " + dropItem + "をドロップ");
                         iventryUI.AddItem(dropItem);

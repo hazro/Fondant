@@ -296,13 +296,14 @@ public class BlackSmithManager : MonoBehaviour
             {
                 // イベントリの更新
                 iventryUI.UpdateIventryPanel();
-                // 全キャラのスキルパネルを更新
+                // 全キャラのスキルパネルを更新し、ステータスを更新
                 if(gameManager.livingUnits != null)
                 {
                     foreach(GameObject unit in gameManager.livingUnits)
                     {
 
                         iventryUI.UpdateUnitSkillUI(unit);
+                        unit.GetComponent<Unit>().updateStatus();
                     }
                 }
             }

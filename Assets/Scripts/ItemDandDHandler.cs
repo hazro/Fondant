@@ -498,7 +498,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         if (iventryUI != null)
         {
             // アイテムを破棄した際に、0(空)を入れる
-            int index = this.transform.GetSiblingIndex();
+            int index = this.transform.parent.GetSiblingIndex();
             iventryUI.SetItem(index, 0, 0);
 
             Destroy(gameObject); // オブジェクト破棄

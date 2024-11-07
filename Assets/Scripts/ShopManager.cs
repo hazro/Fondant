@@ -14,13 +14,10 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private List<int> stockItem = new List<int>(); // カートに入れたアイテムリスト
     [SerializeField] private int totalPrice; // 合計金額
     [SerializeField] private TextMeshProUGUI totalPriceText; // 合計金額表示用テキスト
-    //[SerializeField] private Button purchaseButton; // 購入ボタン
-    //[SerializeField] private Button resetButton; // リセットボタン
     [SerializeField] private TextMeshProUGUI resetText; // リセットボタンテキスト
     [SerializeField] private GameObject infoPanel; // 情報パネル
     [SerializeField] private GameObject cancelButton; // キャンセルボタン
     [SerializeField] private TextMeshProUGUI infoText; // 情報表示用テキスト
-    //[SerializeField] private Button OKButton; // OKボタン
     private GameManager gameManager; // ゲームマネージャ
     private WorldManager worldManager; // ワールドマネージャ
     private IventryUI iventryUI; // IventryUIの参照
@@ -298,44 +295,34 @@ public class ShopManager : MonoBehaviour
         // ルーンのリストを取得
         List<ItemData.RuneListData> runeList = gameManager.itemData.runeList;
 
-        // wpnList.worldがcurrentWorldでIDが0以外でIDの百の位が9以外のものを取得
+        // wpnList.worldが0ではなく、wpnList.worldがcurrentWorld以下でIDが0以外でIDの百の位が9以外のものを取得
         List<ItemData.WpnListData> wpnListByWorld = wpnList
-            .Where(wpn => wpn.world <= currentWorld && wpn.ID != 0 && wpn.ID / 100 % 10 != 9)
+            .Where(wpn => wpn.world != 0 && wpn.world <= currentWorld && wpn.ID != 0 && (wpn.ID / 100)%10 != 9)
             .ToList();
-        // eqpList.worldがcurrentWorldでIDが0以外のものを取得
+        // eqpList.worldが0ではなく、eqpList.worldがcurrentWorld以下でIDが0以外のものを取得
         List<ItemData.EqpListData> eqpListByWorld = eqpList
-            .Where(eqp => eqp.world <= currentWorld && eqp.ID != 0)
+            .Where(eqp => eqp.world != 0 && eqp.world <= currentWorld && eqp.ID != 0 && (eqp.ID / 100) % 10 != 9)
             .ToList();
-        // runeList.worldがcurrentWorldで、runeSpawnSettings.IDの数値が411で始まるものを取得
+        // runeList.worldが0ではなく、runeList.worldがcurrentWorld以下で、runeSpawnSettings.IDの数値が411で始まるものを取得
         List<ItemData.RuneListData> redRuneList = runeList
-            .Where(rune => rune.world <= currentWorld && rune.ID >= 411000 && rune.ID < 412000)
+            .Where(rune => rune.world != 0 && rune.world <= currentWorld && rune.ID >= 411000 && rune.ID < 412000 && (rune.ID / 100) % 10 != 9)
             .ToList();
-        // runeList.worldがcurrentWorldで、runeSpawnSettings.IDの数値が412で始まるものを取得
+        // runeList.worldが0ではなく、runeList.worldがcurrentWorld以下で、runeSpawnSettings.IDの数値が412で始まるものを取得
         List<ItemData.RuneListData> orgRuneList = runeList
-            .Where(rune => rune.world <= currentWorld && rune.ID >= 412000 && rune.ID < 413000)
+            .Where(rune => rune.world != 0 && rune.world <= currentWorld && rune.ID >= 412000 && rune.ID < 413000 && (rune.ID / 100) % 10 != 9)
             .ToList();
-        // runeList.worldがcurrentWorldで、runeSpawnSettings.IDの数値が413で始まるものを取得
+        // runeList.worldが0ではなく、runeList.worldがcurrentWorld以下で、runeSpawnSettings.IDの数値が413で始まるものを取得
         List<ItemData.RuneListData> grnRuneList = runeList
-            .Where(rune => rune.world <= currentWorld && rune.ID >= 413000 && rune.ID < 414000)
+            .Where(rune => rune.world != 0 && rune.world <= currentWorld && rune.ID >= 413000 && rune.ID < 414000 && (rune.ID / 100) % 10 != 9)
             .ToList();
-        // runeList.worldがcurrentWorldで、runeSpawnSettings.IDの数値が414で始まるものを取得
+        // runeList.worldが0ではなく、runeList.worldがcurrentWorld以下で、runeSpawnSettings.IDの数値が414で始まるものを取得
         List<ItemData.RuneListData> palRuneList = runeList
-            .Where(rune => rune.world <= currentWorld && rune.ID >= 414000 && rune.ID < 415000)
+            .Where(rune => rune.world != 0 && rune.world <= currentWorld && rune.ID >= 414000 && rune.ID < 415000 && (rune.ID / 100) % 10 != 9)
             .ToList();
-        // runeList.worldがcurrentWorldで、runeSpawnSettings.IDの数値が414で始まるものを取得
+        // runeList.worldが0ではなく、runeList.worldがcurrentWorld以下で、runeSpawnSettings.IDの数値が414で始まるものを取得
         List<ItemData.RuneListData> bluRuneList = runeList
-            .Where(rune => rune.world <= currentWorld && rune.ID >= 415000 && rune.ID < 416000)
+            .Where(rune => rune.world !=0 && rune.world <= currentWorld && rune.ID >= 415000 && rune.ID < 416000 && (rune.ID / 100) % 10 != 9)
             .ToList();
-        /*
-        Debug.Log("wpnListByWorld: " + wpnListByWorld.Count);
-        Debug.Log("eqpListByWorld: " + eqpListByWorld.Count);
-        Debug.Log("runeList: " + runeList.Count);
-        Debug.Log("redRuneList: " + redRuneList.Count);
-        Debug.Log("orgRuneList: " + orgRuneList.Count);
-        Debug.Log("grnRuneList: " + grnRuneList.Count);
-        Debug.Log("palRuneList: " + palRuneList.Count);
-        Debug.Log("bluRuneList: " + palRuneList.Count);
-        */
 
         // lineGridの子要素を全て取得
         int count = 0;
@@ -544,13 +531,13 @@ public class ShopManager : MonoBehaviour
             // sellObjectの親オブジェクトがiventryPanelの何番目の子オブジェクトかを取得
             int index = sellObject.transform.parent.GetSiblingIndex();
             // iventryItem[index]がitemIDと一致する場合、iventryItem[index]を0に設定
-            if(iventryUI.IventryItem[index] == itemID)
-            {
-                iventryUI.IventryItem[index] = 0;
-            }
-            // UpdateIventryPanelを実行
             if (iventryUI != null)
             {
+                // 7桁を6桁に変換して比較
+                if (iventryUI.IventryItem[index] / 10 == itemID)
+                {
+                    iventryUI.IventryItem[index] = 0;
+                }
                 iventryUI.UpdateIventryPanel();
             }
             //goldをPrice分増やす

@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float zoomSpeed = 15.0f; // ズームスピード
     [SerializeField] private float slowMotionDuration = 2.0f; // スローモーションの時間
     [SerializeField] private IventryUI iventryUI; // IventryUIのインスタンスを取得するためのフィールド
+    [SerializeField] private BattleManager battleManager; // BattleManagerのインスタンスを取得するためのフィールド
 
     public StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
 
@@ -90,6 +91,8 @@ public class GameManager : MonoBehaviour
 
         //worldManagerのインスタンスを取得
         worldManager = WorldManager.Instance;
+        //battleManagerのインスタンスを取得
+        battleManager = BattleManager.Instance;
 
         // プレイヤーユニットがいない場合、キャラクターを生成
         if (livingUnits.Count == 0)
@@ -380,7 +383,7 @@ public class GameManager : MonoBehaviour
             if(worldManager.GetCurrentRoomEvent() == 12){
                 worldManager.IncrementWorld();
                 // まだボスとワールド2以降が実装されていないのでワールド番号を1にする
-                worldManager.currentWorld = 1;
+                //worldManager.currentWorld = 1;
             }
             // ワールド番号とステージ番号を更新
             UpdateWorldStageUI();
@@ -612,6 +615,14 @@ public class GameManager : MonoBehaviour
         // ↑の処理が終わったら、次のシーンに遷移
         // enemyGroupを削除
         Destroy(enemyGroup);
+        // 攻撃エフェクトを削除
+        if(battleManager == null){
+            battleManager = BattleManager.Instance;
+        }
+        else
+        {
+            battleManager.DestroyAttackEffects();
+        }
         ChangeVictoryText();
         LoadScene("VictoryScene");
     }

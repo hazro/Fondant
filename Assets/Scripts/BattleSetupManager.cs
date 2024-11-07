@@ -83,7 +83,8 @@ public class BattleSetupManager : MonoBehaviour
         // gameManager.itemData.enemySpawnSettingsから現在のワールド番号とルームイベント番号(currentRoomEvent→stage)に対応するEnemySpawnSettingsDataをすべて取得
         foreach (var enemySpawn in gameManager.itemData.enemySpawnSettings)
         {
-            if (enemySpawn.world == currentWorld && enemySpawn.stage == currentRoomEvent)
+            // まだWorld2以降が無いので、world2以降でもWorld1以降の敵キャラクター設定を取得
+            if (enemySpawn.world <= currentWorld && enemySpawn.world != 0 && enemySpawn.stage == currentRoomEvent)
             {
                 worldEnemySpawn.Add(enemySpawn);
             }

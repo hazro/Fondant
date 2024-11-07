@@ -157,14 +157,18 @@ public class StatusAdjustmentManager : MonoBehaviour
             "   DEF: " + unit.physicalDefensePower.ToString() + "\n" +
             "   MATK: " + unit.magicalAttackPower.ToString() + "\n" +
             "   MDEF: " + unit.magicalDefensePower.ToString() + "\n" +
-            "   SPD: " + unit.Speed.ToString() + "\n" +
-            "   Delay: " + unit.attackDelay.ToString() + "\n" +
-            "   ResistCondition: " + unit.resistCondition.ToString() + "%\n" +
-            "   KnockBack: " + unit.knockBack.ToString() + "\n" +
+            "   MoveSPD: " + unit.moveSpeed.ToString() + "\n" +
+            "" + "\n" +
+            "   AttackDelay: " + unit.attackDelay.ToString() + "\n" +
             "   AtkRange: " + unit.attackRange.ToString() + "\n" +
-            "   WeaponScale: " + unit.attackSize.ToString()+ "\n" +
-            "   AtkUnitThrough: " + unit.attackUnitThrough.ToString() + "\n" +
-            "   AtkObjectThrough: " + unit.attackObjectThrough.ToString() + "\n\n";
+            "   ShootingSPD: " + unit.attackSpeed.ToString() + "\n" +
+            "   ShootingLifeTime(s): " + unit.attackLifetime.ToString() + "\n" +
+            "   ShootingUnitThrough: " + unit.attackUnitThrough.ToString() + "\n" +
+            "   ShootingObjectThrough: " + unit.attackObjectThrough.ToString() + "\n" +
+            "   ResistCondition: " + unit.resistCondition.ToString() + "\n" +
+            "   KnockBackDistance: " + unit.knockBack.ToString() + "\n\n";
+            //"   WeaponScale: " + unit.attackSize.ToString()+ "\n\n";
+
             // unit.escapeが1以上の場合は文字列"true"を追加
             if(unit.escape >= 1)
             {

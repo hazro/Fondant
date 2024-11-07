@@ -85,6 +85,8 @@ public class ItemData {
         public int world;
         public int price;
         public int socketCount;
+        public int fixMainRune;
+        public int fixSubRune;
         public int hp;
         public float physicalAttackPower;
         public float magicalAttackPower;
