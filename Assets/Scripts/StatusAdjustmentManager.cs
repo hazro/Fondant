@@ -187,17 +187,16 @@ public class StatusAdjustmentManager : MonoBehaviour
     // ルームidを更新するメソッド
     public void UpdateRoomId()
     {
-        // 今のところルームの種類が3つしかないので、ランダムな1~3の整数値を生成してroom1Idに代入
-        room1Id = Random.Range(1, 6);
-        if (room1Id == 4 || room1Id == 5)
+
+        int room1Id = 1;
+
+        // 1~4の範囲でランダムに選び、4の出現率を半分に調整
+        List<int> possibleRoom2Ids = new List<int> { 1, 1, 2, 2, 3, 3, 4 };
+        do
         {
-            room1Id = 1;
-        }
-        // ランダムな1~3の整数値を生成してroom1Idとかぶらない値をroom2Idに代入
-        while (room1Id == room2Id)
-        {
-            room2Id = Random.Range(1, 4);
-        }
+            room2Id = possibleRoom2Ids[Random.Range(0, possibleRoom2Ids.Count)];
+        } while (room1Id == room2Id);
+
         switch (room1Id)
         {
             case 1:
@@ -211,6 +210,10 @@ public class StatusAdjustmentManager : MonoBehaviour
             case 3:
                 room1Text.text = "BLACK SMITH ROOM";
                 room1Text.transform.parent.GetComponent<Image>().sprite = roomImages[2];
+                break;
+            case 4:
+                room1Text.text = "RECOVER ROOM";
+                room1Text.transform.parent.GetComponent<Image>().sprite = roomImages[3];
                 break;
         }
         switch (room2Id)
@@ -226,6 +229,10 @@ public class StatusAdjustmentManager : MonoBehaviour
             case 3:
                 room2Text.text = "BLACK SMITH ROOM";
                 room2Text.transform.parent.GetComponent<Image>().sprite = roomImages[2];
+                break;
+            case 4:
+                room2Text.text = "RECOVER ROOM";
+                room2Text.transform.parent.GetComponent<Image>().sprite = roomImages[3];
                 break;
         }
     }
@@ -258,6 +265,10 @@ public class StatusAdjustmentManager : MonoBehaviour
         else if (roomID == 3)
         {
             gameManager.LoadScene("BlackSmithScene");
+        }
+        else if (roomID == 4)
+        {
+            gameManager.LoadScene("RecoverScene");
         }
     }
 

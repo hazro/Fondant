@@ -22,4 +22,5 @@ public class StatusLog : ScriptableObject
     public int[] UnitTotalKill = new int[5];
     public int[] unitDPS = new int[5];
     public int[] unitDamage = new int[5];
+    public int[] unitKill = new int[5];
 }

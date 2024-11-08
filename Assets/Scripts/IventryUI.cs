@@ -416,13 +416,22 @@ public class IventryUI : MonoBehaviour
                         Debug.Log("アイテムIDが不正です");
                         return;
                     }
-
-                    // Iventryのルーンレベルをskillに移す
+                    // IventryからSkillに移動した場合、ターゲットのskillPanelに対してIventryのルーンレベルを移す
                     if(targetObj.transform.parent.GetComponent<ItemDandDHandler>())
                     {
                         ItemDandDHandler item = targetObj.transform.parent.GetComponent<ItemDandDHandler>();
                         item.runeLevel = skillItemLv;
                     }
+                    // SkillからIventryに移動して交換した場合、移動元のSkillに対してIventryのルーンレベルを移す
+                    else
+                    {
+                        ItemDandDHandler item = originalObj.GetComponent<ItemDandDHandler>();
+                        item.runeLevel = skillItemLv;
+
+                    }
+                    
+
+
 
                     // オブジェクトを移動し、イベントリとスキルパネルを更新する
                     MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj, iventryItemLv);

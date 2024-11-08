@@ -485,6 +485,43 @@ public class GameManager : MonoBehaviour
             // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
             //GetComponent<CameraController>().whiteoutMask.SetActive(false);
         }
+        if(sceneName == "RecoverScene")
+        {
+            // 勝利テキストを非表示
+            victoryUI.SetActive(false);
+            nextButton.gameObject.SetActive(false);
+
+            statusLogPanel.gameObject.SetActive(true);
+            SceneManager.LoadScene("RecoverScene");
+            // ステージ番号を加算する
+            if(worldManager != null){
+                worldManager.IncrementRoomEvent();
+            }
+            // ワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
+            iventryUI.SetButtonEnabled(true);
+            // UnitSkillPanelsの要素をすべて非アクティブにする
+            foreach (RectTransform panel in UnitSkillPanels)
+            {
+                panel.gameObject.SetActive(true);
+            }
+
+            // infomationPanelを非アクティブにする
+            //GetComponent<InfomationPanelDisplay>().infomationPanel.SetActive(false);
+
+            // 子オブジェクトの指定のコンポーネントを無効化
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+
+            // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
+            //GetComponent<CameraController>().whiteoutMask.SetActive(false);
+        }
         if(sceneName == "GameOverScene")
         {
             statusLogPanel.gameObject.SetActive(false);
@@ -660,6 +697,27 @@ public class GameManager : MonoBehaviour
                 victoryTexts[i].text = statusLog.totalDamage.ToString();
             }
         }
+    }
+
+    /// <summary>
+    /// 指定のユニットを治療するメソッド。
+    /// </summary>
+    public void RecoverUnit(GameObject unit)
+    {
+        // ユニットのIDを取得
+        int unitIndex = unit.GetComponent<Unit>().ID - 1;
+        // 死亡パネルを非アクティブにする
+        deadPanelList[unitIndex].SetActive(false);
+        // ユニットのGameObjectをアクティブにする
+        unit.SetActive(true);
+        // ユニットのHPを回復
+        unit.GetComponent<Unit>().InitHp();
+        // ユニットの状態異常を解除
+        unit.GetComponent<Unit>().condition = 0;
+        // ユニットのスキルUIを更新
+        iventryUI.UpdateUnitSkillUI(unit);
+        // ユニットのステータスを更新
+        unit.GetComponent<Unit>().updateStatus();
     }
     
 }
