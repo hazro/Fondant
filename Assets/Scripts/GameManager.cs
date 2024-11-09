@@ -13,6 +13,8 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    [SerializeField] private Texture2D customCursor; // カーソル画像
+    [SerializeField] private Vector2 hotspot = Vector2.zero; // カーソルの中心位置
     private JsonDecryptor jsonDecryptor; // JsonDecryptorクラスのインスタンスを取得するためのフィールド
     public ItemData itemData; // デシリアライズしたデータを格納するクラス
     public List<GameObject> playerUnits = new List<GameObject>(); // プレイヤーユニットのリスト
@@ -82,6 +84,9 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // DebugSheetをHierarchyに生成
+
+        // マウスをカスタムカーソルに変更
+        Cursor.SetCursor(customCursor, hotspot, CursorMode.Auto);
         
         // JsonDecryptorクラスを使用する
         jsonDecryptor = new JsonDecryptor();
@@ -118,6 +123,9 @@ public class GameManager : MonoBehaviour
             // updateStatusを実行
             iventryUI.UpdateUnitSkillUI(livingUnits);
         }
+        // iventryPanelの更新
+        iventryUI.UpdateIventryPanel();
+
         // もしGameStartSceneだったら
         if(SceneManager.GetActiveScene().name == "GameStartScene")
         {
@@ -240,7 +248,7 @@ public class GameManager : MonoBehaviour
                 statusLog.unitDamage[i] = 0; // ユニットごとのダメージをリセット
             }
             statusLog.expGained = 0; // 獲得経験値をリセット
-            statusLog.goldGained = 0; // 獲得ゴールドをリセット
+            //statusLog.goldGained = 0; // 獲得ゴールドをリセット
             // ステータスをUIに反映
             UpdateGoldAndExpUI();
 

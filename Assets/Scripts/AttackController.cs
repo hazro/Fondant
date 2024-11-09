@@ -131,7 +131,7 @@ public class AttackController : MonoBehaviour
         {
             if (isShootingEnabled && shootingCoroutine == null && Time.time - lastAttackStartTime >= attackStartCooldown)
             {
-                Debug.Log("攻撃開始");
+                //Debug.Log("攻撃開始");
                 isShooting = true;
                 int weapomAmplitude = 0; // 武器のふり幅の範囲
                 if(weaponPrefab != null)
@@ -151,7 +151,7 @@ public class AttackController : MonoBehaviour
             }
             else if (!isShootingEnabled && shootingCoroutine != null)
             {
-                Debug.Log("攻撃停止");
+                //Debug.Log("攻撃停止");
                 if (weaponPrefab != null)
                 {
                     weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0); // 武器の角度を元に戻す

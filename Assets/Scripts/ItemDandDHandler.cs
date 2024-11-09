@@ -12,6 +12,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 {
     [SerializeField] private bool isShopItem = false; // ショップアイテムかどうかのフラグ
     [SerializeField] private bool isCharaName = false; // キャラクター名かどうかのフラグ 
+    [SerializeField] private bool isEmptyPanel = false; // 空のパネルかどうかのフラグ
     public bool isSelected = false; // 選択されているかどうかのフラグ
     private Vector3 offset; // ドラッグ中のオフセット
     private Vector3 originalPosition; // 元の位置を保存する変数
@@ -79,6 +80,12 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
         else{
             isDraggable = true;
+        }
+
+        // 空のパネルの場合、ドラッグを無効にする
+        if(isEmptyPanel){
+            isDraggable = false;
+            return;
         }
 
         originalPosition = transform.position; // 元の位置を保存
@@ -248,6 +255,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                             if(child.GetComponent<Image>().color != new Color(1, 1, 0, 1))
                             {
                                 Debug.Log(" 装備不可のスキルスロットにドロップまたは入れ替えようとしました");
+                                iventryUI.UpdateIventryPanel();
                                 return;
                             }
                         }

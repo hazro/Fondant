@@ -113,19 +113,26 @@ public class ShopManager : MonoBehaviour
                     // stockItemリストからitemIDを削除
                     stockItem.Remove(int.Parse(itemID));
                 }
-                // totalPriceがcurrentGoldより大きい場合 textを赤色に変更
-                if (totalPrice > statusLog.currentGold)
-                {
-                    totalPriceText.color = new Color(0.7f, 0.0f, 0.0f, 1.0f);
-                }
-                else
-                {
-                    totalPriceText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-                }
-                
+                // 価格と所持金によってtotalPriceTextの色を変更する
+                ChangeTotalPriceTextColor();
             }
         }
+    }
 
+    /// <summary>
+    /// 価格と所持金によってtotalPriceTextの色を変更するメソッド
+    /// </summary>
+    public void ChangeTotalPriceTextColor()
+    {
+        // totalPriceがcurrentGoldより大きい場合 textを赤色に変更
+        if (totalPrice > statusLog.currentGold)
+        {
+            totalPriceText.color = new Color(0.7f, 0.0f, 0.0f, 1.0f);
+        }
+        else
+        {
+            totalPriceText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        }
     }
     
 
@@ -160,6 +167,8 @@ public class ShopManager : MonoBehaviour
             UpdateShopItemList();
             // ショップにアイテムをならべる
             SetShopItem();
+            // 価格と所持金によってtotalPriceTextの色を変更する
+            ChangeTotalPriceTextColor();
         }
         else
         {
@@ -605,6 +614,8 @@ public class ShopManager : MonoBehaviour
             statusLog.currentGold += Price;
             // ゴールドと経験値UIを更新
             gameManager.UpdateGoldAndExpUI();
+            // 価格と所持金によってtotalPriceTextの色を変更する
+            ChangeTotalPriceTextColor();
         }
 
         // フラグのリセット

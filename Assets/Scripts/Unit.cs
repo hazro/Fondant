@@ -774,6 +774,41 @@ public class Unit : MonoBehaviour
             currentShields = jobListData.initShield;
             currentArmor = jobListData.initArmor;
             currentAccessories = jobListData.initAccessories;
+            // mainSocketとsubSocketを初期化
+            mainSocket = 0;
+            subSocket = new int[11] { 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 };
+            // mainSocketとsubSocketのItemDandDHandlerのruneLevelを初期化
+            // UnitのIDに対応したIventrySkillListの要素を取得
+            if (iventryUI != null)
+            {
+                List<GameObject> IventrySkillList = null;
+                switch (ID)
+                {
+                    case 1:
+                        IventrySkillList = iventryUI.IventrySkillList1;
+                        break;
+                    case 2:
+                        IventrySkillList = iventryUI.IventrySkillList2;
+                        break;
+                    case 3:
+                        IventrySkillList = iventryUI.IventrySkillList3;
+                        break;
+                    case 4:
+                        IventrySkillList = iventryUI.IventrySkillList4;
+                        break;
+                    case 5:
+                        IventrySkillList = iventryUI.IventrySkillList5;
+                        break;
+                    default:
+                        Debug.Log("unitNum is invalid");
+                        return;
+                }
+                // int i 6~17までのIventrySkillListの要素を取得し、すべてのruneLevelを0にする
+                for (int i = 6; i < 18; i++)
+                {
+                    IventrySkillList[i].GetComponent<ItemDandDHandler>().runeLevel = 0;
+                }
+            }
         }
     }
 

@@ -121,6 +121,11 @@ public class IventryUI : MonoBehaviour
                 // itemID6桁の100000の位が1なら武器、2なら防具、4ならルーン
                 if (itemID / 100000 == 1)
                 {
+                    // children[i]の子オブジェクトをすべて削除
+                    foreach (Transform child in children[i])
+                    {
+                        Destroy(child.gameObject);
+                    }
                     GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Weapons/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
@@ -130,6 +135,11 @@ public class IventryUI : MonoBehaviour
                 }
                 else if (itemID / 100000 == 2)
                 {
+                    // children[i]の子オブジェクトをすべて削除
+                    foreach (Transform child in children[i])
+                    {
+                        Destroy(child.gameObject);
+                    }
                     GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Equipment/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
@@ -139,6 +149,11 @@ public class IventryUI : MonoBehaviour
                 }
                 else if (itemID / 100000 == 4)
                 {
+                    // children[i]の子オブジェクトをすべて削除
+                    foreach (Transform child in children[i])
+                    {
+                        Destroy(child.gameObject);
+                    }
                     GameObject itemSprite = Resources.Load<GameObject>("Prefabs/Runes/" + itemID);
                     // IventryItemObject[i]の子としてIventryItemObject[i]の位置にitemSpriteを生成
                     itemSprite = Instantiate(itemSprite, children[i].position, Quaternion.identity);
@@ -379,6 +394,9 @@ public class IventryUI : MonoBehaviour
         string unitName = targetSkillList[0].gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
         // unit名の0番目が1ならPlayer01、2ならPlayer02、3ならPlayer03、4ならPlayer04、5ならPlayer05
         unitName = "P" + unitName[1];
+        Debug.Log("iventryItemID = " + iventryItemID + " skillItemID = " + skillItemID);
+        Debug.Log("originalObj = " + originalObj.name + " targetObj = " + targetObj.name);
+        Debug.Log("skillItemLv = " + skillItemLv + " iventryItemLv = " + iventryItemLv);
 
         // GameManagerがアクティブでない場合は処理を終了
         if (gameManager != null && gameManager.livingUnits != null)
@@ -433,6 +451,82 @@ public class IventryUI : MonoBehaviour
                         int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
                         unit.subSocket[socketId] = int.Parse(skillItemID);
                     }
+                    // SkillからIventryに移動した場合、移動元のアイテムIDが0(空)なら装備を外す
+                    else if(skillItemID[0] == '0')
+                    {
+                        print("スキルスロットの装備を外します");
+                        // originalObjのオブジェクト名を変数に代入
+                        if(originalObj.name == "charWpn")
+                        {
+                            //unit.currentWeapons = 0;
+                            // 武器は外せない
+                            Debug.Log("武器は交換のみで外せません");
+                            // originalObjを移動前の位置に戻す
+                            //originalObj.transform.position = targetObj.transform.position;
+                            // 武器を振るわせる
+                            ShakeObject(originalObj);
+                            return;
+                        }
+                        else if(originalObj.name == "charShild")
+                        {
+                            unit.currentShields = 0;
+                        }
+                        else if(originalObj.name == "charArmor")
+                        {
+                            unit.currentArmor = 0;
+                        }
+                        else if(originalObj.name == "charAccsse")
+                        {
+                            unit.currentAccessories = 0;
+                        }
+                        else if(originalObj.name == "mainSocket")
+                        {
+                            unit.mainSocket = 0;
+                        }
+                        //socketという文字列が含まれている場合はサブルーン
+                        else if(originalObj.name.Contains("socket"))
+                        {
+                            // どのサブルーンを外すかを取得
+                            int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
+                            unit.subSocket[socketId] = 0;
+                        }
+                    }
+                    // IventryからSkillに移動した場合、ターゲットのskillPanelが空の場合は装備を移す
+                    else if(iventryItemID[0] == '0')
+                    {
+                        Debug.Log("スキルスロットに装備します");
+                        // originalObjのオブジェクト名を変数に代入
+                        if(targetObj.transform.parent.name == "charWpn")
+                        {
+                            unit.currentWeapons = int.Parse(skillItemID);
+                        }
+                        else if(targetObj.transform.parent.name == "charShild")
+                        {
+                            unit.currentShields = int.Parse(skillItemID);
+                        }
+                        else if(targetObj.transform.parent.name == "charArmor")
+                        {
+                            unit.currentArmor = int.Parse(skillItemID);
+                        }
+                        else if(targetObj.transform.parent.name == "charAccsse")
+                        {
+                            unit.currentAccessories = int.Parse(skillItemID);
+                        }
+                        // mainSocketとsubSocketは空の時がないためスキップ
+                        /*
+                        else if(originalObj.name == "mainSocket")
+                        {
+                            unit.mainSocket = int.Parse(skillItemID);
+                        }
+                        //socketという文字列が含まれている場合はサブルーン
+                        else if(originalObj.name.Contains("socket"))
+                        {
+                            // どのサブルーンを入れ替えるかを取得
+                            int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
+                            unit.subSocket[socketId] = int.Parse(skillItemID);
+                        }
+                        */
+                    }
                     else
                     {
                         Debug.Log("アイテムIDが不正です");
@@ -452,9 +546,6 @@ public class IventryUI : MonoBehaviour
 
                     }
                     
-
-
-
                     // オブジェクトを移動し、イベントリとスキルパネルを更新する
                     MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj, iventryItemLv);
                     
@@ -472,6 +563,50 @@ public class IventryUI : MonoBehaviour
         {
             Debug.LogError("gameManager.playerUnits is null");
         }
+    }
+
+    /// <summary>
+    /// 指定のオブジェクトを0.5秒の間に振るわせて元に戻すコルーチン
+    /// </summary>
+    private void ShakeObject(GameObject obj)
+    {
+        // 指定のオブジェクトを0.5秒の間に振るわせる
+        StartCoroutine(ShakeObjectCoroutine(obj));
+    }
+    /// <summary>
+    /// ShakeObjectCoroutineのコルーチン
+    /// </summary>
+    private IEnumerator ShakeObjectCoroutine(GameObject obj)
+    {
+        // 振るわせる時間
+        float shakeTime = 0.25f;
+        // 振るわせる時間の経過時間
+        float elapsedTime = 0f;
+        // 振るわせる振幅
+        float shakeAmount = 0.1f;
+
+        // 元の位置を保存
+        Vector3 originalPosition = obj.transform.position;
+
+        // 振るわせる時間の間繰り返す
+        while (elapsedTime < shakeTime)
+        {
+            // 振幅を計算
+            float x = UnityEngine.Random.Range(-1f, 1f) * shakeAmount;
+            float y = UnityEngine.Random.Range(-1f, 1f) * shakeAmount;
+            
+            // 元の位置に対して振幅を設定
+            obj.transform.position = originalPosition + new Vector3(x, y, 0);
+
+            // 経過時間を加算
+            elapsedTime += Time.deltaTime;
+            
+            // 1フレーム待つ
+            yield return null;
+        }
+
+        // 元の位置に戻す
+        obj.transform.position = originalPosition;
     }
 
     /// <summary>
@@ -520,6 +655,7 @@ public class IventryUI : MonoBehaviour
                 Destroy(grandChild.gameObject);
             }
         }
+        UpdateIventryPanel();
     }
 
     // ivenrtyItemの指定番号と指定番号の要素内容を入れ替えるメソッド
@@ -591,6 +727,19 @@ public class IventryUI : MonoBehaviour
                     // itemLvを設定
                     itemSprite.GetComponent<ItemDandDHandler>().runeLevel = itemLv;
                 }
+            }
+            // 0の場合は空のパネルを生成
+            else
+            {
+                int emptyPanelID = 0;
+                GameObject emptyPanel = Resources.Load<GameObject>("Prefabs/" + emptyPanelID.ToString("D6"));
+                // IventryItemObject[i]の子としてIventryItemObject[i]の位置にemptyPanelを生成
+                emptyPanel = Instantiate(emptyPanel, children[i].position, Quaternion.identity);
+                //名前から(Clone)を削除
+                emptyPanel.name = emptyPanel.name.Replace("(Clone)", "");
+                emptyPanel.transform.SetParent(children[i]);
+                // itemLvを設定
+                //emptyPanel.GetComponent<ItemDandDHandler>().runeLevel = 0;
             }
         }
     }
