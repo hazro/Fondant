@@ -17,15 +17,22 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private int originalSortingOrder;
     private string currentSceneName;
     private Camera mainCamera;  // Camera.main をキャッシュ
+    private GameManager gameManager;
 
     /// <summary>
     /// 初期設定処理。現在のシーン名を取得し、カメラをキャッシュします。
     /// </summary>
     private void Start()
     {
+        // gameManagerのインスタンスを取得
+        gameManager = GameManager.Instance;
         isDragging = false;
         currentSceneName = SceneManager.GetActiveScene().name;
         mainCamera = Camera.main;  // Camera.main のキャッシュ
+        // シーンの種類によってドラッグ範囲を設定
+        SetDragBounds();
+        // 一番近い敵の方向を向く
+        LookAtNearestTarget();
     }
 
     /// <summary>
@@ -48,8 +55,81 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // シーンがロードされるたびにシーン名を更新
         currentSceneName = SceneManager.GetActiveScene().name;
+        // シーンがロードされるたびにドラッグ範囲を設定
+        SetDragBounds();
+        // 一番近い敵の方向を向く
+        LookAtNearestTarget();
+    }
+
+    /// <summary>
+    /// ターゲットが存在する場合、最も近い距離にいる敵の方を向く
+    /// </summary>
+    private void Update()
+    {
+        // ドラッグ中だけ処理
+        if (isDragging)
+        {
+            // 一番近い敵の方向を向く
+            LookAtNearestTarget();
+        }
+
+    }
+
+    /// <summary>
+    /// 一番近い敵の方向を向くメソッド
+    /// </summary>
+    public void LookAtNearestTarget()
+    {
+        if (currentSceneName != "BattleSetupAScene" && currentSceneName != "BattleSetupBScene") return;
+
+        if(gameManager==null) gameManager = GameManager.Instance;
+        if(gameManager != null)
+        {
+            GameObject TargetGroup = null;
+            // 自身のtagがAllyの場合
+            if (gameObject.CompareTag("Ally"))
+            {
+                TargetGroup = gameManager.enemyGroup;
+            }
+            else if (gameObject.CompareTag("Enemy"))
+            {
+                TargetGroup = gameManager.livingUnits[0].transform.parent.gameObject;
+            }
+            // TargetGroupが存在しない、またはターゲットがいない場合は処理をスキップ
+            if (TargetGroup == null || TargetGroup.transform.childCount == 0) return;
+
+            // 最も近い距離にいる敵の方を向く
+            Transform nearestTarget = TargetGroup.transform.GetChild(0);
+            float minDistance = Vector2.Distance(transform.position, nearestTarget.position);
+            for (int i = 1; i < TargetGroup.transform.childCount; i++)
+            {
+                Transform target = TargetGroup.transform.GetChild(i);
+                float distance = Vector2.Distance(transform.position, target.position);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestTarget = target;
+                }
+            }
+            // unitSpriteの向きを変更
+            if (nearestTarget.position.x < transform.position.x)
+            {
+                unitSprite.flipX = true;
+            }
+            else
+            {
+                unitSprite.flipX = false;
+            }
+
+        }
+    }
+
+    /// <summary>
+    /// バトルシーンの種類によってドラッグ範囲を変更する
+    /// </summary>
+    private void SetDragBounds()
+    {
         if (currentSceneName == "BattleSetupAScene")
         {
             minDragBounds = new Vector2(-4.6f, -2.4f);
@@ -68,12 +148,19 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     /// <param name="eventData">ドラッグイベントのデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
+        Debug.Log("OnBeginDrag");
+        Debug.Log("currentSceneName: " + currentSceneName);
+        Debug.Log("gameObject.tag: " + gameObject.tag);
         // バトルセットアップシーン以外ではドラッグを無効化
         if (currentSceneName != "BattleSetupAScene" && currentSceneName !="BattleSetupBScene") return;
+        // tagがEnemyの場合はドラッグを無効化
+        if (gameObject.CompareTag("Enemy")) return;
+        Debug.Log("OnBeginDrag2");
         
         startPos = transform.position;
         isDragging = true;
         originalSortingOrder = unitSprite.sortingOrder;
+        Debug.Log("OnBeginDrag3");
 
         SetSpriteTransparency(0.5f); // 透明度を半分に設定
     }
@@ -156,8 +243,6 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     /// <param name="alpha">設定する透明度（0-1の範囲）</param>
     private void SetSpriteTransparency(float alpha)
     {
-        Color color = unitSprite.color;
-        color.a = alpha;
-        unitSprite.color = color;
+        unitSprite.material.SetColor("_Color", new Color(1, 1, 1, alpha));
     }
 }

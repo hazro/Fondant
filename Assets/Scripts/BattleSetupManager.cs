@@ -49,6 +49,11 @@ public class BattleSetupManager : MonoBehaviour
         }
         SetupCharacterPlacement(); // プレイヤーキャラクターの配置
         SetupEnemies(); // 敵キャラクターの配置
+        // 全キャラを敵の方向かせる
+        foreach (var unit in gameManager.livingUnits)
+        {
+            unit.GetComponent<PlayerDraggable>().LookAtNearestTarget();
+        }
 
         // 戦闘開始ボタンがクリックされたときの処理を設定
         startBattleButton.onClick.AddListener(OnStartBattleButtonClicked);

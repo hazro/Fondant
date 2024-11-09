@@ -224,6 +224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -889,6 +890,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -982,6 +984,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -1955,6 +1958,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -2448,6 +2452,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -2777,6 +2782,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -3813,6 +3819,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -4376,6 +4383,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -4603,6 +4611,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -4987,6 +4996,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -5393,6 +5403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -5486,6 +5497,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -5846,6 +5858,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -6041,6 +6054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -6472,6 +6486,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -6565,6 +6580,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -6760,6 +6776,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -7189,6 +7206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -7683,6 +7701,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -7910,6 +7929,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -8711,6 +8731,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -9007,6 +9028,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -9195,6 +9217,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -9288,6 +9311,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -11098,6 +11122,7 @@ GameObject:
   - component: {fileID: 6957487540912213632}
   - component: {fileID: 1858666352344873794}
   - component: {fileID: 2940292167162817778}
+  - component: {fileID: 1967511340851007915}
   m_Layer: 5
   m_Name: SellPosition
   m_TagString: Untagged
@@ -11208,6 +11233,62 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 482.4, y: 118.99}
   m_EdgeRadius: 0
+--- !u!114 &1967511340851007915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7601551076099994444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.81562585, g: 0.9607843, b: 0.72539216, a: 1}
+    m_PressedColor: {r: 1, g: 0.99481666, b: 0.689, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1858666352344873794}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2460573584429826897}
+        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
+        m_MethodName: OnClickSellButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7602872279747732336
 GameObject:
   m_ObjectHideFlags: 0
@@ -11432,6 +11513,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -11659,6 +11741,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -12254,6 +12337,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -12347,6 +12431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -12440,6 +12525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}
@@ -13005,6 +13091,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 1
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}

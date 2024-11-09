@@ -54,7 +54,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f8e00167dd1c6774389d102bc29667c2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -98,7 +98,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8fb9a9611c16c04c8688881b1713441, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eqpStats: {fileID: 11400000, guid: c445c8442ee5b9849980db3f81533dfb, type: 2}
+  isShopItem: 0
+  isCharaName: 0
+  isSelected: 0
+  infomationPanelDisplay: {fileID: 0}
+  runeLevel: 1
+  wpnAef: {fileID: 0}
 --- !u!61 &-5923332698069076134
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -52,14 +52,14 @@ public class AttackController : MonoBehaviour
     [SerializeField] private Transform targetObject; // 追従するターゲットオブジェクト
     [SerializeField] private Vector2 direction; // 発射方向
 
-    private bool isShooting;
+    private Coroutine shootingCoroutine; // 攻撃を繰り返すコルーチン
+    private bool isShooting; // 攻撃中かどうかのフラグ
     private GameObject attackObjectGroup; // 発射物をまとめるグループオブジェクト
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
     private UnitController unitController; // UnitControllerの参照
     private Unit unit; // Unitの参照
-    private bool wasShootingEnabled; // 前回の状態を保持する変数
-    private Coroutine shootingCoroutine;
+    [HideInInspector] public bool wasShootingEnabled; // 前回の状態を保持する変数
     private float lastAttackStartTime; // 最後に攻撃開始が行われた時間
     private const float attackStartCooldown = 0.1f; // 攻撃開始のクールダウン時間
     private Vector2 firingPosition; // 発射位置
@@ -474,6 +474,25 @@ public class AttackController : MonoBehaviour
             shakeAmplitude,
             scaleUpBlow
             );
+    }
+
+    /// <summary>
+    /// 攻撃を停止するメソッド
+    /// </summary>
+    public void StopAttack()
+    {
+        if (shootingCoroutine != null)
+        {
+            StopCoroutine(shootingCoroutine);
+            shootingCoroutine = null;
+        }
+        isShooting = false; // 攻撃中フラグをOFFにする
+        wasShootingEnabled = true; // 前回の状態をtrueにしておくことで再び攻撃が開始するのを防ぐ。battleStartでoffにすること！
+        direction = Vector2.zero; // 攻撃方向をリセット
+        if (weaponPrefab != null)
+        {
+            weaponPrefab.SetActive(false); // 武器を非アクティブにする
+        }
     }
 }
 

@@ -15,7 +15,7 @@ public class IventryUI : MonoBehaviour
     [SerializeField] private Button openIventryButton;
     [SerializeField] private Transform Iventry;
     [SerializeField] private Transform IventryImage;
-    [SerializeField] private Transform IventryPanel;
+    public Transform IventryPanel;
 
     private const int MaxItems = 48; // アイテムの最大数
     public int[] IventryItem = new int[MaxItems]; // を格納する配列
@@ -26,6 +26,12 @@ public class IventryUI : MonoBehaviour
     public List<GameObject> IventrySkillList3 = new List<GameObject>();
     public List<GameObject> IventrySkillList4 = new List<GameObject>();
     public List<GameObject> IventrySkillList5 = new List<GameObject>();
+
+    // informationPanel
+    public GameObject infoPanel;
+    public TextMeshProUGUI infoPanelText;
+    public Button OKButton;
+    public Button cancelButton;
     
     // IventryPanelの子オブジェクトをすべて取得
     private List<Transform> children = new List<Transform>();
@@ -60,6 +66,22 @@ public class IventryUI : MonoBehaviour
         statusAdjustmentManager = FindObjectOfType<StatusAdjustmentManager>();
         blackSmishManager = FindObjectOfType<BlackSmithManager>();
     }
+
+    // 選択をすべて解除するメソッド
+    public void DeSelectedButton()
+    {
+        // iventryPanelの孫オブジェクトをすべて取得
+        foreach (Transform child in IventryPanel)
+        {
+            foreach (Transform grandChild in child)
+            {
+                // grandChildのItemDandDHandlerコンポーネントを取得し、ItemSelect(true)を実行
+                ItemDandDHandler item = grandChild.GetComponent<ItemDandDHandler>();
+                item.ItemSelect(true);
+            }
+        }
+    }
+
 
     // ボタンの有効無効切り替え
     public void SetButtonEnabled(bool enabled)
@@ -752,5 +774,53 @@ public class IventryUI : MonoBehaviour
                 }
             }
         }
+    }
+
+    // ゴミ箱をクリックした際に呼び出されるメソッド
+    public void TrashButton()
+    {
+        infoPanelText.text = "Delete all selected items ?";
+        infoPanel.SetActive(true);
+        OKButton.gameObject.SetActive(true);
+        cancelButton.gameObject.SetActive(true);
+        // OKボタンを押した際に呼び出されるメソッドを設定
+        OKButton.onClick.AddListener(TrashAllItem);
+        // キャンセルボタンを押した際に呼び出されるメソッドを設定
+        cancelButton.onClick.AddListener(Cancel);
+    }
+    // ゴミ箱でOKボタンを押した際に呼び出されるメソッド
+    public void TrashAllItem()
+    {
+        // ゴミ箱の選択状態の孫オブジェクトをすべて削除
+        foreach (Transform child in IventryPanel.transform)
+        {
+            foreach (Transform grandChild in child)
+            {
+                if (grandChild.GetComponent<ItemDandDHandler>().isSelected)
+                {
+                    TrashItem(grandChild.gameObject);
+                }
+            }
+        }
+        infoPanel.SetActive(false);
+        OKButton.gameObject.SetActive(false);
+        cancelButton.gameObject.SetActive(false);
+    }
+    // キャンセルボタンを押した際に呼び出されるメソッド
+    public void Cancel()
+    {
+        infoPanel.SetActive(false);
+        OKButton.gameObject.SetActive(false);
+        cancelButton.gameObject.SetActive(false);
+    }
+    /// <summary>
+    /// オブジェクトをゴミ箱に入れて破棄される際に呼び出されるメソッド。
+    /// </summary>
+    public void TrashItem(GameObject obj)
+    {
+        // アイテムを破棄した際に、0(空)を入れる
+        int index = obj.transform.parent.GetSiblingIndex();
+        SetItem(index, 0, 0);
+        Destroy(obj); // オブジェクト破棄
     }
 }

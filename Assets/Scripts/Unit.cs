@@ -557,7 +557,7 @@ public class Unit : MonoBehaviour
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
         {
-            StartCoroutine(FlashSprite(new Color(0.75f, 0.75f, 0.75f, 1.0f)));
+            StartCoroutine(FlashSprite(new Color(0.9f, 0.9f, 0.9f, 1.0f)));
         }
 
         // すでにユニットが死亡していたら何もしない(消滅するまでに複数回呼び出されることがあるため)
@@ -620,6 +620,9 @@ public class Unit : MonoBehaviour
     // ユニットが死亡したら呼び出されるメソッド
     public void Die()
     {
+        // コントローラーを無効にする前に攻撃を停止
+        StopAttack();
+
         // AttackControllerとUnitControllerを無効にする
         GetComponent<AttackController>().enabled = false;
         GetComponent<UnitController>().enabled = false;
@@ -695,6 +698,12 @@ public class Unit : MonoBehaviour
             // Enemmyが全滅したら勝利演出を行う
             if (gameManager.enemyCount == 0)
             {
+                // player全員の攻撃を停止
+                foreach (GameObject player in gameManager.livingUnits)
+                {
+                    player.GetComponent<Unit>().StopAttack();
+                }
+
                 gameManager.victory(gameObject);
             }
             else
@@ -766,5 +775,11 @@ public class Unit : MonoBehaviour
             currentArmor = jobListData.initArmor;
             currentAccessories = jobListData.initAccessories;
         }
+    }
+
+    // AttackControllerの攻撃を停止するメソッドを実行するメソッド
+    public void StopAttack()
+    {
+        GetComponent<AttackController>().StopAttack();
     }
 }

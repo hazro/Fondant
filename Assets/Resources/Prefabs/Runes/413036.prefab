@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 0
   isCharaName: 0
+  isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1
   wpnAef: {fileID: 0}

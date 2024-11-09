@@ -336,6 +336,7 @@ public class GameManager : MonoBehaviour
                 unit.GetComponent<UnitController>().enabled = true;
                 unit.GetComponent<PlayerDraggable>().enabled = false;
                 unit.GetComponent<AttackController>().enabled = true;
+                unit.GetComponent<AttackController>().wasShootingEnabled = false; //前回の攻撃状態をリセットすることで再び攻撃ができるようにする
             }
         }
         if(sceneName == "VictoryScene")

@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: -8164329141671477843}
   - component: {fileID: -594631520288877183}
   - component: {fileID: 3243797675774483150}
+  - component: {fileID: 2610966211785526843}
   m_Layer: 7
   m_Name: Enemy02
   m_TagString: Enemy
@@ -169,6 +170,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 5481343229145555122}
+  ID: 0
+  positionID: 0
+  IventrySkillList: []
   unitName: Bat
   condition: 0
   job: 0
@@ -190,6 +194,10 @@ MonoBehaviour:
   attackRange: 0
   attackSize: 0
   knockBack: 0
+  attackLifetime: 0
+  attackDistance: 0
+  attackSpeed: 0
+  moveSpeed: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -302,6 +310,7 @@ MonoBehaviour:
   isShootingEnabled: 0
   enableEqpSkill: 1
   autoUpdateDirection: 1
+  damageZero: 0
   shoot3Directions: 0
   shoot4Directions: 0
   shoot4DiagonalDirections: 0
@@ -324,24 +333,10 @@ MonoBehaviour:
   scaleUpBlow: 0
   barrageAttack: 0
   speedAttack: 0
-  attackMultiplier: 1
-  delayMultiplier: 1
-  aefSpeedMultiplier: 1
-  maxDistanceMultiplier: 1
-  projectileLifetime: 1
-  weaponScaleMultiplier: 1
-  knockbackMultiplier: 1
-  attackCharThroughAdd: 0
-  attackObjectThroughAdd: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
-  speed: 5
-  sizeMultiplier: 1
-  delayBetweenShots: 2
-  attackCharThrough: 1
-  attackObjectThrough: 1
 --- !u!114 &-594631520288877183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -375,6 +370,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2610966211785526843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6733682485709165052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7526a4d4b29abc40af8106a76b03019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitSprite: {fileID: 5481343229145555122}
+  minDragBounds: {x: 0, y: 0}
+  maxDragBounds: {x: 0, y: 0}
 --- !u!1 &7862301461510210299
 GameObject:
   m_ObjectHideFlags: 0

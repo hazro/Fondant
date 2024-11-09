@@ -12,6 +12,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 {
     [SerializeField] private bool isShopItem = false; // ショップアイテムかどうかのフラグ
     [SerializeField] private bool isCharaName = false; // キャラクター名かどうかのフラグ 
+    public bool isSelected = false; // 選択されているかどうかのフラグ
     private Vector3 offset; // ドラッグ中のオフセット
     private Vector3 originalPosition; // 元の位置を保存する変数
     private BoxCollider2D boxCollider; // 自身のBoxCollider2Dの参照
@@ -133,6 +134,9 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             GameObject targetObject = hitCollider.gameObject;
             print("DropTarget: " + targetObject.name);
+            if(shopManager == null){
+                shopManager = FindObjectOfType<ShopManager>(); // ShopManagerのインスタンスを取得
+            }
 
             // イベントリ内同士のアイテムの入れ替え処理
             if (targetObject.CompareTag("Item") && this.gameObject.CompareTag("Item"))
@@ -142,7 +146,9 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             // ゴミ箱にドロップした場合、アイテムを破棄 
             else if (targetObject.name == "Trash" && this.gameObject.CompareTag("Item"))
             {
-                TrashItem();
+                if(iventryUI != null){
+                    iventryUI.TrashItem(this.gameObject);
+                }
             }
             // ドラッグ先がShopのmainGridの場合、アイテムを半額で売る
             else if (targetObject.name == "SellPosition" && shopManager != null)
@@ -448,6 +454,10 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             shopManager.addStockList(gameObject);
         }
+        else
+        {
+            ItemSelect();
+        }
 
     }
 
@@ -490,22 +500,6 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     }
 
     /// <summary>
-    /// オブジェクトをゴミ箱に入れて破棄される際に呼び出されるメソッド。
-    /// iventryUIに通知します。
-    /// </summary>
-    void TrashItem()
-    {
-        if (iventryUI != null)
-        {
-            // アイテムを破棄した際に、0(空)を入れる
-            int index = this.transform.parent.GetSiblingIndex();
-            iventryUI.SetItem(index, 0, 0);
-
-            Destroy(gameObject); // オブジェクト破棄
-        }
-    }
-
-    /// <summary>
     /// SpriteIDをチェックし、ドラッグ可能かどうかを設定するメソッド。spriteNameを返す。
     /// </summary>
     private string CheckSpriteIDAndSetDraggable(string spriteName)
@@ -521,5 +515,30 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             }
         }
         return spriteID;
+    }
+
+    /// <summary>
+    /// 選択されているかどうかのフラグを切り替えるメソッド。
+    /// </summary>
+    public void ItemSelect(bool forcedCancel = false)
+    {
+        if(isSelected == true || forcedCancel == true)
+        {
+            if (GetComponent<SpriteRenderer>() != null)
+            {
+                //選択解除して元の枠色に戻す
+                isSelected = false;
+                GetComponent<SpriteRenderer>().material.SetColor("_BaseColor", Color.white);
+            }
+        }
+        else
+        {
+            if (GetComponent<SpriteRenderer>() != null)
+            {
+                // ShaderのBaseColorを変更すると枠が出現するようにしてある
+                isSelected = true;
+                GetComponent<SpriteRenderer>().material.SetColor("_BaseColor", new Color(0.0f, 0.15f, 0.0f, 1));
+            }
+        }
     }
 }

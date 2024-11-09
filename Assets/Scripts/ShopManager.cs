@@ -469,27 +469,87 @@ public class ShopManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Sellボタンを押したときの処理
+    /// 選択したものをすべて売る処理
+    /// </summary>
+    public void OnClickSellButton()
+    {
+        SellItem(null,true);
+    }
+
+    /// <summary>
     /// Itemを半額で売るメソッド
     /// </summary>
-    public void SellItem(GameObject sellObject)
+    public void SellItem(GameObject sellObject, bool isSelected = false)
     {
-        string itemID = "0";
-        // オブジェクトにSpriteRendererがアタッチされている場合
-        if (sellObject.GetComponent<SpriteRenderer>() != null)
+        int itemPrice = 0;
+        List<int> itemIDList = new List<int>();
+        List<GameObject> sellObjectList = new List<GameObject>();
+        if (isSelected)
         {
-            // オブジェクトの名前からIDを取得
-            itemID = sellObject.name;
+            // 選択したアイテムの合計金額を取得
+            if(iventryUI == null) iventryUI = gameManager.GetComponent<IventryUI>();
+            if (iventryUI != null)
+            {
+                // IventryPanelの選択中の孫オブジェクトを全て取得
+                foreach (Transform child in iventryUI.IventryPanel.transform)
+                {
+                    foreach (Transform grandChild in child)
+                    {
+                        if (grandChild.GetComponent<ItemDandDHandler>().isSelected)
+                        {
+                            // IventryのItemに限定されるので、オブジェクト名=ItemID
+                            itemPrice += GetPrice(int.Parse(grandChild.name));
+                            itemIDList.Add(int.Parse(grandChild.name));
+                            sellObjectList.Add(grandChild.gameObject);
+                        }
+                    }
+                }
+            }
+            string text = "Are you sure you want to sell \n\n<b> Selected Items </b>\n\n for <color=yellow><b>total: " + itemPrice + "</b></color> gold?";
+            UpdateInfoPanel(text,true); // キャンセルボタンも表示する
+            // OK、Cancelフラグの初期化
+            isMethodOKExecuted = false;
+            isMethodCancelExecuted = false;
         }
-        // オブジェクトにImageがアタッチされている場合
-        else if (sellObject.GetComponent<Image>() != null)
+        else
         {
-            // オブジェクトのspriteの名前から1つめの_と2つめの_の間のIDを取得
-            itemID = sellObject.GetComponent<Image>().sprite.name.Split('_')[1];
+            string itemID = "0";
+            // オブジェクトにSpriteRendererがアタッチされている場合
+            if (sellObject.GetComponent<SpriteRenderer>() != null)
+            {
+                // オブジェクトの名前からIDを取得
+                itemID = sellObject.name;
+            }
+            // オブジェクトにImageがアタッチされている場合
+            else if (sellObject.GetComponent<Image>() != null)
+            {
+                // オブジェクトのspriteの名前から1つめの_と2つめの_の間のIDを取得
+                itemID = sellObject.GetComponent<Image>().sprite.name.Split('_')[1];
+            }
+            // 半額の値段を取得
+            itemPrice = GetPrice(int.Parse(itemID));
+            // OK、Cancelフラグの初期化
+            isMethodOKExecuted = false;
+            isMethodCancelExecuted = false;
+
+            itemIDList.Add(int.Parse(itemID));
+            sellObjectList.Add(sellObject);
+            
         }
+        // OnClickOKButtonかOnClickCancelButtonが押されるまで待ってOKなら売る
+        StartCoroutine(SubmitSell(sellObjectList, itemIDList, itemPrice));
+    }
+
+    /// <summary>
+    /// itemIDを引数として、itemNameと金額を出力するメソッド
+    /// </summary>
+    public int GetPrice(int itemID)
+    {
         // gameManagerのitemDataのEqpListDataクラス(eqpList)、WpnListDataクラス(wpnList)、RuneListDataクラス(runeList)からitemIDと一致するデータを取得
-        ItemData.EqpListData eqpListData = gameManager.itemData.eqpList.Find(eqp => eqp.ID == int.Parse(itemID));
-        ItemData.WpnListData wpnListData = gameManager.itemData.wpnList.Find(wpn => wpn.ID == int.Parse(itemID));
-        ItemData.RuneListData runeListData = gameManager.itemData.runeList.Find(rune => rune.ID == int.Parse(itemID));
+        ItemData.EqpListData eqpListData = gameManager.itemData.eqpList.Find(eqp => eqp.ID == itemID);
+        ItemData.WpnListData wpnListData = gameManager.itemData.wpnList.Find(wpn => wpn.ID == itemID);
+        ItemData.RuneListData runeListData = gameManager.itemData.runeList.Find(rune => rune.ID == itemID);
         // itemIDがeqpListDataのIDと一致する場合
         string itemName = "";
         int itemPrice = 0;
@@ -513,14 +573,10 @@ public class ShopManager : MonoBehaviour
         // infoTextに"Are you sure you want to sell \n\n" + itemName(ボールド) + "\n\n for " + itemPrice / 2(ボールド黄色) + " gold?"を表示
         string text = "Are you sure you want to sell \n\n<b>" + itemName + "</b>\n\n for <color=yellow><b>" + itemPrice / 2 + "</b></color> gold?";
         UpdateInfoPanel(text,true); // キャンセルボタンも表示する
-        // OK、Cancelフラグの初期化
-        isMethodOKExecuted = false;
-        isMethodCancelExecuted = false;
-        // OnClickOKButtonかOnClickCancelButtonが押されるまで待ってOKなら売る
-        StartCoroutine(SubmitSell(sellObject, int.Parse(itemID), itemPrice / 2));
-
+        return itemPrice / 2;
     }
-    public IEnumerator SubmitSell(GameObject sellObject, int itemID, int Price)
+
+    public IEnumerator SubmitSell(List<GameObject> sellObjectList, List<int> itemIDList, int Price)
     {
         // メソッドBまたはメソッドCが実行されるまで待機
         yield return new WaitUntil(() => isMethodOKExecuted || isMethodCancelExecuted);
@@ -528,18 +584,23 @@ public class ShopManager : MonoBehaviour
         // OKボタンが押された場合、アイテムを売る
         if (isMethodOKExecuted)
         {
-            // sellObjectの親オブジェクトがiventryPanelの何番目の子オブジェクトかを取得
-            int index = sellObject.transform.parent.GetSiblingIndex();
-            // iventryItem[index]がitemIDと一致する場合、iventryItem[index]を0に設定
-            if (iventryUI != null)
+            // sellObjectListの要素数分繰り返す
+            for (int i = 0; i < sellObjectList.Count; i++)
             {
-                // 7桁を6桁に変換して比較
-                if (iventryUI.IventryItem[index] / 10 == itemID)
+                // sellObjectの親オブジェクトがiventryPanelの何番目の子オブジェクトかを取得
+                int index = sellObjectList[i].transform.parent.GetSiblingIndex();
+                // iventryItem[index]がitemIDと一致する場合、iventryItem[index]を0に設定
+                if (iventryUI != null)
                 {
-                    iventryUI.IventryItem[index] = 0;
+                    // 7桁を6桁に変換して比較
+                    if (iventryUI.IventryItem[index] / 10 == itemIDList[i])
+                    {
+                        iventryUI.IventryItem[index] = 0;
+                    }
                 }
-                iventryUI.UpdateIventryPanel();
             }
+            // IventryPanelを更新
+            iventryUI.UpdateIventryPanel();
             //goldをPrice分増やす
             statusLog.currentGold += Price;
             // ゴールドと経験値UIを更新
