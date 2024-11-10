@@ -9,20 +9,20 @@ public class JsonDecryptor
     private string key = "A1b2C3d4E5f6G7h8"; // 暗号化に使用したのと同じ鍵
 
     // 暗号化されたJSONファイルを読み込んで復号化し、内容を出力する
-    public string ReadAndDecryptJson(string filePath)
+    public string ReadAndDecryptJson(string fileName)
     {
         try
         {
-            // ファイルの内容を読み込む
-            string encryptedContent = File.ReadAllText(filePath);
+            // Resourcesフォルダから暗号化されたJSONデータを読み込む
+            TextAsset encryptedJson = Resources.Load<TextAsset>("MasterData/" + fileName);
+            if (encryptedJson == null)
+            {
+                Debug.LogError("JSONファイルが見つかりません");
+                return null;
+            }
 
             // AESで復号化
-            string decryptedJson = Decrypt(encryptedContent, key);
-
-            // 復号化された内容をデバッグに出力
-            //Debug.Log("復号化されたJSON内容: " + decryptedJson);
-
-            // 復号化されたJSONを返す
+            string decryptedJson = Decrypt(encryptedJson.text, key);
             return decryptedJson;
         }
         catch (Exception e)

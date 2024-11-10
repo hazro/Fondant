@@ -137,10 +137,8 @@ public class GameManager : MonoBehaviour
     // itemDataを取得するメソッド
     public ItemData GetItemData(string filename)
     {
-        string encryptedJsonFilePath = "Assets/Resources/MasterData/" + filename + ".json";
-
         // 暗号化されたJSONファイルを復号化
-        string decryptedJson = jsonDecryptor.ReadAndDecryptJson(encryptedJsonFilePath);
+        string decryptedJson = jsonDecryptor.ReadAndDecryptJson(filename);
 
         if (!string.IsNullOrEmpty(decryptedJson))
         {
