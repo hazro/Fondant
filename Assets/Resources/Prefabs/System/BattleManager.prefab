@@ -46,6 +46,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackObjectGroup: {fileID: 4435160805563574319}
+  statusLog: {fileID: 11400000, guid: 5b2c1dd4b89c7bf4983b16d0ac2e1a0a, type: 2}
+  expGained: 0
+  goldGained: 0
+  unitDamage: 
+  unitKill: 
+  unitMaxDPS: 
 --- !u!1 &4435160805563574319
 GameObject:
   m_ObjectHideFlags: 0

@@ -75,6 +75,7 @@ public class Unit : MonoBehaviour
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
     private WorldManager worldManager; // WorldManagerの参照
+    private BattleManager battleManager; // BattleManagerの参照
 
     void Start()
     {
@@ -94,6 +95,11 @@ public class Unit : MonoBehaviour
         if (WorldManager.Instance != null)
         {
             worldManager = WorldManager.Instance;
+        }
+        // BattleManagerがあればインスタンスを取得
+        if (BattleManager.Instance != null)
+        {
+            battleManager = BattleManager.Instance;
         }
 
         // Playerの場合はスキルリストの取得
@@ -531,7 +537,7 @@ public class Unit : MonoBehaviour
     }
 
     // HPを減少させるメソッド
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, int attackUnitID)
     {
         // tagがEnemyの場合はダメージを表示する
         if (gameObject.tag == "Enemy")
@@ -546,13 +552,19 @@ public class Unit : MonoBehaviour
             damageText.color = Color.white;
             // ダメージ数値のアニメーションstateを直接再生
             HPBarAnimator.Play("HPBar_damage", 0, 0);
+
+            //// ダメージを記録
+            // BattleManagerがあればインスタンスを取得
+            if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
+            if (battleManager != null)
+            {
+                // unitDamageにダメージを記録
+                battleManager.RecordUnitDamage(attackUnitID - 1, (int)damage);
+            }
         }
 
         currentHp -= damage;
         UpdateHpBar();
-
-        //// ダメージを記録
-        gameManager.statusLog.totalDamage += (int)damage;
 
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
@@ -570,7 +582,7 @@ public class Unit : MonoBehaviour
         {
             live = false;
             currentHp = 0;
-            Die();
+            Die(attackUnitID);
         };
 
     } 
@@ -586,7 +598,7 @@ public class Unit : MonoBehaviour
     }
 
     // HPを回復させるメソッド
-    public void Heal(float amount)
+    public void Heal(float amount, int attackUnitID)
     {
         // 回復値を表示する
         // 値のRectTransformを取得し、PosXとPosYを-10.0~10.0のランダム値に変更
@@ -607,8 +619,17 @@ public class Unit : MonoBehaviour
         }
         UpdateHpBar();
 
-        //// 回復を記録
-        gameManager.statusLog.totalDamage += (int)amount;
+        //// tagがAllyであれば回復を記録
+        if (gameObject.tag == "Ally")
+        {
+            // BattleManagerがあればインスタンスを取得
+            if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
+            if (battleManager != null)
+            {
+                // unitDamageにダメージを記録
+                battleManager.RecordUnitDamage(attackUnitID - 1, (int)amount);
+            }
+        }
 
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
@@ -618,7 +639,7 @@ public class Unit : MonoBehaviour
     }
 
     // ユニットが死亡したら呼び出されるメソッド
-    public void Die()
+    public void Die(int attackUnitID)
     {
         // コントローラーを無効にする前に攻撃を停止
         StopAttack();
@@ -639,8 +660,13 @@ public class Unit : MonoBehaviour
             gameManager.AddGold(enemyListData.dropGold);
 
             //// 獲得経験値とGoldを記録
-            gameManager.statusLog.expGained += enemyListData.dropExp;
-            gameManager.statusLog.goldGained += enemyListData.dropGold;
+            // BattleManagerがあればインスタンスを取得
+            if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
+            if (battleManager != null)
+            {
+                battleManager.expGained += enemyListData.dropExp;
+                battleManager.goldGained += enemyListData.dropGold;
+            }
 
             // 現在のワールドidを取得
             int currentWorldId = worldManager.currentWorld;
@@ -693,7 +719,14 @@ public class Unit : MonoBehaviour
             gameManager.enemyCount--;
 
             //// 敵を倒した数を記録
-            gameManager.statusLog.totalKill++;
+            // BattleManagerがあればインスタンスを取得
+            if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
+            if (battleManager != null)
+            {
+                // unitDamageにダメージを記録
+                // 誰によって倒されたかを記録
+                battleManager.RecordUnitKill(attackUnitID - 1);
+            }
 
             // Enemmyが全滅したら勝利演出を行う
             if (gameManager.enemyCount == 0)
@@ -702,6 +735,12 @@ public class Unit : MonoBehaviour
                 foreach (GameObject player in gameManager.livingUnits)
                 {
                     player.GetComponent<Unit>().StopAttack();
+                }
+                // バトル終了処理
+                if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
+                if (battleManager != null)
+                {
+                    battleManager.OnBattleEnd();
                 }
 
                 gameManager.victory(gameObject);
@@ -757,6 +796,12 @@ public class Unit : MonoBehaviour
             foreach (GameObject enemy in enemies)
             {
                 Destroy(enemy);
+            }
+            // バトル終了処理
+            if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
+            if (battleManager != null)
+            {
+                battleManager.OnBattleEnd();
             }
             gameManager.LoadScene("GameOverScene"); // ゲームオーバーシーンに遷移
         }

@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class ProjectileBehavior : MonoBehaviour
 {
+    [HideInInspector] public int unitID; // 発射元のユニットID
     private Vector2 moveDirection;
     private float moveSpeed;
     private int remainingCharThrough;
@@ -110,6 +111,7 @@ public class ProjectileBehavior : MonoBehaviour
     /// </summary>
     public void Initialize(
         // 必須パラメータ
+        int unitID, // 死亡時にステータスログに記録するためのユニットID
         Vector2 direction, 
         float adjustedLifetime, 
         string shooterTag, 
@@ -131,6 +133,7 @@ public class ProjectileBehavior : MonoBehaviour
         StatusEffect? statusEffect = null
         )
     {
+        this.unitID = unitID;
         this.moveDirection = direction.normalized;
         this.moveSpeed = attackSpeed;
         this.lifetime = lifetime * adjustedLifetime;
@@ -363,12 +366,12 @@ public class ProjectileBehavior : MonoBehaviour
 
                 if (totalDamage > 0)
                 {
-                    targetUnit.TakeDamage(totalDamage);
+                    targetUnit.TakeDamage(totalDamage, unitID);
                 }
 
                 if (totalHealing > 0)
                 {
-                    targetUnit.Heal(totalHealing);
+                    targetUnit.Heal(totalHealing, unitID);
                 }
             }
             // 通過回数を減らす

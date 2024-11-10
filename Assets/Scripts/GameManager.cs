@@ -242,8 +242,6 @@ public class GameManager : MonoBehaviour
             {
                 statusLog.UnitTotalDamage[i] = 0; // ユニットごとの累計ダメージをリセット
                 statusLog.UnitTotalKill[i] = 0; // ユニットごとの累計キル数をリセット
-                statusLog.unitDPS[i] = 0; // ユニットごとのDPSをリセット
-                statusLog.unitDamage[i] = 0; // ユニットごとのダメージをリセット
             }
             statusLog.expGained = 0; // 獲得経験値をリセット
             //statusLog.goldGained = 0; // 獲得ゴールドをリセット
@@ -691,18 +689,63 @@ public class GameManager : MonoBehaviour
         {
             if(i == 0 )
             {
-                // expGaindを入力
+                // battleEXPを入力
                 victoryTexts[i].text = statusLog.expGained.ToString();
             }
             else if(i == 1)
             {
-                // goldGainedを入力
+                // BattleGoldを入力
                 victoryTexts[i].text = statusLog.goldGained.ToString();
             }
             else if(i == 2)
             {
-                // totalDamageを入力
-                victoryTexts[i].text = statusLog.totalDamage.ToString();
+                // P1 の　unitDamageを入力
+                victoryTexts[i].text = statusLog.unitDamage[0].ToString();
+            }
+            else if(i == 3)
+            {
+                // P1 の unitDPSを入力
+                victoryTexts[i].text = statusLog.unitDPS[0].ToString();
+            }
+            else if(i == 4)
+            {
+                // P2 の　unitDamageを入力
+                victoryTexts[i].text = statusLog.unitDamage[1].ToString();
+            }
+            else if(i == 5)
+            {
+                // P2 の unitDPSを入力
+                victoryTexts[i].text = statusLog.unitDPS[1].ToString();
+            }
+            else if(i == 6)
+            {
+                // P3 の　unitDamageを入力
+                victoryTexts[i].text = statusLog.unitDamage[2].ToString();
+            }
+            else if(i == 7)
+            {
+                // P3 の unitDPSを入力
+                victoryTexts[i].text = statusLog.unitDPS[2].ToString();
+            }
+            else if(i == 8)
+            {
+                // P4 の　unitDamageを入力
+                victoryTexts[i].text = statusLog.unitDamage[3].ToString();
+            }
+            else if(i == 9)
+            {
+                // P4 の unitDPSを入力
+                victoryTexts[i].text = statusLog.unitDPS[3].ToString();
+            }
+            else if(i == 10)
+            {
+                // P5 の　unitDamageを入力
+                victoryTexts[i].text = statusLog.unitDamage[4].ToString();
+            }
+            else if(i == 11)
+            {
+                // P5 の unitDPSを入力
+                victoryTexts[i].text = statusLog.unitDPS[4].ToString();
             }
         }
     }

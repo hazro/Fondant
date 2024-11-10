@@ -36,6 +36,10 @@ public class UnitController : MonoBehaviour
     public float approachRange = 0.3f; // 近づきすぎたら止まる範囲
     [Range(0, 100)] public float followWeight = 99f; // 追従移動の反映ウェイト（%）
 
+    // Unit同士の接触回避のための設定
+    //private float lastAvoidanceCheckTime; // 最後に回避チェックを行った時間
+    //private float avoidanceCheckInterval = 0.1f; // チェック間隔（秒）
+
     [Header("攻撃モード設定")]
     public bool enableAttackStance = false; // 攻撃モードの有効化
     public float attackStanceDuration = 10.0f; // 攻撃モードでその場にとどまる時間（秒）
@@ -522,6 +526,17 @@ public class UnitController : MonoBehaviour
         float clampedY = Mathf.Clamp(position.y, minScreenBounds.y, maxScreenBounds.y);
 
         Vector2 clampedPosition = new Vector2(clampedX, clampedY);
+        
+        /*
+        // Unitの回避チェックの間隔が経過していない場合は早期リターン
+        if (Time.time - lastAvoidanceCheckTime < avoidanceCheckInterval)
+        {
+            return clampedPosition; // 前回チェックしてから十分な時間が経過していない場合は回避処理を行わない
+        }
+
+        // 回避チェックを行った時間を更新
+        lastAvoidanceCheckTime = Time.time;
+        */
 
         // **障害物チェック（最優先）**
         float checkRadius = 0.1f; // 進入不可のチェックに使用する半径
@@ -549,9 +564,17 @@ public class UnitController : MonoBehaviour
                 // 自分自身を含まないように除外
                 if (col.gameObject != this.gameObject && col.CompareTag(tag))
                 {
+                    
                     // タグを持つオブジェクトを回避する処理
                     Vector2 directionAway = (clampedPosition - (Vector2)col.bounds.center).normalized;
                     clampedPosition += directionAway * avoidRadius;
+
+                    // スムージングを適用して、急な移動を防ぐ
+                    //Vector2 smoothedAvoidanceDirection = Vector2.Lerp(clampedPosition, clampedPosition + directionAway * avoidRadius, 0.5f);
+                    //clampedPosition = smoothedAvoidanceDirection;
+                    
+                    // 一旦ぶつかったら回避せずにその場で止まるようにした
+                    //clampedPosition = (Vector2)transform.position;
 
                     if (showDebugInfo)
                     {

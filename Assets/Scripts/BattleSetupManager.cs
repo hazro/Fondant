@@ -278,8 +278,7 @@ public class BattleSetupManager : MonoBehaviour
             }
         }
 
-
-        // 自動戦闘を開始する
-        BattleManager.Instance.StartAutoBattle();
+        // バトル開始時の初期化処理を実行
+        BattleManager.Instance.OnBattleStart();
     }
 }

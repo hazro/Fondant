@@ -457,6 +457,7 @@ public class AttackController : MonoBehaviour
 
         // ProjectileBehaviorの初期化
         projectileBehavior.Initialize(
+            unit.ID,
             dir,
             adjustedLifetime,
             gameObject.tag,
