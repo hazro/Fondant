@@ -39,6 +39,8 @@ public class UnitController : MonoBehaviour
     // Unit同士の接触回避のための設定
     //private float lastAvoidanceCheckTime; // 最後に回避チェックを行った時間
     //private float avoidanceCheckInterval = 0.1f; // チェック間隔（秒）
+    private bool isAvoiding = false; // 回避中かどうかのフラグ
+    private Vector2 avoidanceDirection; // 回避方向を記憶する
 
     [Header("攻撃モード設定")]
     public bool enableAttackStance = false; // 攻撃モードの有効化
@@ -152,6 +154,21 @@ public class UnitController : MonoBehaviour
         {
             SetClosestTarget();
             lastTargetUpdateTime = Time.time;
+        }
+
+        // 回避中の場合、回避方向に移動する
+        if (isAvoiding)
+        {
+            newPosition = currentPosition + avoidanceDirection * movementSpeed * Time.deltaTime;
+            newPosition = KeepWithinCameraBounds(newPosition);
+            transform.position = newPosition;
+
+            // 一定距離進んだら回避終了
+            if (Vector2.Distance(currentPosition, transform.position) < 0.3f)
+            {
+                isAvoiding = false;
+            }
+            return; // 回避中は通常の追従処理をスキップ
         }
 
         if (randomWalker != null)
@@ -512,6 +529,7 @@ public class UnitController : MonoBehaviour
 
     /// <summary>
     /// ユニットをカメラの範囲内に留め、Obstacleレイヤーが設定されたオブジェクトの範囲に進入不可にするメソッドです。
+    /// また、EnemyやAllyタグを持つオブジェクトの範囲に入った場合は、回避方向に移動します。
     /// </summary>
     private Vector2 KeepWithinCameraBounds(Vector2 position)
     {
@@ -552,8 +570,8 @@ public class UnitController : MonoBehaviour
             return (Vector2)transform.position; // 障害物がある場合は現在の位置を維持
         }
 
-        // **EnemyやAllyタグを持つオブジェクトの回避（次に優先）**
-        float avoidRadius = 0.1f; // 回避する範囲
+        // **EnemyやAllyタグを持つオブジェクトの回避**
+        float avoidRadius = 0.1f;
         string[] tagsToAvoid = { "Enemy", "Ally" };
 
         foreach (string tag in tagsToAvoid)
@@ -561,25 +579,15 @@ public class UnitController : MonoBehaviour
             Collider2D[] nearbyObjects = Physics2D.OverlapCircleAll(clampedPosition, avoidRadius);
             foreach (Collider2D col in nearbyObjects)
             {
-                // 自分自身を含まないように除外
                 if (col.gameObject != this.gameObject && col.CompareTag(tag))
                 {
-                    
-                    // タグを持つオブジェクトを回避する処理
-                    Vector2 directionAway = (clampedPosition - (Vector2)col.bounds.center).normalized;
-                    clampedPosition += directionAway * avoidRadius;
-
-                    // スムージングを適用して、急な移動を防ぐ
-                    //Vector2 smoothedAvoidanceDirection = Vector2.Lerp(clampedPosition, clampedPosition + directionAway * avoidRadius, 0.5f);
-                    //clampedPosition = smoothedAvoidanceDirection;
-                    
-                    // 一旦ぶつかったら回避せずにその場で止まるようにした
-                    //clampedPosition = (Vector2)transform.position;
-
+                    avoidanceDirection = (clampedPosition - (Vector2)col.bounds.center).normalized;
+                    isAvoiding = true; // 回避フラグを立てる
                     if (showDebugInfo)
                     {
-                        Debug.Log($"{tag}タグのオブジェクトを回避: {col.name}, 回避先: {clampedPosition}");
+                        Debug.Log($"{tag}タグのオブジェクトを回避: {col.name}, 回避先: {clampedPosition + avoidanceDirection * avoidRadius}");
                     }
+                    return (Vector2)transform.position; // 回避のため現在の位置を維持
                 }
             }
         }
