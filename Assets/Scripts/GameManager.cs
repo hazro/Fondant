@@ -267,6 +267,7 @@ public class GameManager : MonoBehaviour
                 unit.GetComponent<AttackController>().enabled = false;
                 unit.GetComponent<Unit>().ChangeEqpByJob(); // 初期装備に変更
                 unit.GetComponent<Unit>().condition = 0; // 状態異常を解除
+                unit.GetComponent<Unit>().live = true; // 生存状態に変更
                 // subSocketをすべて0にする
                 for (int i = 0; i < unit.GetComponent<Unit>().subSocket.Length; i++)
                 {
@@ -721,6 +722,7 @@ public class GameManager : MonoBehaviour
         unit.GetComponent<Unit>().InitHp();
         // ユニットの状態異常を解除
         unit.GetComponent<Unit>().condition = 0;
+        unit.GetComponent<Unit>().live = true;
         // ユニットのスキルUIを更新
         iventryUI.UpdateUnitSkillUI(unit);
         // ユニットのステータスを更新

@@ -10,7 +10,7 @@ public class Unit : MonoBehaviour
     //public UnitStatus unitStatus;
     public SpriteRenderer unitSprite; // ユニットのスプライト
     private Animator animator; // Animatorコンポーネントの参照
-    private bool live = true; // ユニットが生存しているかどうか
+    public bool live = true; // ユニットが生存しているかどうか
     private int RuneDropChance = 70; // ルーンドロップの確率(%)
     public int ID; // ユニットのID
     public int positionID; // ユニットの位置ID
@@ -565,8 +565,8 @@ public class Unit : MonoBehaviour
         {
             return;
         }
-        // HPが0以下になったら死亡
-        if (currentHp <= 0)
+        // HPが1より低くなったら死亡
+        if (currentHp < 1.0f)
         {
             live = false;
             currentHp = 0;
@@ -662,7 +662,7 @@ public class Unit : MonoBehaviour
                         List<ItemData.RuneListData> worldRuneList = gameManager.itemData.runeList.FindAll(x => x.world != 0 && x.world <= currentWorldId && (x.ID / 100) % 10 != 9);
                         // ルーンドロップの確率に合致した場合はランダムなルーンをドロップ
                         int randomRuneId = UnityEngine.Random.Range(0, worldRuneList.Count);
-                        int dropItem = gameManager.itemData.runeList[randomRuneId].ID;
+                        int dropItem = worldRuneList[randomRuneId].ID;
                         print("****** Rune: " + dropItem + "をドロップ");
                         iventryUI.AddItem(dropItem);
                     }

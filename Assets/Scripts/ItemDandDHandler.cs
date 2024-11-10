@@ -262,11 +262,10 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     }
                 }
 
-                // Sprite名もImage名も取得できない場合、エラーログを出力して元の位置に戻す
+                // Sprite名もImage名も取得できない場合、エラーログを出力して終了
                 if (skillItemID == "" || iventryItemID == "" || socketName == "")
                 {
-                    Debug.LogError("itemID or imageName is null.");
-                    transform.position = originalPosition;
+                    Debug.Log("itemID or imageName is null.");
                     return;
                 }
 

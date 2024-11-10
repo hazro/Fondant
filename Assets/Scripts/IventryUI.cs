@@ -409,6 +409,26 @@ public class IventryUI : MonoBehaviour
                     if(iventryItemID[0] == '1' && skillItemID[0] == '1')
                     {
                         print("武器を入れ替えます");
+                        // skillItemID[2]が1又は3又は4又は6ならば両手持ち武器なので、盾を装備していたら外してイベントリに追加する
+                        if (skillItemID[2] == '1' || skillItemID[2] == '3' || skillItemID[2] == '4' || skillItemID[2] == '6')
+                        {
+                            // イベントリに空きがあるか確認し、空きがなければエラーログを出力して終了
+                            if (Array.IndexOf(IventryItem, 0) == -1)
+                            {
+                                infoPanelText.text = "Tried to remove the shield because it was a two-handed weapon \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
+                                infoPanel.SetActive(true);
+                                OKButton.gameObject.SetActive(true);
+                                cancelButton.gameObject.SetActive(false);
+                                // OKボタンを押したらinfoPanel.SetActive(false)にする;
+                                OKButton.onClick.AddListener(() => infoPanel.SetActive(false));
+                                return;
+                            }
+                            if (unit.currentShields != 0)
+                            {
+                                AddItem(unit.currentShields);
+                                unit.currentShields = 0;
+                            }
+                        }
                         // アイテムIDをunitのcurrentWeaponsに設定
                         unit.currentWeapons = int.Parse(skillItemID);
                     }
@@ -669,6 +689,13 @@ public class IventryUI : MonoBehaviour
     //  ivenrtyItemの指定番号に指定の要素を代入するメソッド
     public void SetItem(int index, int itemID, int itemLv)
     {
+        // itemIDが0ならIventryItem[index]に0を代入(空きのskillPanelにアイテムを移動した場合)
+        if(itemID == 0)
+        {
+            IventryItem[index] = 0;
+            return;
+        }
+        // itemIDが0でなければIventryItem[index]にitemIDとitemLvを代入
         IventryItem[index] = (itemID * 10) + itemLv;
     }
 
