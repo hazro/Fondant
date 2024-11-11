@@ -37,8 +37,8 @@ public class UnitController : MonoBehaviour
     [Range(0, 100)] public float followWeight = 99f; // 追従移動の反映ウェイト（%）
 
     // Unit同士の接触回避のための設定
-    //private float lastAvoidanceCheckTime; // 最後に回避チェックを行った時間
-    //private float avoidanceCheckInterval = 0.1f; // チェック間隔（秒）
+    private float lastAvoidanceCheckTime; // 最後に回避チェックを行った時間
+    private float avoidanceCheckInterval = 0.1f; // チェック間隔（秒）
     private bool isAvoiding = false; // 回避中かどうかのフラグ
     private Vector2 avoidanceDirection; // 回避方向を記憶する
 
@@ -162,6 +162,16 @@ public class UnitController : MonoBehaviour
             newPosition = currentPosition + avoidanceDirection * movementSpeed * Time.deltaTime;
             newPosition = KeepWithinCameraBounds(newPosition);
             transform.position = newPosition;
+
+            // 回避中でも歩行アニメーションを再生
+            string stateName = unit.job.ToString("D2") + "_walk";
+            if (PlayAnimatorStateIfExists(stateName))
+            {
+                animator.Play(stateName);
+            }
+
+            // 回避方向に応じてスプライトの向きを更新
+            UpdateSpriteBasedOnDirection(avoidanceDirection, unitSprite);
 
             // 一定距離進んだら回避終了
             if (Vector2.Distance(currentPosition, transform.position) < 0.3f)
@@ -545,7 +555,6 @@ public class UnitController : MonoBehaviour
 
         Vector2 clampedPosition = new Vector2(clampedX, clampedY);
         
-        /*
         // Unitの回避チェックの間隔が経過していない場合は早期リターン
         if (Time.time - lastAvoidanceCheckTime < avoidanceCheckInterval)
         {
@@ -554,18 +563,17 @@ public class UnitController : MonoBehaviour
 
         // 回避チェックを行った時間を更新
         lastAvoidanceCheckTime = Time.time;
-        */
 
         // **障害物チェック（最優先）**
         float checkRadius = 0.1f; // 進入不可のチェックに使用する半径
-        LayerMask obstacleLayerMask = LayerMask.GetMask("Obstacle");
+        LayerMask obstacleLayerMask = LayerMask.GetMask("Obstacle", "ArenaLimit");
 
         if (Physics2D.OverlapCircle(clampedPosition, checkRadius, obstacleLayerMask))
         {
             // 障害物がある場合はその位置に進入を防止
             if (showDebugInfo)
             {
-                Debug.Log("Obstacle detected, cannot move to position: " + clampedPosition);
+                Debug.Log("Obstacle or ArenaLimit detected, cannot move to position: " + clampedPosition);
             }
             return (Vector2)transform.position; // 障害物がある場合は現在の位置を維持
         }

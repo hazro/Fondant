@@ -52,11 +52,16 @@ Material:
     m_Floats:
     - _BUILTIN_QueueControl: 0
     - _BUILTIN_QueueOffset: 0
+    - _Contrast: 2.35
+    - _NoiseScale: 0.75
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Thickness: 0.03
+    - _Speed: 0.05
+    - _Thickness: 0.01
     - _Tilling: 18.5
-    m_Colors: []
+    m_Colors:
+    - _Color: {r: 0.958, g: 1, b: 1, a: 1}
+    - _GlowColor: {r: 0, g: 0.010000004, b: 0.03, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &4897981037658431110
 MonoBehaviour:

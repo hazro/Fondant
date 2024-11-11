@@ -8,6 +8,7 @@ using UnityEngine;
 public class ProjectileBehavior : MonoBehaviour
 {
     [HideInInspector] public int unitID; // 発射元のユニットID
+    private HashSet<GameObject> hitObjects = new HashSet<GameObject>(); // ヒットしたオブジェクトを追跡するためのセット
     private Vector2 moveDirection;
     private float moveSpeed;
     private int remainingCharThrough;
@@ -39,6 +40,10 @@ public class ProjectileBehavior : MonoBehaviour
     private float maxDistance = 3.0f; // 到達距離(物理攻撃)
     private float lifetime = 1.0f; // 消滅までの時間(魔法攻撃)
     private Vector3 startPosition; // 発生位置
+
+    // スキルの効果
+    [Header("Skill Effects")]
+    [HideInInspector] public bool chainAttackEnabled = false; // チェイン攻撃の有効化
 
     // 発射元のユニット
     public Unit shooterUnit { get; private set; }
@@ -127,7 +132,8 @@ public class ProjectileBehavior : MonoBehaviour
         bool enableSpiralMovement = false, 
         float spiralExpansionSpeed = 1f, 
         float shakeAmplitude = 0f, 
-        bool scaleOverTime = false, 
+        bool scaleOverTime = false,
+        bool chainAttack = false,
         List<Attribute> attributes = null, 
         StatusAilment? statusAilment = null, 
         StatusEffect? statusEffect = null
@@ -148,6 +154,7 @@ public class ProjectileBehavior : MonoBehaviour
         this.pysicalPower = pysicalAttackPower;
         this.magicalPower = magicalAttackPower;
         this.maxDistance = attackDistance;
+        this.chainAttackEnabled = chainAttack;
 
         if (attributes != null)
         {
@@ -236,6 +243,7 @@ public class ProjectileBehavior : MonoBehaviour
         }
         else
         {
+            // 通常の直進移動
             transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
             
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
@@ -301,6 +309,9 @@ public class ProjectileBehavior : MonoBehaviour
     /// <param name="collision">衝突したオブジェクトの情報</param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // ヒットしたオブジェクトをセットに追加
+        hitObjects.Add(collision.gameObject);
+
         // 発射元が設定されていない場合は処理を行わない
         if (shooterUnit == null)
         {
@@ -325,8 +336,15 @@ public class ProjectileBehavior : MonoBehaviour
                 StartCoroutine(FadeOutAndDestroy());
             }
         }
+
+        // 衝突したオブジェクトがArenaLimitタグを持つ場合は消滅する(そこまでしか行けない)
+        else if (collision.CompareTag("ArenaLimit"))
+        {
+            Destroy(gameObject);
+        }
         
         // 発射元のtargetSameTagがfalseであれば発射元のタグと異なる場合、trueであれば発射元のタグと同じ場合の処理
+        // collision
         else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && (targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag))
         {
             // 自分をターゲットにしていないのに自分に当たった場合は無視する
@@ -381,6 +399,52 @@ public class ProjectileBehavior : MonoBehaviour
             {
                 Destroy(gameObject);
                 //StartCoroutine(FadeOutAndDestroy());
+            }
+            // 衝突後消滅しない場合は現在のターゲット以外の一番近い位置にいるターゲットに変更する
+            else
+            {
+                // チェイン攻撃が有効の場合は一番近いターゲットを取得してターゲットを変更する
+                if(chainAttackEnabled)
+                {
+                    // 一番近いターゲットを取得
+                    Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 10f);
+                    float minDistance = Mathf.Infinity;
+                    Transform nearestTarget = null;
+                    foreach (Collider2D col in colliders)
+                    {
+                        // ターゲットが元のターゲットtagと同じ場合のみ処理を行う。元のターゲットと同じオブジェクトの場合や、すでにhitしたオブジェクトは無視する
+                        if ((col.CompareTag("Ally") || col.CompareTag("Enemy")) && (targetUnit.tag == col.tag) && (collision.gameObject != col.gameObject) && !hitObjects.Contains(col.gameObject))
+                        {
+                            float distance = Vector2.Distance(transform.position, col.transform.position);
+                            if (distance < minDistance)
+                            {
+                                minDistance = distance;
+                                nearestTarget = col.transform;
+                            }
+                        }
+                    }
+                    // 一番近いターゲットがいる場合はターゲットを変更する
+                    if (nearestTarget != null)
+                    {
+                        // hitした位置からnearestTargetの方向を取得し、moveDirectionを変更する
+                        moveDirection = (nearestTarget.position - transform.position).normalized;
+                        // followTargetがnullでなければ一番近いターゲットに変更する
+                        if (followTarget != null)
+                        {
+                            followTarget = nearestTarget;
+                        }
+                    }
+                    else
+                    {
+                        // 一番近いターゲットがいない場合は今のmoveDirection方向に直進する
+                        return;
+                    }
+                }
+                else
+                {
+                    // 通常はそのままmoveDirection方向に直進する
+                    return;
+                }
             }
         }
     }

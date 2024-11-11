@@ -40,6 +40,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Canvas uiCanvas; // キャンバスを取得するためのフィールド
 
     [Header("[victoryUI ------------------------ ]")]
+    [SerializeField] private Sprite[] jobFace; // ジョブの顔画像を表示するImage
+    [SerializeField] private Image[] unitFaceImage; // ユニットの顔画像を表示するImage
     [SerializeField] private GameObject victoryUI; // 勝利UI
     [SerializeField] private TextMeshProUGUI[] victoryTexts; // 勝利テキスト
     [SerializeField] private Button nextButton; // 次へボタン
@@ -667,6 +669,12 @@ public class GameManager : MonoBehaviour
             battleManager.DestroyAttackEffects();
         }
         ChangeVictoryText();
+        // 勝利画面の顔画像を変更
+        for (int i = 0; i < unitFaceImage.Length; i++)
+        {
+            int jobID = itemData.jobList.Find(job => job.ID == livingUnits[i].GetComponent<Unit>().job).ID;
+            unitFaceImage[i].sprite = jobFace[jobID];
+        }
         LoadScene("VictoryScene");
     }
 

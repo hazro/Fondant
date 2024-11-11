@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 4296729180112786149}
   - component: {fileID: 2641221445274517754}
   - component: {fileID: 8909920567014080434}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Enemy03
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -86,6 +86,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 5564992563725413622}
+  live: 1
   ID: 0
   positionID: 0
   IventrySkillList: []
@@ -249,10 +250,12 @@ MonoBehaviour:
   scaleUpBlow: 0
   barrageAttack: 0
   speedAttack: 0
+  chainAttack: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
+  wasShootingEnabled: 0
 --- !u!114 &4296729180112786149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -477,12 +480,28 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5845159640445041639}
     m_Modifications:
+    - target: {fileID: 238328601317555411, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 734524608158922082, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 734524608158922082, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1067048847600571333, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2023524130266726229, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3526880788950043773, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4120704663495081078, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
@@ -568,6 +587,18 @@ PrefabInstance:
     - target: {fileID: 5046924127575445051, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
       propertyPath: m_Name
       value: HPCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 5046924127575445051, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7552564599401466627, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8183339429107142003, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

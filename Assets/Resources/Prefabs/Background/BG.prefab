@@ -109,9 +109,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2209230031697885360}
   - component: {fileID: 2503804192191424801}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: block04
-  m_TagString: Obstacle
+  m_TagString: ArenaLimit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -186,9 +186,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2482543860301571236}
   - component: {fileID: 6846015003711128643}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: block02
-  m_TagString: Obstacle
+  m_TagString: ArenaLimit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -601,9 +601,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4604978750135366686}
   - component: {fileID: 1414599853306335232}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: block01
-  m_TagString: Obstacle
+  m_TagString: ArenaLimit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -678,9 +678,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2231516735263125348}
   - component: {fileID: 4729183334247104017}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: block03
-  m_TagString: Obstacle
+  m_TagString: ArenaLimit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -755,8 +755,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7699250131078719342}
   - component: {fileID: 7516499117574560430}
+  - component: {fileID: 3568416965842008534}
   m_Layer: 0
-  m_Name: Square
+  m_Name: GridBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -829,3 +830,24 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &3568416965842008534
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8968889104227944688}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

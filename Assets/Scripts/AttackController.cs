@@ -45,6 +45,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool barrageAttack = false; // 一度の攻撃で発射する回数を設定
     private int numberOfShots = 3; // 一度の攻撃で発射する回数
     [SerializeField] private bool speedAttack = false; // 速撃
+    [SerializeField] private bool chainAttack = false; // 貫通したら近い別の対手をターゲットにする
 
     [Header("Projectile Settings")]
     public GameObject weaponPrefab; // 武器のPrefab
@@ -52,6 +53,8 @@ public class AttackController : MonoBehaviour
     [SerializeField] private Transform targetObject; // 追従するターゲットオブジェクト
     [SerializeField] private Vector2 direction; // 発射方向
 
+    [SerializeField] private float lastAttackStopTime = 0; // 最後に攻撃を停止した時刻
+    private float adjustedDelay; // 攻撃再開までのディレイ時間
     private Coroutine shootingCoroutine; // 攻撃を繰り返すコルーチン
     private bool isShooting; // 攻撃中かどうかのフラグ
     private GameObject attackObjectGroup; // 発射物をまとめるグループオブジェクト
@@ -117,8 +120,8 @@ public class AttackController : MonoBehaviour
             }
             else
             {
-                // EnableAttackStanceがOFFの場合は、攻撃範囲内にいる時攻撃する
-                isShootingEnabled = unitController.InAttackStance || Vector2.Distance(transform.position, targetObject.position) <= unitController.approachRange;
+                // EnableAttackStanceがOFFの場合、攻撃範囲内にいる時のみ攻撃する
+                isShootingEnabled = Vector2.Distance(transform.position, targetObject.position) <= unitController.approachRange;
             }
         }
         else
@@ -126,40 +129,21 @@ public class AttackController : MonoBehaviour
             isShootingEnabled = false;
         }
 
-        // 発射の有効/無効をチェック
-        if (isShootingEnabled != wasShootingEnabled) // 状態が変わったときだけ処理する
+        // 発射の有効/無効をチェック（変更時のみコルーチンを開始・停止）
+        if (isShootingEnabled != wasShootingEnabled)
         {
-            if (isShootingEnabled && shootingCoroutine == null && Time.time - lastAttackStartTime >= attackStartCooldown)
+            if (isShootingEnabled && shootingCoroutine == null && Time.time - lastAttackStopTime >= adjustedDelay)
             {
-                //Debug.Log("攻撃開始");
-                isShooting = true;
-                int weapomAmplitude = 0; // 武器のふり幅の範囲
-                if(weaponPrefab != null)
-                {
-                    // weaponPrefab.nameの上3桁までの数値の違い(111,112,113,114,115,116,117)によって武器のふり幅の範囲をそれぞれ設定
-                    if (weaponPrefab.name.Substring(0, 3) == "111") weapomAmplitude = 60; //大剣
-                    else if (weaponPrefab.name.Substring(0, 3) == "112") weapomAmplitude = 45; //ダガー、槍
-                    else if (weaponPrefab.name.Substring(0, 3) == "113") weapomAmplitude = 60; //斧
-                    else if (weaponPrefab.name.Substring(0, 3) == "114") weapomAmplitude = 5; //長杖
-                    else if (weaponPrefab.name.Substring(0, 3) == "115") weapomAmplitude = 15; //短杖、本
-                    else if (weaponPrefab.name.Substring(0, 3) == "116") weapomAmplitude = 0; //弓
-                    else if (weaponPrefab.name.Substring(0, 3) == "117") weapomAmplitude = 15; //銃、特殊武器
-                }
-                
-                shootingCoroutine = StartCoroutine(ShootProjectile(weapomAmplitude));
-                lastAttackStartTime = Time.time; // 最後に攻撃開始が行われた時間を更新
+                StartShooting();
             }
             else if (!isShootingEnabled && shootingCoroutine != null)
             {
-                //Debug.Log("攻撃停止");
-                if (weaponPrefab != null)
-                {
-                    weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0); // 武器の角度を元に戻す
-                    weaponPrefab.SetActive(false); // weaponPrefabを非アクティブにする
-                }
-                isShooting = false;
-                StopCoroutine(shootingCoroutine);
-                shootingCoroutine = null;
+                StopShooting();
+            }
+            else if (backStep && Vector2.Distance(transform.position, targetObject.position) <= unitController.approachRange)
+            {
+                // backStepで後退後、再び攻撃範囲内に戻ったら攻撃を再開
+                StartShooting();
             }
 
             wasShootingEnabled = isShootingEnabled; // 前回の状態を更新
@@ -171,6 +155,49 @@ public class AttackController : MonoBehaviour
             Vector2 targetDirection = (targetObject.position - transform.position).normalized;
             direction = targetDirection;
         }
+    }
+
+    /// <summary>
+    /// 攻撃を開始するメソッド
+    /// </summary>
+    private void StartShooting()
+    {
+        Debug.Log("攻撃開始: " + gameObject.name);
+        isShooting = true;
+        int weaponAmplitude = 0; // 武器のふり幅の範囲
+
+        if(weaponPrefab != null)
+        {
+            // weaponPrefab.nameの上3桁までの数値の違い(111,112,113,114,115,116,117)によって武器のふり幅の範囲をそれぞれ設定
+            if (weaponPrefab.name.Substring(0, 3) == "111") weaponAmplitude = 60; //大剣
+            else if (weaponPrefab.name.Substring(0, 3) == "112") weaponAmplitude = 45; //ダガー、槍
+            else if (weaponPrefab.name.Substring(0, 3) == "113") weaponAmplitude = 60; //斧
+            else if (weaponPrefab.name.Substring(0, 3) == "114") weaponAmplitude = 5; //長杖
+            else if (weaponPrefab.name.Substring(0, 3) == "115") weaponAmplitude = 15; //短杖、本
+            else if (weaponPrefab.name.Substring(0, 3) == "116") weaponAmplitude = 0; //弓
+            else if (weaponPrefab.name.Substring(0, 3) == "117") weaponAmplitude = 15; //銃、特殊武器
+        }
+
+        shootingCoroutine = StartCoroutine(ShootProjectile(weaponAmplitude));
+        lastAttackStartTime = Time.time; // 最後に攻撃開始が行われた時間を更新
+    }
+
+    /// <summary>
+    /// 攻撃を停止するメソッド
+    /// </summary>
+    private void StopShooting()
+    {
+        Debug.Log("攻撃停止: " + gameObject.name);
+        if (weaponPrefab != null)
+        {
+            weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0); // 武器の角度を元に戻す
+            weaponPrefab.SetActive(false); // weaponPrefabを非アクティブにする
+        }
+        isShooting = false;
+        StopCoroutine(shootingCoroutine);
+        shootingCoroutine = null;
+        lastAttackStopTime = Time.time; // 攻撃停止時刻を更新
+        wasShootingEnabled = true; // 攻撃再開をトリガーするためにフラグを更新
     }
 
     // コールーチンで-範囲～範囲の範囲で武器を振り(RotationZ)、終わったら非アクティブにして元の角度に戻す
@@ -261,6 +288,7 @@ public class AttackController : MonoBehaviour
                 scaleUpBlow = eqpRuneNames.Contains(nameof(scaleUpBlow));
                 barrageAttack = eqpRuneNames.Contains(nameof(barrageAttack));
                 speedAttack = eqpRuneNames.Contains(nameof(speedAttack));
+                chainAttack = eqpRuneNames.Contains(nameof(chainAttack));
                 // 以下同様に設定予定
             }
 
@@ -274,7 +302,7 @@ public class AttackController : MonoBehaviour
             float delayShots = Mathf.Max(maxDelay / (delayBetweenShots + offset), minDelay); //(例)delayBetweenShotsが1より5の方がdelayが短くなる
             // ディレイ時間にランダムな範囲を追加
             if(!delayRandomRangeEnabled) delayRandomRange = 0;
-            float adjustedDelay = delayShots + Random.Range(-delayRandomRange / 2f, delayRandomRange / 2f);
+            adjustedDelay = delayShots + Random.Range(-delayRandomRange / 2f, delayRandomRange / 2f); // ディレイを設定攻撃再開までのディレイ時間にも使用
 
             /////////////////////////////////////////////////////////////////////////
             //// 1, 発射開始位置を決める /////////////////////////////////////////////
@@ -473,7 +501,8 @@ public class AttackController : MonoBehaviour
             spiral,
             spiralExpansionSpeed,
             shakeAmplitude,
-            scaleUpBlow
+            scaleUpBlow,
+            chainAttack
             );
     }
 
