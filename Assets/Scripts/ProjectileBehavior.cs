@@ -215,6 +215,8 @@ public class ProjectileBehavior : MonoBehaviour
         if (followTarget != null)
         {
             followStrength = Mathf.Clamp01(timeSinceLaunch / followIncreaseDuration);
+            // ターゲットに向かう方向を徐々に強化
+            moveDirection = Vector2.Lerp(moveDirection, (followTarget.position - transform.position).normalized, followStrength);
         }
 
         // サインカーブの揺れを左右方向に加える
@@ -234,8 +236,7 @@ public class ProjectileBehavior : MonoBehaviour
         }
         else if (followTarget != null)
         {
-            // ターゲットに向かう方向を徐々に強化
-            moveDirection = Vector2.Lerp(moveDirection, (followTarget.position - transform.position).normalized, followStrength);
+            // ターゲットに向かって移動
             transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
             
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
@@ -243,7 +244,7 @@ public class ProjectileBehavior : MonoBehaviour
         }
         else
         {
-            // 通常の直進移動
+            // followTargetがない場合は直進
             transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
             
             float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
@@ -256,6 +257,7 @@ public class ProjectileBehavior : MonoBehaviour
             transform.localScale *= scaleIncrease;
         }
     }
+
 
     /// <summary>
     /// 発射元のユニットを設定する
@@ -404,7 +406,7 @@ public class ProjectileBehavior : MonoBehaviour
             else
             {
                 // チェイン攻撃が有効の場合は一番近いターゲットを取得してターゲットを変更する
-                if(chainAttackEnabled)
+                if (chainAttackEnabled)
                 {
                     // 一番近いターゲットを取得
                     Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 10f);
@@ -428,10 +430,12 @@ public class ProjectileBehavior : MonoBehaviour
                     {
                         // hitした位置からnearestTargetの方向を取得し、moveDirectionを変更する
                         moveDirection = (nearestTarget.position - transform.position).normalized;
-                        // followTargetがnullでなければ一番近いターゲットに変更する
-                        if (followTarget != null)
+
+                        // followTargetが設定されていない場合はnearestTargetに変更する
+                        if(followTarget != null)
                         {
                             followTarget = nearestTarget;
+                            timeSinceLaunch = 0f; // リセットして追従効果をすぐに適用
                         }
                     }
                     else
@@ -439,11 +443,6 @@ public class ProjectileBehavior : MonoBehaviour
                         // 一番近いターゲットがいない場合は今のmoveDirection方向に直進する
                         return;
                     }
-                }
-                else
-                {
-                    // 通常はそのままmoveDirection方向に直進する
-                    return;
                 }
             }
         }
