@@ -18,6 +18,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private GameObject infoPanel; // 情報パネル
     [SerializeField] private GameObject cancelButton; // キャンセルボタン
     [SerializeField] private TextMeshProUGUI infoText; // 情報表示用テキスト
+    [SerializeField] private TextMeshProUGUI saleText; // セール情報表示用テキスト
     private GameManager gameManager; // ゲームマネージャ
     private WorldManager worldManager; // ワールドマネージャ
     private IventryUI iventryUI; // IventryUIの参照
@@ -41,6 +42,15 @@ public class ShopManager : MonoBehaviour
         }
         if (gameManager != null)
         {
+            if(gameManager.roomOptions.salePercentage != 0)
+            {
+                saleText.text = gameManager.roomOptions.salePercentage + "% ON SALE ! ";
+                saleText.gameObject.SetActive(true);
+            }
+            else
+            {
+                saleText.gameObject.SetActive(false);
+            }
             gameManager.UpdateGoldAndExpUI(); // ゴールドと経験値UIを更新
             // ワールド番号とステージ番号を更新
             gameManager.UpdateWorldStageUI();
@@ -92,7 +102,7 @@ public class ShopManager : MonoBehaviour
                     string itemID = shopItemList[index].Split('_')[0];
                     string itemPrice = shopItemList[index].Split('_')[1];
                     // itemPriceをint型に変換し、totalPriceに加算
-                    totalPrice += int.Parse(itemPrice);
+                    totalPrice += int.Parse(itemPrice) * (100 - gameManager.roomOptions.salePercentage) / 100;
                     // totalPriceTextにtotalPriceを表示
                     totalPriceText.text = "Total: " + totalPrice;
                     // stockItemリストにitemIDを追加
@@ -107,7 +117,7 @@ public class ShopManager : MonoBehaviour
                     string itemID = shopItemList[index].Split('_')[0];
                     string itemPrice = shopItemList[index].Split('_')[1];
                     // itemPriceをint型に変換し、totalPriceを減算
-                    totalPrice -= int.Parse(itemPrice);
+                    totalPrice -= int.Parse(itemPrice) * (100 - gameManager.roomOptions.salePercentage) / 100;;
                     // totalPriceTextにtotalPriceを表示
                     totalPriceText.text = "Total: " + totalPrice;
                     // stockItemリストからitemIDを削除

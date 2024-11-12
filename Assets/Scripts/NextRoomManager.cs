@@ -16,8 +16,7 @@ public class NextRoomManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI room2Text;
     [SerializeField] private TextMeshProUGUI room2InfoText;
 
-    public RoomOptions room1Options; // Room1用のオプション設定
-    public RoomOptions room2Options; // Room2用のオプション設定
+    public RoomOptions roomOptions; // ルームのオプション設定（1つのインスタンスで管理）
 
     private int room1Id = 1;
     private int room2Id;
@@ -27,8 +26,7 @@ public class NextRoomManager : MonoBehaviour
     void Start()
     {
         gameManager = GameManager.Instance;
-        room1Options.ResetOptions();
-        room2Options.ResetOptions();
+        roomOptions.ResetOptions(); // ルームオプションの初期化
 
         roomInfoOptions = new Dictionary<int, string>()
         {
@@ -45,17 +43,20 @@ public class NextRoomManager : MonoBehaviour
         UpdateRoomId();
     }
 
+    /// <summary>
+    /// ルームIDを更新し、各ルームの情報を設定する
+    /// </summary>
     public void UpdateRoomId()
     {
         room1Id = 1;
         List<int> possibleRoom2Ids = new List<int> { 1, 1, 2, 2, 2, 3, 3, 4 };
         room2Id = possibleRoom2Ids[Random.Range(0, possibleRoom2Ids.Count)];
 
-        SetSaleInfo(room1Id, room1Options, room1InfoText);
-        SetSaleInfo(room2Id, room2Options, room2InfoText);
+        SetSaleInfo(room1Id, room1InfoText);
+        SetSaleInfo(room2Id, room2InfoText);
 
-        LoadRoomOptions(room1Id, room1Options, room1InfoText);
-        LoadRoomOptions(room2Id, room2Options, room2InfoText);
+        LoadRoomOptions(room1Id, room1InfoText);
+        LoadRoomOptions(room2Id, room2InfoText);
 
         UpdateRoomUI(room1Id, room1Text);
         UpdateRoomUI(room2Id, room2Text);
@@ -65,12 +66,12 @@ public class NextRoomManager : MonoBehaviour
     /// セール情報を設定するメソッド
     /// ただし、currentRoomEventが0か1の場合はセールを無効にする。
     /// </summary>
-    private void SetSaleInfo(int roomId, RoomOptions options, TextMeshProUGUI infoText)
+    private void SetSaleInfo(int roomId, TextMeshProUGUI infoText)
     {
         if (WorldManager.Instance.GetCurrentRoomEvent() > 1 && Random.value <= 0.3f && roomId != 1)
         {
             infoText.text += "<color=green> 25% Sale! </color>\n";
-            options.salePercentage = 25;
+            roomOptions.salePercentage = 25;
         }
     }
 
@@ -78,8 +79,10 @@ public class NextRoomManager : MonoBehaviour
     /// ルームオプション情報をランダムに設定するメソッド
     /// ただし、currentRoomEventが0か1の場合はオプションを無効にする。
     /// </summary>
-    private void LoadRoomOptions(int roomId, RoomOptions options, TextMeshProUGUI infoText)
+    private void LoadRoomOptions(int roomId, TextMeshProUGUI infoText)
     {
+        roomOptions.ResetOptions(); // ルームオプションのリセット
+
         if (WorldManager.Instance.GetCurrentRoomEvent() > 1 && roomId == 1)
         {
             if (Random.value <= 0.3f)
@@ -88,26 +91,32 @@ public class NextRoomManager : MonoBehaviour
                 if (randomOption <= 6 || Random.value <= 0.3f)
                 {
                     infoText.text += roomInfoOptions[randomOption];
-                    SetRoomFlags(options, randomOption);
+                    SetRoomFlags(randomOption);
                 }
             }
         }
     }
 
-    private void SetRoomFlags(RoomOptions options, int option)
+    /// <summary>
+    /// ルームのオプションフラグを設定するメソッド
+    /// </summary>
+    private void SetRoomFlags(int option)
     {
-        options.monsterDoubleCount = (option == 1 || option == 2);
-        options.itemDropUp = (option == 1 || option == 8);
-        options.runeDropUp = (option == 2 || option == 8);
-        options.doubleExp = (option == 3 || option == 5 || option == 7);
-        options.monsterLevelUp = (option == 3);
-        options.monsterHpUp = (option == 4);
-        options.doubleGold = (option == 4 || option == 6 || option == 7);
-        options.monsterAtkUp = (option == 5);
-        options.monsterDefUp = (option == 6);
-        options.monsterAddTime = (option == 7 || option == 8);
+        roomOptions.monsterDoubleCount = (option == 1 || option == 2);
+        roomOptions.itemDropUp = (option == 1 || option == 8);
+        roomOptions.runeDropUp = (option == 2 || option == 8);
+        roomOptions.doubleExp = (option == 3 || option == 5 || option == 7);
+        roomOptions.monsterLevelUp = (option == 3);
+        roomOptions.monsterHpUp = (option == 4);
+        roomOptions.doubleGold = (option == 4 || option == 6 || option == 7);
+        roomOptions.monsterAtkUp = (option == 5);
+        roomOptions.monsterDefUp = (option == 6);
+        roomOptions.monsterAddTime = (option == 7 || option == 8);
     }
 
+    /// <summary>
+    /// ルームUIのテキストと画像を更新する
+    /// </summary>
     private void UpdateRoomUI(int roomId, TextMeshProUGUI roomText)
     {
         switch (roomId)
@@ -131,16 +140,37 @@ public class NextRoomManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// roomBtn1がクリックされたときの処理
+    /// </summary>
     public void OnRoomBtn1Clicked()
     {
+        ApplyRoomOptions(room1Id, room1InfoText);
         LoadScene(room1Id);
     }
 
+    /// <summary>
+    /// roomBtn2がクリックされたときの処理
+    /// </summary>
     public void OnRoomBtn2Clicked()
     {
+        ApplyRoomOptions(room2Id, room2InfoText);
         LoadScene(room2Id);
     }
 
+    /// <summary>
+    /// クリックされたボタンのルームIDに応じてオプションを適用するメソッド
+    /// </summary>
+    private void ApplyRoomOptions(int roomId, TextMeshProUGUI infoText)
+    {
+        roomOptions.ResetOptions();
+        SetSaleInfo(roomId, infoText);
+        LoadRoomOptions(roomId, infoText);
+    }
+
+    /// <summary>
+    /// クリックされたボタンのルームIDに合わせたシーンに遷移するメソッド
+    /// </summary>
     public void LoadScene(int roomID)
     {
         switch (roomID)

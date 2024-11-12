@@ -16712,6 +16712,7 @@ MonoBehaviour:
   iventryUI: {fileID: 7426015841507224596}
   battleManager: {fileID: 0}
   statusLog: {fileID: 11400000, guid: 5b2c1dd4b89c7bf4983b16d0ac2e1a0a, type: 2}
+  roomOptions: {fileID: 11400000, guid: 4df16bdcc13fc674d9716e52fc55440e, type: 2}
   statusLogPanel: {fileID: 1504629112045232859}
   UnitSkillPanels:
   - {fileID: 5235716527220117285}

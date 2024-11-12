@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private IventryUI iventryUI; // IventryUIのインスタンスを取得するためのフィールド
     [SerializeField] private BattleManager battleManager; // BattleManagerのインスタンスを取得するためのフィールド
 
+    [Header("[Setting Log ------------------------ ]")]
     public StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
+    public RoomOptions roomOptions; // Room用のオプション設定
 
     [SerializeField] private RectTransform statusLogPanel; // ステータスログパネルのRectTransformを取得するためのフィールド
     [SerializeField] private RectTransform[] UnitSkillPanels; // ユニットスキルパネルのRectTransformを取得するためのフィールド

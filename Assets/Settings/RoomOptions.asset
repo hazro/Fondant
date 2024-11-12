@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 830ae1e8ac4dcfc45b50a15f91a7f220, type: 3}
-  m_Name: Room1Options
+  m_Name: RoomOptions
   m_EditorClassIdentifier: 
   salePercentage: 0
   monsterDoubleCount: 0

@@ -29,6 +29,7 @@ public class BlackSmithManager : MonoBehaviour
     
     [Header("Button")]
     [SerializeField] private TextMeshProUGUI PriceText;
+    [SerializeField] private TextMeshProUGUI saleText; // セール情報表示用テキスト
 
     [Header("InfoPanel")]
     [SerializeField] private GameObject infoPanel;
@@ -60,6 +61,17 @@ public class BlackSmithManager : MonoBehaviour
             iventryUI = gameManager.GetComponent<IventryUI>();
             // ステータスインフォメーションの更新
             gameManager.UpdateGoldAndExpUI();
+
+            // セール情報の表示
+            if(gameManager.roomOptions.salePercentage != 0)
+            {
+                saleText.text = gameManager.roomOptions.salePercentage + "% ON SALE ! ";
+                saleText.gameObject.SetActive(true);
+            }
+            else
+            {
+                saleText.gameObject.SetActive(false);
+            }
         }
         // マテリアルをコピーしてインスタンスを生成
         orgImageComponent = OriginalRuneImage.GetComponent<Image>();
@@ -113,6 +125,7 @@ public class BlackSmithManager : MonoBehaviour
             LvUpRuneImage.GetComponent<ItemDandDHandler>().runeLevel = setItemLv + 1;
         }
         price = runeListData.price * 2 * (setItemLv);
+        price *= (100 - gameManager.roomOptions.salePercentage) / 100;
         PriceText.text = "Price: " + price;
 
         // MaterialインスタンスにitemのruneLevelを設定

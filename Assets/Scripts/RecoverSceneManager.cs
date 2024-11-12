@@ -22,6 +22,7 @@ public class RecoverSceneManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI InfoText;
     [SerializeField] private GameObject OKButton;
     [SerializeField] private GameObject CancelButton;
+    [SerializeField] private TextMeshProUGUI saleText; // セール情報表示用テキスト
     private int Price;
     public StatusLog statusLog; // ステータスログのインスタンスを取得するためのフィールド
     [SerializeField] private ParticleSystem unitGlowParticle; // キャラクターの周りに光らせるパーティクル
@@ -32,6 +33,15 @@ public class RecoverSceneManager : MonoBehaviour
     {
         gameManager = GameManager.Instance;
         gameManager.UpdateGoldAndExpUI();
+        if(gameManager.roomOptions.salePercentage != 0)
+        {
+            saleText.text = gameManager.roomOptions.salePercentage + "% ON SALE ! ";
+            saleText.gameObject.SetActive(true);
+        }
+        else
+        {
+            saleText.gameObject.SetActive(false);
+        }
         // InfoPanelを非表示にする
         InfoPanel.SetActive(false);
         OKButton.SetActive(false);
@@ -183,10 +193,12 @@ public class RecoverSceneManager : MonoBehaviour
         if (gameManager.livingUnits[index].GetComponent<Unit>().condition == 1)
         {
             Price = gameManager.livingUnits[index].GetComponent<Unit>().currentLevel * 100;
+            Price *= (100 - gameManager.roomOptions.salePercentage) / 100;
         }
         else if (gameManager.livingUnits[index].GetComponent<Unit>().condition != 0)
         {
             Price = gameManager.livingUnits[index].GetComponent<Unit>().currentLevel * 30;
+            Price *= (100 - gameManager.roomOptions.salePercentage) / 100;
         }
         else
         {
