@@ -419,6 +419,31 @@ public class GameManager : MonoBehaviour
             // 一通り処理終わってからCameraControllerのwhiteoutMaskを非アクティブにする
             //GetComponent<CameraController>().whiteoutMask.SetActive(false);
         }
+        if(sceneName == "RoomSelectScene")
+        {
+
+            statusLogPanel.gameObject.SetActive(true);
+            SceneManager.LoadScene("RoomSelectScene");
+            // ワールド番号とステージ番号を更新
+            UpdateWorldStageUI();
+            iventryUI.SetButtonEnabled(true);
+            // UnitSkillPanelsの要素をすべて非アクティブにする
+            foreach (RectTransform panel in UnitSkillPanels)
+            {
+                panel.gameObject.SetActive(true);
+            }
+
+            // 子オブジェクトの指定のコンポーネントを無効化
+            foreach (GameObject unit in livingUnits)
+            {
+                unit.GetComponent<UnitController>().enabled = false;
+                unit.GetComponent<PlayerDraggable>().enabled = false;
+                unit.GetComponent<AttackController>().enabled = false;
+                // ユニットを画面外に移動
+                unit.transform.position = new Vector3(100.0f,100.0f,0.0f);
+            }
+
+        }
         if(sceneName == "ShopScene")
         {
             // 勝利テキストを非表示
