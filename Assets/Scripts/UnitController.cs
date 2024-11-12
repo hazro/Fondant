@@ -31,6 +31,7 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public bool targetLowHpFirst = false; // 低HPのターゲットを優先するかどうか
 
     [Header("通常移動設定")]
+    private float movementSpeedMulti = 300.0f; // 移動速度の倍率手動で設定
     public float movementSpeed = 1.0f; // 移動速度
     public float followRange = 7.0f; // 追従範囲
     public float approachRange = 0.3f; // 近づきすぎたら止まる範囲
@@ -135,6 +136,13 @@ public class UnitController : MonoBehaviour
         Vector2 currentPosition = transform.position;
         Vector2 newPosition;
         movementSpeed = unit.moveSpeed * 0.3f; // ユニットの移動速度を更新早すぎるのでとりあえずx0.3
+
+        // 前の位置からの移動距離を計算
+        float distanceMoved = Vector2.Distance(previousPosition, currentPosition);
+        
+        // 距離に基づいてアニメーション再生スピードを設定
+        float walkSpeedMultiplier = Mathf.Clamp(distanceMoved * movementSpeedMulti, 0.5f, 2f); // スピードの最小・最大を制限
+        animator.speed = walkSpeedMultiplier;
 
         // 攻撃モードが有効の場合の処理
         if (enableAttackStance)

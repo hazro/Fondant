@@ -11,12 +11,15 @@ public class SceneSelectorWindow : EditorWindow
     private List<string> scenePaths = new List<string>();
     private bool loadTargetSceneOnPlay = false;
     private string targetScenePath;
+    private const string gameStartScenePath = "Assets/Scenes/GameStartScene.unity";
+
+    private Vector2 scrollPosition; // スクロール位置
 
     [MenuItem("Window/Scene Selector")]
     public static void ShowWindow()
     {
         var window = GetWindow<SceneSelectorWindow>("Scene Selector");
-        window.position = new Rect(100, 100, 250, 60);
+        window.position = new Rect(100, 100, 250, 450); // UIの縦のサイズを1.5倍に設定
     }
 
     private void OnEnable()
@@ -59,20 +62,24 @@ public class SceneSelectorWindow : EditorWindow
             {
                 if (selectedSceneIndex >= 0 && selectedSceneIndex < scenePaths.Count)
                 {
-                    // 保存確認のポップアップを表示
-                    if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-                    {
-                        // ユーザーが保存を選択した場合
-                        OpenStartSceneAndPlay();
-                    }
-                    else
-                    {
-                        // ユーザーが保存せずに再生する場合
-                        Debug.Log("ユーザーは保存せずに続行を選択しました。");
-                        OpenStartSceneAndPlay();
-                    }
+                    OpenStartSceneAndPlayWithSavePrompt();
                 }
             }
+
+            // ビルド設定に登録されたシーン一覧をスクロールバー付きで表示
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Scenes in Build Settings:", EditorStyles.boldLabel);
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(250));
+
+            for (int i = 0; i < sceneNames.Count; i++)
+            {
+                if (GUILayout.Button(sceneNames[i], EditorStyles.miniButton))
+                {
+                    OpenSceneWithSavePrompt(scenePaths[i]);
+                }
+            }
+
+            EditorGUILayout.EndScrollView();
         }
         else
         {
@@ -80,26 +87,61 @@ public class SceneSelectorWindow : EditorWindow
         }
     }
 
-    private void OpenStartSceneAndPlay()
+    private void OpenStartSceneAndPlayWithSavePrompt()
     {
-        // まず"GameStartScene"をロード
-        EditorSceneManager.OpenScene("Assets/Scenes/GameStartScene.unity");
+        // 保存確認のポップアップ
+        if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            // "GameStartScene"をロード
+            EditorSceneManager.OpenScene(gameStartScenePath);
 
-        // 次に開くシーンのパスを保存し、再生モードが開始されたらロードする
-        targetScenePath = scenePaths[selectedSceneIndex];
-        loadTargetSceneOnPlay = true;
+            // 次に開くシーンのパスを保存し、再生モードが開始されたらロードする
+            targetScenePath = scenePaths[selectedSceneIndex];
+            loadTargetSceneOnPlay = true;
 
-        // 再生モードに入る
-        EditorApplication.isPlaying = true;
+            // 再生モードに入る
+            EditorApplication.isPlaying = true;
+        }
+        else
+        {
+            Debug.Log("ユーザーは保存せずに続行を選択しました。");
+            EditorSceneManager.OpenScene(gameStartScenePath);
+            targetScenePath = scenePaths[selectedSceneIndex];
+            loadTargetSceneOnPlay = true;
+
+            EditorApplication.isPlaying = true;
+        }
+    }
+
+    private void OpenSceneWithSavePrompt(string scenePath)
+    {
+        if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+        {
+            EditorSceneManager.OpenScene(scenePath);
+        }
+        else
+        {
+            EditorSceneManager.OpenScene(scenePath);
+            Debug.Log("User chose to open the scene without saving the current changes.");
+        }
     }
 
     private void OnPlayModeChanged(PlayModeStateChange state)
     {
-        // 再生モードに入った際に、"GameStartScene"から選択されたシーンに遷移
         if (state == PlayModeStateChange.EnteredPlayMode && loadTargetSceneOnPlay)
         {
-            // 選択シーンをロードし、フラグをリセット
-            EditorSceneManager.LoadSceneAsyncInPlayMode(targetScenePath, new LoadSceneParameters(LoadSceneMode.Single));
+            AsyncOperation asyncLoad = EditorSceneManager.LoadSceneAsyncInPlayMode(targetScenePath, new LoadSceneParameters(LoadSceneMode.Single));
+            asyncLoad.completed += (operation) =>
+            {
+                if (asyncLoad.isDone)
+                {
+                    Debug.Log("Target scene loaded successfully.");
+                }
+                else
+                {
+                    Debug.LogError("Failed to load the target scene.");
+                }
+            };
             loadTargetSceneOnPlay = false;
         }
     }
