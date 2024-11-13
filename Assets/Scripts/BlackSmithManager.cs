@@ -125,7 +125,11 @@ public class BlackSmithManager : MonoBehaviour
             LvUpRuneImage.GetComponent<ItemDandDHandler>().runeLevel = setItemLv + 1;
         }
         price = runeListData.price * 2 * (setItemLv);
-        price *= (100 - gameManager.roomOptions.salePercentage) / 100;
+        if(gameManager == null) gameManager = GameManager.Instance; 
+        if(gameManager != null && gameManager.roomOptions.salePercentage != 0)
+        {
+            price = price * (100 - gameManager.roomOptions.salePercentage) / 100;
+        }
         PriceText.text = "Price: " + price;
 
         // MaterialインスタンスにitemのruneLevelを設定

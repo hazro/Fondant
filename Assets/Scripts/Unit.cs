@@ -316,8 +316,12 @@ public class Unit : MonoBehaviour
         if (gameObject.tag == "Enemy")
         {
             currentLevel += (worldManager.currentWorld - 1) * 3;
-            // HpTextにUnitNameとレベルを表示
-            hpText.text = unitName + "  Lv." + currentLevel;
+
+            // gameManagerのroomOptionsのmonsterLevelUpがtrueの場合はモンスターのレベルを1上げる
+            if (gameManager.roomOptions.monsterLevelUp)
+            {
+                currentLevel++;
+            }
         }
 
         // 次のレベルに必要な経験値を計算
@@ -368,6 +372,27 @@ public class Unit : MonoBehaviour
             magicalDefensePower *= 2;
             moveSpeed /= 2;
             attackDelay /= 2;
+        }
+
+        // Ememytagの場合、
+        if (gameObject.tag == "Enemy")
+        {
+            // gameManagerのroomOptionsのmonsterHpUpがtrueの場合はモンスターのHPを1.5倍にする
+            if(gameManager.roomOptions.monsterHpUp) Hp *= 1.5f;
+            // gameManagerのroomOptionsのmonsterAtkUpがtrueの場合はモンスターの物理＆魔法攻撃力を1.5倍にする
+            if(gameManager.roomOptions.monsterAtkUp)
+            {
+                physicalAttackPower *= 1.5f;
+                magicalAttackPower *= 1.5f;
+            }
+            // gameManagerのroomOptionsのmonsterDefUpがtrueの場合はモンスターの物理＆魔法防御力を1.5倍にする
+            if(gameManager.roomOptions.monsterDefUp)
+            {
+                physicalDefensePower *= 1.5f;
+                magicalDefensePower *= 1.5f;
+            }
+            // HpTextにUnitNameとレベルを表示
+            hpText.text = unitName + "  Lv." + currentLevel;
         }
 
         // HPの初期化
@@ -656,8 +681,13 @@ public class Unit : MonoBehaviour
             ItemData.EnemyListData enemyListData = gameManager.itemData.enemyList.Find(x => x.ID == unitId);
 
             // Drop経験値&Goldを加算
-            gameManager.AddExperience(enemyListData.dropExp);
-            gameManager.AddGold(enemyListData.dropGold);
+            int dropExp = enemyListData.dropExp;
+            if(gameManager.roomOptions.doubleExp) dropExp *= 2;
+            gameManager.AddExperience(dropExp);
+
+            int dropGold = enemyListData.dropGold;
+            if (gameManager.roomOptions.doubleGold) dropGold *= 2;
+            gameManager.AddGold(dropGold);
 
             //// 獲得経験値とGoldを記録
             // BattleManagerがあればインスタンスを取得
@@ -682,6 +712,8 @@ public class Unit : MonoBehaviour
                     // Runeをドロップする
                     // ルーンドロップの確率を計算
                     int runeDropRate = UnityEngine.Random.Range(0, 100);
+                    // gameManagerのroomOptionsのruneDropUpがtrueの場合はルーンドロップ確率を2倍にする
+                    if (gameManager.roomOptions.runeDropUp) RuneDropChance *= 2;
                     if (runeDropRate < RuneDropChance)
                     {
                         // ルーンドロップの確率に合致した場合はruneList.worldが0でなく、さらにcurrentWorld以下のランダムなルーンをドロップ
@@ -697,20 +729,22 @@ public class Unit : MonoBehaviour
 
 
             // Dropアイテムをドロップする
+            // Drop確率を2倍にするかどうか (gameManagerのroomOptionsのitemDropUpがtrueの場合はint itemDropUp=2、そうでない場合はint itemDropUp=1)
+            int itemDropUp = gameManager.roomOptions.itemDropUp ? 2 : 1;
             float dropRate = UnityEngine.Random.Range(1.0f, 10.0f);
-            if (dropRate < enemyListData.drop1Rate)
+            if (dropRate < enemyListData.drop1Rate * itemDropUp)
             {
                 print("****** " + enemyListData.drop1 + "をドロップ");
                 iventryUI.AddItem(enemyListData.drop1);
             }
             dropRate = UnityEngine.Random.Range(1.0f, 10.0f);
-            if (dropRate < enemyListData.drop2Rate)
+            if (dropRate < enemyListData.drop2Rate * itemDropUp)
             {
                 print("****** " + enemyListData.drop2 + "をドロップ");
                 iventryUI.AddItem(enemyListData.drop2);
             }
             dropRate = UnityEngine.Random.Range(1.0f, 10.0f);
-            if (dropRate < enemyListData.drop3Rate)
+            if (dropRate < enemyListData.drop3Rate * itemDropUp)
             {
                 print("****** " + enemyListData.drop3 + "をドロップ");
                 iventryUI.AddItem(enemyListData.drop3);
@@ -731,19 +765,12 @@ public class Unit : MonoBehaviour
             // Enemmyが全滅したら勝利演出を行う
             if (gameManager.enemyCount == 0)
             {
-                // player全員の攻撃を停止
-                foreach (GameObject player in gameManager.livingUnits)
-                {
-                    player.GetComponent<Unit>().StopAttack();
-                }
                 // バトル終了処理
                 if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
                 if (battleManager != null)
                 {
                     battleManager.OnBattleEnd();
                 }
-
-                gameManager.victory(gameObject);
             }
             else
             {

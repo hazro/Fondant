@@ -148,19 +148,14 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     /// <param name="eventData">ドラッグイベントのデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("OnBeginDrag");
-        Debug.Log("currentSceneName: " + currentSceneName);
-        Debug.Log("gameObject.tag: " + gameObject.tag);
         // バトルセットアップシーン以外ではドラッグを無効化
         if (currentSceneName != "BattleSetupAScene" && currentSceneName !="BattleSetupBScene") return;
         // tagがEnemyの場合はドラッグを無効化
         if (gameObject.CompareTag("Enemy")) return;
-        Debug.Log("OnBeginDrag2");
         
         startPos = transform.position;
         isDragging = true;
         originalSortingOrder = unitSprite.sortingOrder;
-        Debug.Log("OnBeginDrag3");
 
         SetSpriteTransparency(0.5f); // 透明度を半分に設定
     }

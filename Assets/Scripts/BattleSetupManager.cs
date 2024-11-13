@@ -5,12 +5,14 @@ using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.Animations;
 
 /// <summary>
 /// 自動戦闘の準備をするクラス
 /// </summary>
 public class BattleSetupManager : MonoBehaviour
 {
+
     public Button startBattleButton; // 戦闘開始ボタン
     public Transform enemyGridPoint; // 敵キャラクター配置用のグリッドポイント
     public Transform PlayerGridPoint; // プレイヤーキャラクター配置用のグリッドポイント
@@ -30,6 +32,9 @@ public class BattleSetupManager : MonoBehaviour
         gameManager = GameManager.Instance;
         // WorldManagerのインスタンスを動的に取得
         worldManager = WorldManager.Instance;
+        // battleManagerのインスタンスを取得
+        BattleManager battleManager = BattleManager.Instance;
+        
         // 現在のルームイベントが0の場合、1に設定
         if (worldManager.currentRoomEvent == 0)
         {
@@ -54,6 +59,17 @@ public class BattleSetupManager : MonoBehaviour
         {
             unit.GetComponent<PlayerDraggable>().LookAtNearestTarget();
         }
+        // enemyGridPointをunparentする
+        enemyGridPoint.SetParent(null);
+        // enemyGridPointが消えないようにする
+        DontDestroyOnLoad(enemyGridPoint.gameObject);
+        // battleManagerのenemyGridPointにenemyGridPointを渡す
+        battleManager.enemyGridPoint = enemyGridPoint;
+        // enemyGridPointの子オブジェクトをすべて取得し、positionConstraintを無効にする
+        foreach (Transform child in enemyGridPoint)
+        {
+            child.GetComponent<PositionConstraint>().enabled = false;
+        }
 
         // 戦闘開始ボタンがクリックされたときの処理を設定
         startBattleButton.onClick.AddListener(OnStartBattleButtonClicked);
@@ -73,6 +89,8 @@ public class BattleSetupManager : MonoBehaviour
             enemyGroup = enemyGroupObj.transform;
             // gameManagerのenemyGroupにenemyGroupを設定
             gameManager.enemyGroup = enemyGroupObj;
+            // battleManagerのenemyGroupにenemyGroupを設定
+            BattleManager.Instance.enemyGroup = enemyGroupObj.transform;
 
             // 次のシーンに持っていくために、DontDestroyOnLoadを設定
             DontDestroyOnLoad(enemyGroupObj);
@@ -107,12 +125,20 @@ public class BattleSetupManager : MonoBehaviour
             gridPositions.Add(enemyGridPoint.GetChild(i));
         }
 
+        // gameManager.RoomOptionsからモンスターの出現数が2倍になるかどうかを取得
+        bool monsterDoubleCount = gameManager.roomOptions.monsterDoubleCount;
+
         // 敵キャラクターのスポーン設定を集める
         // それぞれのスポーン設定に対して、最小数から最大数までのランダムな数の敵を生成
         Dictionary<ItemData.EnemySpawnSettingsData, int> enemyCounts = new Dictionary<ItemData.EnemySpawnSettingsData, int>();
         foreach (var spawnSetting in worldEnemySpawn)
         {
             int enemyCount = Random.Range(spawnSetting.minCount, spawnSetting.maxCount + 1);
+            // モンスターの出現数が2倍の場合、敵の数を2倍にする
+            if (monsterDoubleCount)
+            {
+                enemyCount *= 2;
+            }
             enemyCounts[spawnSetting] = enemyCount;
         }
 
@@ -281,4 +307,6 @@ public class BattleSetupManager : MonoBehaviour
         // バトル開始時の初期化処理を実行
         BattleManager.Instance.OnBattleStart();
     }
+
+
 }

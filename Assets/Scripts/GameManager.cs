@@ -13,8 +13,14 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    [SerializeField] private Texture2D customCursor; // カーソル画像
-    [SerializeField] private Vector2 hotspot = Vector2.zero; // カーソルの中心位置
+
+    [Header("[Cursor Setting ------------------------ ]")]
+    public Texture2D customCursor;               // カーソルのテクスチャ
+    [Range(1.0f, 3.0f)]
+    public float cursorScale = 1.0f;             // カーソルのスケール
+    private float previousCursorScale = 1.0f;    // 前回のスケール値
+    private Texture2D scaledCursor;              // スケール済みのカーソルテクスチャ
+    [Header("------------------------ ]")]
     private JsonDecryptor jsonDecryptor; // JsonDecryptorクラスのインスタンスを取得するためのフィールド
     public ItemData itemData; // デシリアライズしたデータを格納するクラス
     public List<GameObject> playerUnits = new List<GameObject>(); // プレイヤーユニットのリスト
@@ -90,7 +96,7 @@ public class GameManager : MonoBehaviour
         // DebugSheetをHierarchyに生成
 
         // マウスをカスタムカーソルに変更
-        Cursor.SetCursor(customCursor, hotspot, CursorMode.Auto);
+        UpdateCursor(cursorScale); // 初期カーソル設定
         
         // JsonDecryptorクラスを使用する
         jsonDecryptor = new JsonDecryptor();
@@ -110,6 +116,19 @@ public class GameManager : MonoBehaviour
         }
         // 他のスクリプトのStartメソッドが完了するまで待機
         StartCoroutine(WaitForStartMethods());
+
+        // RoomOptionsのオプションをリセット
+        roomOptions.ResetOptions();
+    }
+
+    void Update()
+    {
+        // スライダーでカーソルサイズが変更されたら更新
+        if (cursorScale != previousCursorScale)
+        {
+            UpdateCursor(cursorScale);
+            previousCursorScale = cursorScale;
+        }
     }
 
     /// <summary>
@@ -236,6 +255,9 @@ public class GameManager : MonoBehaviour
             worldManager.currentRoomEvent = 0;
             // UIのワールド番号とステージ番号を更新
             UpdateWorldStageUI();
+
+            // RoomOptionsのオプションをリセット
+            roomOptions.ResetOptions();
 
             //// チームステータス関連の初期化
             statusLog.currentGold /= 3; // 街には1/3のゴールドしか持ち帰れない
@@ -687,14 +709,9 @@ public class GameManager : MonoBehaviour
         // ↑の処理が終わったら、次のシーンに遷移
         // enemyGroupを削除
         Destroy(enemyGroup);
-        // 攻撃エフェクトを削除
-        if(battleManager == null){
-            battleManager = BattleManager.Instance;
-        }
-        else
-        {
-            battleManager.DestroyAttackEffects();
-        }
+        enemyCount = 0; // 敵の数をリセット
+
+        // 勝利テキストを変更
         ChangeVictoryText();
         // 勝利画面の顔画像を変更
         for (int i = 0; i < unitFaceImage.Length; i++)
@@ -806,5 +823,48 @@ public class GameManager : MonoBehaviour
         // ユニットのステータスを更新
         unit.GetComponent<Unit>().updateStatus();
     }
+
+    //////////////////////　カーソル関連　//////////////////////////////
+    /// <summary>
+    /// カーソルのサイズを更新するメソッド
+    /// </summary>
+    /// <param name="scale">新しいカーソルのスケール</param>
+    private void UpdateCursor(float scale)
+    {
+        if (customCursor != null)
+        {
+            Vector2 hotSpot = new Vector2(customCursor.width / 2, customCursor.height / 2);
+            scaledCursor = ScaleTexture(customCursor, (int)(customCursor.width * scale), (int)(customCursor.height * scale));
+            Cursor.SetCursor(scaledCursor, hotSpot, CursorMode.Auto);
+        }
+    }
+
+    /// <summary>
+    /// テクスチャを指定のスケールでリサイズするメソッド
+    /// </summary>
+    /// <param name="source">元のテクスチャ</param>
+    /// <param name="targetWidth">リサイズ後の幅</param>
+    /// <param name="targetHeight">リサイズ後の高さ</param>
+    /// <returns>リサイズされたテクスチャ</returns>
+    private Texture2D ScaleTexture(Texture2D source, int targetWidth, int targetHeight)
+    {
+        Texture2D result = new Texture2D(targetWidth, targetHeight, source.format, false);
+        Color[] pixels = source.GetPixels();
+        Color[] newPixels = new Color[targetWidth * targetHeight];
+
+        for (int y = 0; y < targetHeight; y++)
+        {
+            for (int x = 0; x < targetWidth; x++)
+            {
+                newPixels[x + y * targetWidth] = pixels[(int)(x / cursorScale) + (int)(y / cursorScale) * source.width];
+            }
+        }
+
+        result.SetPixels(newPixels);
+        result.Apply();
+        return result;
+    }
+
+    /////////////////////////////////////////////////////////////////
     
 }

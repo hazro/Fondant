@@ -256,6 +256,8 @@ public class ItemData {
         public int maxCount;
         public int preferredColumn;
         public int priority;
+        internal int probability;
+
     }
 
     public List<EnemySpawnSettingsData> enemySpawnSettings = new List<EnemySpawnSettingsData>();

@@ -415,7 +415,6 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             {
                 // 親の親の親の名前の末尾2桁をint型に変換して取得
                 int unitID = int.Parse(gameObject.transform.parent.parent.parent.name.Substring(gameObject.transform.parent.parent.parent.name.Length - 2));
-                Debug.Log("unitID: " + unitID);
                 // gameManager.ItemData.jonListのIDとunit.jobが一致するものを取得し、abilityをtextに代入
                 ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == unitID);
                 if (jobListData != null)

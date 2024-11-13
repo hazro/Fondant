@@ -20,6 +20,6 @@ MonoBehaviour:
   monsterHpUp: 0
   monsterAtkUp: 0
   monsterDefUp: 0
-  monsterAddTime: 0
-  itemDropUp: 0
-  runeDropUp: 0
+  monsterAddTime: 1
+  itemDropUp: 1
+  runeDropUp: 1

@@ -11,6 +11,8 @@ public class UnitController : MonoBehaviour
     [SerializeField] private SpriteRenderer unitSprite;
     private Animator animator; // Animatorコンポーネントの参照
 
+    public bool isMoving = true; // 移動を制御するフラグ
+
     // 各種設定を保持するフィールド
     [Header("Debug表示設定")]
     public bool showGizmos = true; // Gizmosの表示を制御するチェックボックス（デフォルトでオフ）
@@ -133,6 +135,8 @@ public class UnitController : MonoBehaviour
     /// </summary>
     void Update()
     {
+        if (!isMoving) return; // 移動フラグが無効の場合は早期リターン
+        
         Vector2 currentPosition = transform.position;
         Vector2 newPosition;
         movementSpeed = unit.moveSpeed * 0.3f; // ユニットの移動速度を更新早すぎるのでとりあえずx0.3

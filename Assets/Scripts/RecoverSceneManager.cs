@@ -193,12 +193,12 @@ public class RecoverSceneManager : MonoBehaviour
         if (gameManager.livingUnits[index].GetComponent<Unit>().condition == 1)
         {
             Price = gameManager.livingUnits[index].GetComponent<Unit>().currentLevel * 100;
-            Price *= (100 - gameManager.roomOptions.salePercentage) / 100;
+            Price = Price * (100 - gameManager.roomOptions.salePercentage) / 100;
         }
         else if (gameManager.livingUnits[index].GetComponent<Unit>().condition != 0)
         {
             Price = gameManager.livingUnits[index].GetComponent<Unit>().currentLevel * 30;
-            Price *= (100 - gameManager.roomOptions.salePercentage) / 100;
+            Price = Price * (100 - gameManager.roomOptions.salePercentage) / 100;
         }
         else
         {

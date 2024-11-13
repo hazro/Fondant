@@ -13,6 +13,16 @@ public class BattleStopManager : MonoBehaviour
         {
             // Updateメソッドを再開
             Time.timeScale = 1;
+            // 敵の移動を再開
+            foreach (Transform enemy in GameManager.Instance.enemyGroup.transform)
+            {
+                enemy.gameObject.GetComponent<UnitController>().isMoving = true;
+            }
+            // プレイヤーの移動を再開
+            foreach (GameObject player in GameManager.Instance.livingUnits)
+            {
+                player.GetComponent<UnitController>().isMoving = true;
+            }
             systemImage.sprite = systemImages[0];
             Debug.Log("Battle Resumed");
         }
@@ -20,8 +30,19 @@ public class BattleStopManager : MonoBehaviour
         {
             // Updateメソッドを停止
             Time.timeScale = 0;
+            // 敵の移動を停止
+            foreach (Transform enemy in GameManager.Instance.enemyGroup.transform)
+            {
+                enemy.gameObject.GetComponent<UnitController>().isMoving = false;
+            }
+            // プレイヤーの移動を停止
+            foreach (GameObject player in GameManager.Instance.livingUnits)
+            {
+                player.GetComponent<UnitController>().isMoving = false;
+            }
             systemImage.sprite = systemImages[1];
             Debug.Log("Battle Stopped");
+
         }
 
     }

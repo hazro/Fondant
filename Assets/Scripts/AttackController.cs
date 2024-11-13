@@ -10,6 +10,7 @@ using static ItemData;
 public class AttackController : MonoBehaviour
 {
     [Header("Options")]
+    [SerializeField] private bool isDebugInfo = false; // デバッグ情報を表示するかどうか
     [SerializeField] private bool isShootingEnabled = false; // 発射を行うかどうか
     [SerializeField] private bool enableEqpSkill = true; // 装備によるskillの発動を有効にするかどうか
     [SerializeField] private bool autoUpdateDirection = true; // ターゲットの方向を自動的に設定するかどうか
@@ -66,14 +67,20 @@ public class AttackController : MonoBehaviour
     private float lastAttackStartTime; // 最後に攻撃開始が行われた時間
     private const float attackStartCooldown = 0.1f; // 攻撃開始のクールダウン時間
     private Vector2 firingPosition; // 発射位置
+    private BattleManager battleManager; // BattleManagerの参照
 
     /// <summary>
     /// 初期化処理。発射物のグループオブジェクトを確認し、必要に応じて作成します。
     /// </summary>
     private void Start()
     {
-        // 攻撃物グループの参照を取得
-        attackObjectGroup = BattleManager.Instance.attackObjectGroup;
+        // BattleManagerの参照を取得
+        BattleManager battleManager = BattleManager.Instance;
+        if (battleManager != null)
+        {
+            // 発射物をまとめるグループオブジェクトを取得
+            attackObjectGroup = battleManager.attackObjectGroup;
+        }
 
         // GameManagerの参照を取得
         gameManager = GameManager.Instance;
@@ -120,7 +127,7 @@ public class AttackController : MonoBehaviour
             }
             else
             {
-                // EnableAttackStanceがOFFの場合、攻撃範囲内にいる時のみ攻撃する
+                // ターゲットが攻撃範囲に入ったらtrueにする (通常攻撃)
                 isShootingEnabled = Vector2.Distance(transform.position, targetObject.position) <= unitController.approachRange;
             }
         }
@@ -132,21 +139,30 @@ public class AttackController : MonoBehaviour
         // 発射の有効/無効をチェック（変更時のみコルーチンを開始・停止）
         if (isShootingEnabled != wasShootingEnabled)
         {
+            // 攻撃が有効に切り替わった場合、前回の停止時間からクールダウン時間を経過しているかを確認
             if (isShootingEnabled && shootingCoroutine == null && Time.time - lastAttackStopTime >= adjustedDelay)
             {
                 StartShooting();
             }
+            // 攻撃が無効に切り替わった場合、攻撃中であれば停止
             else if (!isShootingEnabled && shootingCoroutine != null)
             {
                 StopShooting();
             }
+            // クールダウン時間を経過していない場合は、再度攻撃を開始しないでwasShootingEnabledも更新せずに終了
+            else
+            {
+                return;
+            }
+            /*
             else if (backStep && Vector2.Distance(transform.position, targetObject.position) <= unitController.approachRange)
             {
                 // backStepで後退後、再び攻撃範囲内に戻ったら攻撃を再開
                 StartShooting();
             }
+            */
 
-            wasShootingEnabled = isShootingEnabled; // 前回の状態を更新
+            wasShootingEnabled = isShootingEnabled; // 前回の状態を更新(状態が変化したときだけコールーチンの切り替えを行うため)
         }
 
         // ターゲット追従の方向設定を更新
@@ -162,7 +178,7 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void StartShooting()
     {
-        Debug.Log("攻撃開始: " + gameObject.name);
+        if(isDebugInfo) Debug.Log("攻撃開始: " + gameObject.name);
         isShooting = true;
         int weaponAmplitude = 0; // 武器のふり幅の範囲
 
@@ -187,7 +203,7 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void StopShooting()
     {
-        Debug.Log("攻撃停止: " + gameObject.name);
+        if(isDebugInfo) Debug.Log("攻撃停止: " + gameObject.name);
         if (weaponPrefab != null)
         {
             weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0); // 武器の角度を元に戻す
@@ -450,6 +466,8 @@ public class AttackController : MonoBehaviour
         GameObject projectile = Instantiate(projectilePrefab, (firingPosition + new Vector2(offset,0)), Quaternion.identity);
         if (projectile == null) return; // projectileがnullでないことを確認
 
+        if (attackObjectGroup == null) attackObjectGroup = BattleManager.Instance.attackObjectGroup;
+        
         projectile.transform.SetParent(attackObjectGroup.transform);
         // サイズを変更
         projectile.transform.localScale *= unit.attackSize;

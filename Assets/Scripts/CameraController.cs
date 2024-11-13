@@ -76,7 +76,10 @@ public class CameraController : MonoBehaviour
         GameObject dieEffect = Resources.Load<GameObject>("Ef_die");
         if (dieEffect != null)
         {
-            Instantiate(dieEffect, targetObject.transform.position, Quaternion.identity);
+            if(targetObject != null)
+            {
+                Instantiate(dieEffect, targetObject.transform.position, Quaternion.identity);
+            }
         }
         Destroy(targetObject); // 最後の敵消滅
 
