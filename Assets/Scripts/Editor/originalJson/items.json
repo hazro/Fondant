@@ -293,7 +293,6 @@
     },
     {
       "ID": 111901,
-      "world": 1,
       "price": 50,
       "attackRange": 0.6
     },
@@ -337,6 +336,16 @@
       "attackRange": 2.5
     },
     {
+      "ID": 114002,
+      "name": "fairy staff",
+      "ability": "Release magical energy to attack.",
+      "world": 1,
+      "price": 50,
+      "socketCount": 3,
+      "magicalAttackPower": 5,
+      "attackRange": 2.5
+    },
+    {
       "ID": 115001,
       "name": "wood wand",
       "ability": "Release the magical energy of recovery.",
@@ -344,6 +353,17 @@
       "price": 50,
       "socketCount": 3,
       "magicalAttackPower": 1,
+      "attackRange": 2,
+      "equipable": 100
+    },
+    {
+      "ID": 115002,
+      "name": "spirit wand",
+      "ability": "Release the magical energy of recovery.",
+      "world": 1,
+      "price": 50,
+      "socketCount": 3,
+      "magicalAttackPower": 3,
       "attackRange": 2,
       "equipable": 100
     },

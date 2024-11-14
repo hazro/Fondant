@@ -14,12 +14,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("[Cursor Setting ------------------------ ]")]
-    public Texture2D customCursor;               // カーソルのテクスチャ
-    [Range(1.0f, 3.0f)]
-    public float cursorScale = 1.0f;             // カーソルのスケール
-    private float previousCursorScale = 1.0f;    // 前回のスケール値
-    private Texture2D scaledCursor;              // スケール済みのカーソルテクスチャ
     [Header("------------------------ ]")]
     private JsonDecryptor jsonDecryptor; // JsonDecryptorクラスのインスタンスを取得するためのフィールド
     public ItemData itemData; // デシリアライズしたデータを格納するクラス
@@ -93,11 +87,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // DebugSheetをHierarchyに生成
-
-        // マウスをカスタムカーソルに変更
-        UpdateCursor(cursorScale); // 初期カーソル設定
-        
+      
         // JsonDecryptorクラスを使用する
         jsonDecryptor = new JsonDecryptor();
         string filename = "items"; // ファイル名
@@ -119,16 +109,6 @@ public class GameManager : MonoBehaviour
 
         // RoomOptionsのオプションをリセット
         roomOptions.ResetOptions();
-    }
-
-    void Update()
-    {
-        // スライダーでカーソルサイズが変更されたら更新
-        if (cursorScale != previousCursorScale)
-        {
-            UpdateCursor(cursorScale);
-            previousCursorScale = cursorScale;
-        }
     }
 
     /// <summary>
@@ -823,48 +803,5 @@ public class GameManager : MonoBehaviour
         // ユニットのステータスを更新
         unit.GetComponent<Unit>().updateStatus();
     }
-
-    //////////////////////　カーソル関連　//////////////////////////////
-    /// <summary>
-    /// カーソルのサイズを更新するメソッド
-    /// </summary>
-    /// <param name="scale">新しいカーソルのスケール</param>
-    private void UpdateCursor(float scale)
-    {
-        if (customCursor != null)
-        {
-            Vector2 hotSpot = new Vector2(customCursor.width / 2, customCursor.height / 2);
-            scaledCursor = ScaleTexture(customCursor, (int)(customCursor.width * scale), (int)(customCursor.height * scale));
-            Cursor.SetCursor(scaledCursor, hotSpot, CursorMode.Auto);
-        }
-    }
-
-    /// <summary>
-    /// テクスチャを指定のスケールでリサイズするメソッド
-    /// </summary>
-    /// <param name="source">元のテクスチャ</param>
-    /// <param name="targetWidth">リサイズ後の幅</param>
-    /// <param name="targetHeight">リサイズ後の高さ</param>
-    /// <returns>リサイズされたテクスチャ</returns>
-    private Texture2D ScaleTexture(Texture2D source, int targetWidth, int targetHeight)
-    {
-        Texture2D result = new Texture2D(targetWidth, targetHeight, source.format, false);
-        Color[] pixels = source.GetPixels();
-        Color[] newPixels = new Color[targetWidth * targetHeight];
-
-        for (int y = 0; y < targetHeight; y++)
-        {
-            for (int x = 0; x < targetWidth; x++)
-            {
-                newPixels[x + y * targetWidth] = pixels[(int)(x / cursorScale) + (int)(y / cursorScale) * source.width];
-            }
-        }
-
-        result.SetPixels(newPixels);
-        result.Apply();
-        return result;
-    }
-
-    /////////////////////////////////////////////////////////////////
     
 }
