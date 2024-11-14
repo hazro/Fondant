@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -751,30 +752,43 @@ namespace IngameDebugConsole
 				return;
 #endif
 
-			int numberOfLogsToProcess = isLogWindowVisible ? queuedLogEntries.Count : ( queuedLogEntries.Count - queuedLogLimit );
-			ProcessQueuedLogs( numberOfLogsToProcess );
-
-			if( uncollapsedLogEntries.Count >= maxLogCount )
+			try
 			{
-				/// If log window isn't visible, remove the logs over time (i.e. don't remove more than <see cref="logsToRemoveAfterMaxLogCount"/>) to avoid performance issues.
-				int numberOfLogsToRemove = Mathf.Min( !isLogWindowVisible ? logsToRemoveAfterMaxLogCount : ( uncollapsedLogEntries.Count - maxLogCount + logsToRemoveAfterMaxLogCount ), uncollapsedLogEntries.Count );
-				RemoveOldestLogs( numberOfLogsToRemove );
+				int numberOfLogsToProcess = isLogWindowVisible ? queuedLogEntries.Count : ( queuedLogEntries.Count - queuedLogLimit );
+				ProcessQueuedLogs( numberOfLogsToProcess );
+
+				if( uncollapsedLogEntries.Count >= maxLogCount )
+				{
+					/// If log window isn't visible, remove the logs over time (i.e. don't remove more than <see cref="logsToRemoveAfterMaxLogCount"/>) to avoid performance issues.
+					int numberOfLogsToRemove = Mathf.Min( !isLogWindowVisible ? logsToRemoveAfterMaxLogCount : ( uncollapsedLogEntries.Count - maxLogCount + logsToRemoveAfterMaxLogCount ), uncollapsedLogEntries.Count );
+					RemoveOldestLogs( numberOfLogsToRemove );
+				}
+
+				// Don't perform CPU heavy tasks if neither the log window nor the popup is visible
+				if( !isLogWindowVisible && !PopupEnabled )
+					return;
+
+				int newInfoEntryCount, newWarningEntryCount, newErrorEntryCount;
+				lock( logEntriesLock )
+				{
+					newInfoEntryCount = this.newInfoEntryCount;
+					newWarningEntryCount = this.newWarningEntryCount;
+					newErrorEntryCount = this.newErrorEntryCount;
+
+					this.newInfoEntryCount = 0;
+					this.newWarningEntryCount = 0;
+					this.newErrorEntryCount = 0;
+				}
 			}
-
-			// Don't perform CPU heavy tasks if neither the log window nor the popup is visible
-			if( !isLogWindowVisible && !PopupEnabled )
-				return;
-
-			int newInfoEntryCount, newWarningEntryCount, newErrorEntryCount;
-			lock( logEntriesLock )
+			catch (NullReferenceException ex)
 			{
-				newInfoEntryCount = this.newInfoEntryCount;
-				newWarningEntryCount = this.newWarningEntryCount;
-				newErrorEntryCount = this.newErrorEntryCount;
-
-				this.newInfoEntryCount = 0;
-				this.newWarningEntryCount = 0;
-				this.newErrorEntryCount = 0;
+				// NullReferenceExceptionをキャッチして無視する
+				Debug.LogWarning("NullReferenceException caught and ignored: " + ex.Message);
+			}
+			catch (Exception ex)
+			{
+				// その他の例外をキャッチしてログに表示する
+				Debug.LogError("Exception caught in LateUpdate: " + ex.Message);
 			}
 
 			// Update entry count texts in a single batch

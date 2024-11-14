@@ -109,15 +109,22 @@ public class IventryUI : MonoBehaviour
         }
     }
 
-    // ドロップしたアイテムをIventryItemに追加する
+    // ドロップしたアイテムをIventryItemに追加する runeLevelは1で初期化するが、itemIDが7桁ならばruneLevelを取得し、itemIDを6桁にする
     public void AddItem(int itemID)
     {
+        int runeLevel = 1;
+        // もしitemIDが7桁ならばruneLevelを取得し、itemIDを6桁にする
+        if (itemID >= 1000000)
+        {
+            runeLevel = itemID % 10;
+            itemID /= 10;
+        }
         for (int i = 0; i < IventryItem.Length; i++)
         {
             if (IventryItem[i] == 0)
             {
                 // 入手直後はruneLevel1の為itemIDを10倍して+1(runeLevel1)する
-                IventryItem[i] = itemID*10+1;
+                IventryItem[i] = itemID*10+runeLevel;
                 // itemID6桁の100000の位が1なら武器、2なら防具、4ならルーン
                 if (itemID / 100000 == 1)
                 {
@@ -335,8 +342,16 @@ public class IventryUI : MonoBehaviour
             materialInstance.SetFloat("_Lv", runeLevel);
         }
 
+        // 武器のステータスを取得
+        ItemData.WpnListData wpnListData = gameManager.itemData.wpnList.Find(x => x.ID == unit.currentWeapons);
+        if (wpnListData == null)
+        {
+            Debug.LogError("unit name: " + unitObject.name + " currentWeapons: " + unit.currentWeapons + " wpnListData is not assigned.");
+            return;
+        }
+
         //socketCountの取得
-        int socketCount = unit.socketCount;
+        int socketCount = wpnListData.socketCount;
         //IventrySkillList[6 ~ 6+socketCount]の親オブジェクトを表示し、IventrySkillList[6+socketCount+1]以降の親オブジェクトを非表示にする
         for (int i = 6; i < IventrySkillList.Count; i++)
         {
@@ -408,14 +423,81 @@ public class IventryUI : MonoBehaviour
                 {
                     if(iventryItemID[0] == '1' && skillItemID[0] == '1')
                     {
+                        bool isShildTakeOff = false; // 両手持ちの為に盾を外すか
+                        bool isSubRuneTakeOff = false; // ソケット差分のサブルーンを外すか
+                        List<int> diffRuneList = new List<int>();
+
                         print("武器を入れ替えます");
                         // skillItemID[2]が1又は3又は4又は6ならば両手持ち武器なので、盾を装備していたら外してイベントリに追加する
                         if (skillItemID[2] == '1' || skillItemID[2] == '3' || skillItemID[2] == '4' || skillItemID[2] == '6')
-                        {
-                            // イベントリに空きがあるか確認し、空きがなければエラーログを出力して終了
-                            if (Array.IndexOf(IventryItem, 0) == -1)
+                        {   
+                            // 盾を装備している場合
+                            if (unit.currentShields != 0)
                             {
-                                infoPanelText.text = "Tried to remove the shield because it was a two-handed weapon \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
+                                // イベントリに空きがあるか確認し、空きがなければエラーログを出力して終了
+                                if (Array.IndexOf(IventryItem, 0) == -1)
+                                {
+                                    infoPanelText.text = "Tried to remove the shield because it was a two-handed weapon \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
+                                    infoPanel.SetActive(true);
+                                    OKButton.gameObject.SetActive(true);
+                                    cancelButton.gameObject.SetActive(false);
+                                    // OKボタンを押したらinfoPanel.SetActive(false)にする;
+                                    OKButton.onClick.AddListener(() => infoPanel.SetActive(false));
+                                    return;
+                                }
+
+                                // イベントリに空きがあれば盾をイベントリに追加フラグを立てる
+                                isShildTakeOff = true;
+                            }
+                        }
+                        // 元の武器のソケット数を取得 gameManager.itemData.wpnListのIDがunit.currentWeaponsのものからsocketCountを取得
+                        int originalSocketCount = gameManager.itemData.wpnList.Find(x => x.ID == unit.currentWeapons).socketCount;
+                        // 新しい武器のソケット数を取得 gameManager.itemData.wpnListのIDがint.Parse(skillItemID)のものからsocketCountを取得
+                        int newSocketCount = gameManager.itemData.wpnList.Find(x => x.ID == int.Parse(skillItemID)).socketCount;
+
+                        List<GameObject> IventrySkillList = null;
+                        // unit.IDから該当するiventrySkillListを取得
+                        switch (unit.ID)
+                        {
+                            case 1:
+                                IventrySkillList = IventrySkillList1;
+                                break;
+                            case 2:
+                                IventrySkillList = IventrySkillList2;
+                                break;
+                            case 3:
+                                IventrySkillList = IventrySkillList3;
+                                break;
+                            case 4:
+                                IventrySkillList = IventrySkillList4;
+                                break;
+                            case 5:
+                                IventrySkillList = IventrySkillList5;
+                                break;
+                            default:
+                                Debug.LogError("unitID is invalid");
+                                return;
+                        }
+
+                        // 元ソケットの方が多かった場合、ソケット数が減る分差分のサブルーンを外す
+                        if (originalSocketCount > newSocketCount)
+                        {
+                            // 差分のソケットに入っているサブルーンを取得(idが0なら空)
+                            for (int i = newSocketCount - 1; i < originalSocketCount - 1; i++)
+                            {
+                                if(unit.subSocket[i] != 0)
+                                {
+                                    ItemDandDHandler item = IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>();
+                                    int runeLevel = item.runeLevel;
+                                    Debug.Log("subSocket = " + unit.subSocket[i] + " itemName = " + item.gameObject.GetComponent<Image>().sprite + " runeLevel = " + runeLevel);
+                                    // IDを10倍してruneLevelを足してdiffRuneListに追加
+                                    diffRuneList.Add(unit.subSocket[i] * 10 + runeLevel);
+                                }
+                            }
+                            // イベントリにdiffRuneList.Count以上空きがあるか確認し、空きがなければエラーログを出力して終了
+                            if (CountEmptySlots() < diffRuneList.Count)
+                            {
+                                infoPanelText.text = "Tried to remove the subrune because the number of sockets decreased \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
                                 infoPanel.SetActive(true);
                                 OKButton.gameObject.SetActive(true);
                                 cancelButton.gameObject.SetActive(false);
@@ -423,12 +505,33 @@ public class IventryUI : MonoBehaviour
                                 OKButton.onClick.AddListener(() => infoPanel.SetActive(false));
                                 return;
                             }
-                            if (unit.currentShields != 0)
+                            else if (diffRuneList.Count > 0)
                             {
-                                AddItem(unit.currentShields);
-                                unit.currentShields = 0;
+                                isSubRuneTakeOff = true;
                             }
                         }
+
+                        // シールドを装備から外してイベントリに追加する
+                        if (isShildTakeOff)
+                        {
+                            AddItem(unit.currentShields);
+                            unit.currentShields = 0;
+                        }
+                        // サブルーンの差分ソケット分を外してイベントリに追加する
+                        if (isSubRuneTakeOff)
+                        {
+                            foreach (int runeID in diffRuneList)
+                            {
+                                AddItem(runeID);
+                            }
+                            for (int i = newSocketCount - 1; i < originalSocketCount - 1; i++)
+                            {
+                                unit.subSocket[i] = 0;
+                                IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
+                            }
+                        }
+                        
+                        
                         // アイテムIDをunitのcurrentWeaponsに設定
                         unit.currentWeapons = int.Parse(skillItemID);
                     }
@@ -583,6 +686,23 @@ public class IventryUI : MonoBehaviour
         {
             Debug.LogError("gameManager.playerUnits is null");
         }
+    }
+
+    /// <summary>
+    /// イベントリの空きスロットの数をカウントするメソッド
+    /// </summary>
+    /// <returns>空きスロットの数</returns>
+    private int CountEmptySlots()
+    {
+        int emptySlotCount = 0;
+        foreach (int item in IventryItem)
+        {
+            if (item == 0)
+            {
+                emptySlotCount++;
+            }
+        }
+        return emptySlotCount;
     }
 
     /// <summary>
