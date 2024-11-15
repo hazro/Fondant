@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4aea180cc3edeb448a9d28d954b5c757, type: 3}
-  m_Name: 201F725E-8728-4253-B1D8-0FD1130F14B8
+  m_Name: 19D241E8-0E62-4AE6-83F1-0727C7E0AF63
   m_EditorClassIdentifier: 
-  objectName: BGM_NormalBattle01
-  id: 2971848282
-  guid: 201F725E-8728-4253-B1D8-0FD1130F14B8
+  objectName: BGM_Victory
+  id: 4222241002
+  guid: 19D241E8-0E62-4AE6-83F1-0727C7E0AF63
   IsInUserDefinedSoundBank: 1
   IsAutoBankLoaded: 0

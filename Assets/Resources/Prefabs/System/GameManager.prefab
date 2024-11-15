@@ -38581,7 +38581,6 @@ GameObject:
   - component: {fileID: 8089351469302269045}
   - component: {fileID: 4575105158517945967}
   - component: {fileID: 8710109234951886426}
-  - component: {fileID: 3987393764884852363}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -38737,31 +38736,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDefaultListener: 1
   listenerId: 0
---- !u!114 &3987393764884852363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7134356350530761326}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f3344e9168fec940a31fe8954129d2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  triggerList: f7e1664c
-  useOtherObject: 0
-  data:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 367e8f16febaf384dbaaa4fff1c32388, type: 2}
-  decodeBank: 0
-  overrideLoadSetting: 0
-  loadAsynchronous: 0
-  saveDecodedBank: 0
-  unloadTriggerList: 958ca0ea
-  bankNameInternal: 
-  valueGuidInternal: 
 --- !u!1 &7177497928021095451
 GameObject:
   m_ObjectHideFlags: 0
