@@ -1,0 +1,29 @@
+{
+ "ProjectInfo": {
+  "Project": {
+   "Name": "Fondant",
+   "GUID": "{979D86AA-AD04-40F3-B2F5-32C5E23BC1CB}",
+   "Generator": "2024.1.0.8669"
+  },
+  "CacheRoot": "../../../../../../../OneDrive/ドキュメント/WwiseProjects/Fondant/.cache",
+  "Platforms": [
+   {
+    "Name": "Windows",
+    "GUID": "{DCBFBDC5-FBE0-4BDB-BF7B-85DFF8DADFFA}",
+    "BasePlatform": "Windows",
+    "BasePlatformGUID": "{6E0CB257-C6C8-4C5C-8366-2740DFC441EB}",
+    "Path": "../../../../../../../OneDrive/ドキュメント/WwiseProjects/Fondant/GeneratedSoundBanks/Windows"
+   }
+  ],
+  "Languages": [
+   {
+    "Name": "English(US)",
+    "Id": "684519430",
+    "GUID": "{5661779A-EC8E-4212-88C1-9CAF13C9D2BE}",
+    "Default": "true",
+    "UseAsStandIn": "true"
+   }
+  ],
+  "FileHash": "{9DAABAC4-3C66-DCDA-C2C0-563786D5CEFC}"
+ }
+}

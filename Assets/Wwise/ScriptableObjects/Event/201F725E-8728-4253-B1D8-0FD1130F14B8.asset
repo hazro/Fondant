@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aea180cc3edeb448a9d28d954b5c757, type: 3}
+  m_Name: 201F725E-8728-4253-B1D8-0FD1130F14B8
+  m_EditorClassIdentifier: 
+  objectName: BGM_NormalBattle
+  id: 3652025539
+  guid: 201F725E-8728-4253-B1D8-0FD1130F14B8
+  IsInUserDefinedSoundBank: 0
+  IsAutoBankLoaded: 0

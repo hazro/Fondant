@@ -331,8 +331,22 @@ MonoBehaviour:
     ParentPath: SoundBanks\Default Work Unit
     guid: 596f93da2f8c0548917aeb51506e0335
     GuidInternal: 
-    m_lastTime: -8584699714227254653
-    List: []
+    m_lastTime: -8584699539708376643
+    List:
+    - name: MainSoundBank
+      guid: d7f1e2f530fc8d4bb676ac3391acf02c
+      id: 534561221
+      PathAndIcons:
+      - ElementName: SoundBanks
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 596f93da2f8c0548917aeb51506e0335
+      - ElementName: MainSoundBank
+        ObjectType: 7
+        guid: d7f1e2f530fc8d4bb676ac3391acf02c
+      Path: SoundBanks\Default Work Unit\MainSoundBank
   EventWwu:
   - PhysicalPath: Events\Default Work Unit.wwu
     PathAndIcons:
@@ -345,8 +359,25 @@ MonoBehaviour:
     ParentPath: Events\Default Work Unit
     guid: ea1ad177c606a74582aa8d22a137547b
     GuidInternal: 
-    m_lastTime: -8584699714225759364
-    List: []
+    m_lastTime: -8584699582862337427
+    List:
+    - name: BGM_NormalBattle
+      guid: 5e721f2028875342b1d80fd1130f14b8
+      id: 3652025539
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM_NormalBattle
+        ObjectType: 3
+        guid: 5e721f2028875342b1d80fd1130f14b8
+      Path: Events\Default Work Unit\BGM_NormalBattle
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
   RtpcWwu:
   - PhysicalPath: Game Parameters\Default Work Unit.wwu
     PathAndIcons:
@@ -557,7 +588,7 @@ MonoBehaviour:
     m_lastTime: -8584699714227114598
     List: []
   ExpandedFileSystemItemIds: 
-  ExpandedWaapiItemIds: 
+  ExpandedWaapiItemIds: 05000000060000000a0000000b000000
   AutoSyncSelection: 0
   autoPopulateEnabled: 1
   currentDataSource: 0
