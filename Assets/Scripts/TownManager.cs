@@ -20,6 +20,7 @@ public class TownManager : MonoBehaviour
     /// </summary>
     public void OnOutButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         Debug.Log("outボタンが押されました。");
         // バトルシーンへ移動し、キャラクター配置画面を表示
         gameManager.LoadScene("InToWorldEntrance");
@@ -30,6 +31,7 @@ public class TownManager : MonoBehaviour
     /// </summary>
     public void OnShopButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         Debug.Log("Shopボタンが押されました。");
     }
 
@@ -38,6 +40,7 @@ public class TownManager : MonoBehaviour
     /// </summary>
     public void OnOrganizationButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         Debug.Log("organizationボタンが押されました。");
     }
 
@@ -46,6 +49,7 @@ public class TownManager : MonoBehaviour
     /// </summary>
     public void OnLimitationButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         Debug.Log("limitationボタンが押されました。");
     }
 
@@ -54,6 +58,7 @@ public class TownManager : MonoBehaviour
     /// </summary>
     public void OnLibraryButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         Debug.Log("libraryボタンが押されました。");
     }
 }

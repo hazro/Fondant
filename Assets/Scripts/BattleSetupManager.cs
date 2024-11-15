@@ -87,167 +87,152 @@ public class BattleSetupManager : MonoBehaviour
         {
             GameObject enemyGroupObj = new GameObject("EnemyGroup");
             enemyGroup = enemyGroupObj.transform;
-            // gameManagerのenemyGroupにenemyGroupを設定
             gameManager.enemyGroup = enemyGroupObj;
-            // battleManagerのenemyGroupにenemyGroupを設定
             BattleManager.Instance.enemyGroup = enemyGroupObj.transform;
-
-            // 次のシーンに持っていくために、DontDestroyOnLoadを設定
             DontDestroyOnLoad(enemyGroupObj);
         }
 
-        // gameManagerから現在のワールド番号を取得
+        // 必要なデータを取得してソート
         int currentWorld = worldManager.GetCurrentWorld();
-        // gameManagerから現在のルームイベント番号を取得
         int currentRoomEvent = worldManager.GetCurrentRoomEvent();
-        // キャラクター情報を格納するリストを作成
-        List<ItemData.EnemySpawnSettingsData> worldEnemySpawn = new List<ItemData.EnemySpawnSettingsData>();
+        List<ItemData.EnemySpawnSettingsData> worldEnemySpawn = gameManager.itemData.enemySpawnSettings
+            .Where(es => es.world <= currentWorld && es.stage == currentRoomEvent && es.world != 0)
+            .OrderByDescending(es => es.priority)
+            .ToList();
 
-        // gameManager.itemData.enemySpawnSettingsから現在のワールド番号とルームイベント番号(currentRoomEvent→stage)に対応するEnemySpawnSettingsDataをすべて取得
-        foreach (var enemySpawn in gameManager.itemData.enemySpawnSettings)
-        {
-            // まだWorld2以降が無いので、world2以降でもWorld1以降の敵キャラクター設定を取得
-            if (enemySpawn.world <= currentWorld && enemySpawn.world != 0 && enemySpawn.stage == currentRoomEvent)
-            {
-                worldEnemySpawn.Add(enemySpawn);
-            }
-        }
         if (worldEnemySpawn.Count == 0)
         {
             Debug.LogWarning("現在のルームイベントに対する敵キャラクター設定がありません。");
             return;
         }
 
-        // グリッドセルのリストを作成
-        List<Transform> gridPositions = new List<Transform>();
-        for (int i = 0; i < enemyGridPoint.childCount; i++)
-        {
-            gridPositions.Add(enemyGridPoint.GetChild(i));
-        }
-
-        // gameManager.RoomOptionsからモンスターの出現数が2倍になるかどうかを取得
-        bool monsterDoubleCount = gameManager.roomOptions.monsterDoubleCount;
-
-        // 敵キャラクターのスポーン設定を集める
-        // それぞれのスポーン設定に対して、最小数から最大数までのランダムな数の敵を生成
+        // 各敵の数を決定
         Dictionary<ItemData.EnemySpawnSettingsData, int> enemyCounts = new Dictionary<ItemData.EnemySpawnSettingsData, int>();
         foreach (var spawnSetting in worldEnemySpawn)
         {
             int enemyCount = Random.Range(spawnSetting.minCount, spawnSetting.maxCount + 1);
-            // モンスターの出現数が2倍の場合、敵の数を2倍にする
-            if (monsterDoubleCount)
-            {
+            if (gameManager.roomOptions.monsterDoubleCount)
                 enemyCount *= 2;
-            }
             enemyCounts[spawnSetting] = enemyCount;
         }
 
-        int totalEnemies = enemyCounts.Sum(x => x.Value);
-
-        // 20体を超える場合に削減する処理
+        // 敵が多すぎる場合は調整
+        int totalEnemies = enemyCounts.Values.Sum();
         while (totalEnemies > 20)
         {
-            var maxEnemy = enemyCounts.OrderByDescending(x => x.Value).FirstOrDefault();
+            var maxEnemy = enemyCounts.OrderByDescending(ec => ec.Value).First();
             enemyCounts[maxEnemy.Key]--;
             totalEnemies--;
             if (enemyCounts[maxEnemy.Key] <= 0)
-            {
                 enemyCounts.Remove(maxEnemy.Key);
-            }
         }
 
-        // 敵の配置
-        List<Transform> availablePositions = gridPositions.ToList();
+        // 配置処理を開始
+        StartCoroutine(SpawnEnemiesWithDelay(worldEnemySpawn, enemyCounts));
+    }
 
-        // 敵キャラクターを優先順位でソート
-        var sortedSpawnSettings = worldEnemySpawn
-            .OrderByDescending(s => s.priority)
-            .ToList();
+    /// <summary>
+    /// 敵キャラクターを間隔を空けてスポーンするコルーチン。
+    /// </summary>
+    private IEnumerator SpawnEnemiesWithDelay(List<ItemData.EnemySpawnSettingsData> spawnSettings, Dictionary<ItemData.EnemySpawnSettingsData, int> enemyCounts)
+    {
+        List<Transform> availablePositions = enemyGridPoint.Cast<Transform>().ToList();
 
-        foreach (var spawnSetting in sortedSpawnSettings)
+        foreach (var spawnSetting in spawnSettings)
         {
-            // Assets/Resources/Prefabs/Unit/Enemyにある敵キャラクターのPrefabをEnemy + (string)spawnSetting.ID(2桁)で取得
             GameObject enemyPrefab = Resources.Load<GameObject>("Prefabs/Unit/Enemy/Enemy" + spawnSetting.ID.ToString("00"));
-            
             int numEnemies = enemyCounts.ContainsKey(spawnSetting) ? enemyCounts[spawnSetting] : 0;
+
             for (int i = 0; i < numEnemies; i++)
             {
-                bool placed = false;
+                if (availablePositions.Count == 0) break;
 
-                // PreferredColumnに基づいた空き位置の検索
-                int startIndex = spawnSetting.preferredColumn * 5;
-                int endIndex = startIndex + 5;
+                Transform spawnPosition = availablePositions[0];
+                availablePositions.RemoveAt(0);
 
-                // 中間の番号を優先するように位置を選択
-                List<int> preferredOrder = new List<int> { 2, 1, 3, 0, 4 };
+                // エネミーをスポーン
+                GameObject enemy = Instantiate(enemyPrefab, spawnPosition.position, Quaternion.identity, enemyGroup);
+                enemy.transform.position += new Vector3(0, 0, -0.1f);
 
-                foreach (int offset in preferredOrder)
+                // 出現エフェクト処理
+                StartCoroutine(FadeInEnemy(enemy));
+
+                gameManager.enemyCount++;
+                yield return new WaitForSeconds(0.5f); // 次のスポーンまで待機
+            }
+        }
+    }
+
+    /// <summary>
+    /// 敵キャラクターのフェードインを処理するコルーチン。
+    /// </summary>
+    private IEnumerator FadeInEnemy(GameObject enemy)
+    {
+        // 条件に合う子オブジェクトを取得
+        Transform offsetTransform = GetOffsetTransform(enemy);
+
+        // SpriteRendererとMaterialを取得
+        SpriteRenderer spriteRenderer = offsetTransform?.GetComponent<SpriteRenderer>();
+        Material material = spriteRenderer?.sharedMaterial;
+
+        // RectTransformを持つ子オブジェクトを探して非表示にする
+        List<GameObject> rectTransformChildren = new List<GameObject>();
+        foreach (Transform child in enemy.transform)
+        {
+            if (child.GetComponent<RectTransform>() != null)
+            {
+                rectTransformChildren.Add(child.gameObject);
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        if (spriteRenderer != null && material != null)
+        {
+            Color color = spriteRenderer.color;
+            color.a = 0;
+            spriteRenderer.color = color;
+
+            for (float t = 0; t < 1f; t += Time.deltaTime)
+            {
+                color.a = t;
+                spriteRenderer.color = color;
+                material.color = color;
+
+                yield return null;
+            }
+
+            // 最終的にアルファを1に設定
+            color.a = 1;
+            spriteRenderer.color = color;
+            material.color = color;
+        }
+
+        // RectTransformを持つ子オブジェクトを再表示
+        foreach (GameObject child in rectTransformChildren)
+        {
+            child.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// エネミーの子オブジェクトの中で条件に合うものを取得するメソッド
+    /// </summary>
+    /// <param name="enemy"></param>
+    /// <returns></returns>
+    private Transform GetOffsetTransform(GameObject enemy)
+    {
+        foreach (Transform child in enemy.transform)
+        {
+            SpriteRenderer spriteRenderer = child.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null && spriteRenderer.sharedMaterial != null)
+            {
+                if (spriteRenderer.sharedMaterial.name == "UnitStanderd")
                 {
-                    int index = startIndex + offset;
-
-                    // 配置可能な位置を確認
-                    if (index < availablePositions.Count && availablePositions[index] != null)
-                    {
-                        Transform availablePosition = availablePositions[index];
-                        GameObject enemy = Instantiate(enemyPrefab, availablePosition.position, Quaternion.identity, enemyGroup);
-                        enemy.transform.SetParent(enemyGroup);
-                        enemy.transform.position = availablePosition.position + new Vector3(0, 0, -0.1f);
-                        availablePositions[index] = null; // この位置を利用済みとしてマーク
-                        placed = true;
-                        break;
-                    }
-                }
-
-                // PreferredColumnが埋まっている場合、近いColumnに配置
-                if (!placed)
-                {
-                    List<int> adjacentColumns = new List<int>
-                    {
-                        (spawnSetting.preferredColumn - 1 + 4) % 4, // 左隣のColumn
-                        (spawnSetting.preferredColumn + 1) % 4  // 右隣のColumn
-                    };
-
-                    foreach (int column in adjacentColumns)
-                    {
-                        startIndex = column * 5;
-                        endIndex = startIndex + 5;
-
-                        foreach (int offset in preferredOrder)
-                        {
-                            int index = startIndex + offset;
-
-                            if (index < availablePositions.Count && availablePositions[index] != null)
-                            {
-                                Transform availablePosition = availablePositions[index];
-                                GameObject enemy = Instantiate(enemyPrefab, availablePosition.position, Quaternion.identity, enemyGroup);
-                                enemy.transform.SetParent(enemyGroup);
-                                enemy.transform.position = availablePosition.position + new Vector3(0, 0, -0.1f);
-                                availablePositions[index] = null; // この位置を利用済みとしてマーク
-                                placed = true;
-                                break;
-                            }
-                        }
-
-                        if (placed)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                // 近いColumnでも配置できない場合、空いている位置に配置
-                if (!placed && availablePositions.Count > 0)
-                {
-                    Transform fallbackPosition = availablePositions[0];
-                    GameObject enemy = Instantiate(enemyPrefab, fallbackPosition.position, Quaternion.identity, enemyGroup);
-                    enemy.transform.SetParent(enemyGroup);
-                    enemy.transform.position = fallbackPosition.position + new Vector3(0, 0, -0.1f);
-                    availablePositions.RemoveAt(0);
+                    return child; // 条件に一致したオブジェクトを返す
                 }
             }
         }
-        // 配置した敵の数を取得
-        gameManager.enemyCount = enemyGroup.childCount;
+        return null; // 条件に一致するオブジェクトがなければnullを返す
     }
 
     /// <summary>
@@ -288,8 +273,14 @@ public class BattleSetupManager : MonoBehaviour
 
     private void OnStartBattleButtonClicked()
     {
+        // クリックSEを再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         // 新しいバトルシーンをロード
         GameManager.Instance.LoadScene("InToBattleScene");
+
+        // バトルシーンに遷移するSEを再生
+        AkSoundEngine.PostEvent("ST_BGChange", gameObject);
 
         // 子オブジェクトをすべて取得
         Transform[] children = enemyGroup.GetComponentsInChildren<Transform>();

@@ -19,6 +19,8 @@ public class TitleManager : MonoBehaviour
     {
         if(gameManager != null)
         {
+            AkSoundEngine.PostEvent("ST_Click", gameObject);
+
             gameManager.StartNewGame();
         }
     }
@@ -29,6 +31,7 @@ public class TitleManager : MonoBehaviour
     {
         if (gameManager != null)
         {
+            AkSoundEngine.PostEvent("ST_Click", gameObject);
             gameManager.LoadGame();
         }
     }
@@ -37,6 +40,7 @@ public class TitleManager : MonoBehaviour
     /// </summary>
     public void OnRankingButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         Debug.Log("ランキング未実装");
     }
     /// <summary>
@@ -44,6 +48,7 @@ public class TitleManager : MonoBehaviour
     /// </summary>
     public void OnQuitButtonClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         // Quit the game
         Application.Quit();
     }

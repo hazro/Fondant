@@ -157,6 +157,9 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         isDragging = true;
         originalSortingOrder = unitSprite.sortingOrder;
 
+        // つかんだ時のSEを再生
+        AkSoundEngine.PostEvent("ST_Grip", gameObject);
+
         SetSpriteTransparency(0.5f); // 透明度を半分に設定
     }
 
@@ -224,6 +227,8 @@ public class PlayerDraggable : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 int siblingIndex = collider.transform.GetSiblingIndex() + 1;
                 // UnitのpositionIDを更新
                 GetComponent<Unit>().positionID = siblingIndex;
+                // UnitがFitした時のSEを再生
+                AkSoundEngine.PostEvent("ST_Fit", gameObject);
                 return;
             }
         }

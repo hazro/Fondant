@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8ec726ba9ef90c49b3593b69d2df6e0, type: 3}
-  m_Name: F5E2F1D7-FC30-4B8D-B676-AC3391ACF02C
+  m_Script: {fileID: 11500000, guid: 4aea180cc3edeb448a9d28d954b5c757, type: 3}
+  m_Name: 7D2062CB-F271-4519-B927-C915090408E1
   m_EditorClassIdentifier: 
-  objectName: BGMSoundBank
-  id: 3370353384
-  guid: F5E2F1D7-FC30-4B8D-B676-AC3391ACF02C
+  objectName: ST_Click
+  id: 2645564349
+  guid: 7D2062CB-F271-4519-B927-C915090408E1
+  IsInUserDefinedSoundBank: 1
+  IsAutoBankLoaded: 0
