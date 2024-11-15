@@ -110,6 +110,9 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             iventryUI.ChangeSkillListFrameColor(spriteID);
         }
+
+        // ドラッグ開始SEを再生
+        AkSoundEngine.PostEvent("ST_Grip", gameObject);
     }
 
     /// <summary>
@@ -149,11 +152,15 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             if (targetObject.CompareTag("Item") && this.gameObject.CompareTag("Item"))
             {
                 SwapPositionAndParent(targetObject);
+                // Fit SEを再生
+                AkSoundEngine.PostEvent("ST_Fit", gameObject);
             }
             // ゴミ箱にドロップした場合、アイテムを破棄 
             else if (targetObject.name == "Trash" && this.gameObject.CompareTag("Item"))
             {
                 if(iventryUI != null){
+                    // ゴミ箱SEを再生
+                    AkSoundEngine.PostEvent("ST_Trash", gameObject);
                     iventryUI.TrashItem(this.gameObject);
                 }
             }
@@ -196,6 +203,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     blackSmithManager.isSetItem = true;
                     blackSmithManager.SetItem();
                 }
+                // Fit SEを再生
+                AkSoundEngine.PostEvent("ST_Fit", gameObject);
                 
             }
             //　どちらもItemタグでない場合は何もせずに元の位置に戻す

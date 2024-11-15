@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 3140985360092013340}
   - component: {fileID: 1340197821091170628}
   - component: {fileID: 5675681079502434131}
+  - component: {fileID: 3294554277144898617}
+  - component: {fileID: -1578099742182978127}
   m_Layer: 0
   m_Name: Aef_SlashS
   m_TagString: Aef
@@ -119,15 +121,66 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32a1831448d61cf40a8318f986badb27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unitID: 0
   attributes: 00000000
-  power: 1
   trailTime: 10
   trailWidth: 0.05
   trailStartColor: {r: 1, g: 1, b: 1, a: 1}
   trailEndColor: {r: 0.49411765, g: 0.49411765, b: 0.49411765, a: 0}
   useDistance: 1
-  maxDistance: 1
-  lifetime: 1
+  chainAttackEnabled: 0
+--- !u!114 &3294554277144898617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161314978451838978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9c5685b7d7371f42884b4219d8abc15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_listeners:
+    initialListenerList: []
+    useDefaultListeners: 1
+  isEnvironmentAware: 1
+  isStaticObject: 0
+  usePositionOffsetData: 0
+  m_positionOffsetData:
+    KeepMe: 0
+    positionOffset: {x: 0, y: 0, z: 0}
+  m_posOffsetData: {fileID: 0}
+  listenerMask: 1
+--- !u!114 &-1578099742182978127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161314978451838978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e521833db40b6864983568939a12b3fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerList: f7e1664c
+  useOtherObject: 0
+  actionOnEventType: 0
+  curveInterpolation: 4
+  enableActionOnEvent: 0
+  data:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: c97d3b808346d0d458a19ae77b1fdeef, type: 2}
+  useCallbacks: 0
+  stopSoundOnDestroy: 1
+  Callbacks: []
+  soundEmitterObject: {fileID: 0}
+  transitionDuration: 0
+  eventIdInternal: 0
+  valueGuidInternal: 
+  m_callbackDataInternal: {fileID: 0}
 --- !u!1 &631865301491240310
 GameObject:
   m_ObjectHideFlags: 0

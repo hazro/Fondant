@@ -55,6 +55,9 @@ public class RecoverSceneManager : MonoBehaviour
     {
         if (!isRotating)
         {
+            // クリック音を再生
+            AkSoundEngine.PostEvent("ST_Click", gameObject);
+
             StartCoroutine(RotateOverTime(-72)); // -72度回転
         }
     }
@@ -64,6 +67,9 @@ public class RecoverSceneManager : MonoBehaviour
     {
         if (!isRotating)
         {
+            // クリック音を再生
+            AkSoundEngine.PostEvent("ST_Click", gameObject);
+
             StartCoroutine(RotateOverTime(72)); // 72度回転（逆方向）
         }
     }
@@ -221,6 +227,9 @@ public class RecoverSceneManager : MonoBehaviour
         // お金を減らす
         statusLog.currentGold -= Price;
 
+        //　回復音を再生
+        AkSoundEngine.PostEvent("ST_Recover", gameObject);
+
         // unitの周りを光らせるパーティクルを再生
         PlayGlowParticle();
 
@@ -260,6 +269,9 @@ public class RecoverSceneManager : MonoBehaviour
     // Cancelボタンを押した時の処理
     public void OnCancelButton()
     {
+        // Click音を再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         // 何もせずにInfoPanelを非表示にする
         InfoPanel.SetActive(false);
         OKButton.SetActive(false);
@@ -269,6 +281,9 @@ public class RecoverSceneManager : MonoBehaviour
     // Exitボタンを押した時の処理
     public void OnExitButton()
     {
+        // Click音を再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+        
         // StatusAdjustmentSceneに遷移
         gameManager.LoadScene("StatusAdjustmentScene");
     }

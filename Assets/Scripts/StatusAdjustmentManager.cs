@@ -65,6 +65,7 @@ public class StatusAdjustmentManager : MonoBehaviour
     //経験値追加ボタンがクリックされたときの処理メソッド
     public void OnAddExpBtnClicked(int index)
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         if (statusLog.currentExp == 0) return;
 
         int playerIndex = Mathf.CeilToInt(index / 3f) - 1;
@@ -90,6 +91,7 @@ public class StatusAdjustmentManager : MonoBehaviour
     //経験値リセットボタンがクリックされたときの処理メソッド
     public void OnResetExpBtnClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         statusLog.currentExp = initialStockExp;
 
         for (int i = 0; i < gameManager.livingUnits.Count; i++)
@@ -167,6 +169,7 @@ public class StatusAdjustmentManager : MonoBehaviour
     // RoomSelectSceneに遷移するボタンを押したときのメソッド(gameManagerから呼び出し)
     public void OnRoomSelectSceneBtnClicked()
     {
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
         gameManager.LoadScene("RoomSelectScene");
     }
     

@@ -245,6 +245,9 @@ public class BlackSmithManager : MonoBehaviour
     /// </summary>
     public void OnResetButtonClicked()
     {
+        // click SE を再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         infoPanel.SetActive(false);
         CancelButton.SetActive(false);
         OriginalRuneImage.SetActive(false);
@@ -272,6 +275,9 @@ public class BlackSmithManager : MonoBehaviour
     /// </summary>
     public void OnExitButtonClicked()
     {
+        // Click SE を再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         OnResetButtonClicked();
         // StatusAdjustmentSceneに遷移
         gameManager.LoadScene("StatusAdjustmentScene");
@@ -285,6 +291,9 @@ public class BlackSmithManager : MonoBehaviour
         // 手持ちのお金が足りていたら強化処理を行う
         if(statusLog.currentGold >= price && !OriginalLvText.text.Contains("Max"))
         {
+            // Rune Level Up SE を再生
+            AkSoundEngine.PostEvent("ST_LvUpEqp", gameObject);
+
             Debug.Log("Rune Level Up!");
             // お金を減らす
             Debug.Log("currentGold: " + statusLog.currentGold + " - " + price + " = " + (statusLog.currentGold - price));
@@ -334,6 +343,9 @@ public class BlackSmithManager : MonoBehaviour
     /// </summary>
     public void OnCancelButtonClicked()
     {
+        // Click SE を再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+        
         infoPanel.SetActive(false);
     }
 

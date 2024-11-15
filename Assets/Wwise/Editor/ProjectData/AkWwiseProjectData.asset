@@ -331,11 +331,11 @@ MonoBehaviour:
     ParentPath: SoundBanks\Default Work Unit
     guid: 596f93da2f8c0548917aeb51506e0335
     GuidInternal: 
-    m_lastTime: -8584699366651019074
+    m_lastTime: -8584699166385374546
     List:
-    - name: MainSoundBank
+    - name: BGMSoundBank
       guid: d7f1e2f530fc8d4bb676ac3391acf02c
-      id: 534561221
+      id: 3370353384
       PathAndIcons:
       - ElementName: SoundBanks
         ObjectType: 5
@@ -343,10 +343,38 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: 596f93da2f8c0548917aeb51506e0335
-      - ElementName: MainSoundBank
+      - ElementName: BGMSoundBank
         ObjectType: 7
         guid: d7f1e2f530fc8d4bb676ac3391acf02c
-      Path: SoundBanks\Default Work Unit\MainSoundBank
+      Path: SoundBanks\Default Work Unit\BGMSoundBank
+    - name: SESoundBank
+      guid: 1a68eec8363f2c4a8eb1773b03943fdf
+      id: 808718364
+      PathAndIcons:
+      - ElementName: SoundBanks
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 596f93da2f8c0548917aeb51506e0335
+      - ElementName: SESoundBank
+        ObjectType: 7
+        guid: 1a68eec8363f2c4a8eb1773b03943fdf
+      Path: SoundBanks\Default Work Unit\SESoundBank
+    - name: SystemSoundBank
+      guid: e41625bcacfb70449422876940fa7a48
+      id: 1625944053
+      PathAndIcons:
+      - ElementName: SoundBanks
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 596f93da2f8c0548917aeb51506e0335
+      - ElementName: SystemSoundBank
+        ObjectType: 7
+        guid: e41625bcacfb70449422876940fa7a48
+      Path: SoundBanks\Default Work Unit\SystemSoundBank
   EventWwu:
   - PhysicalPath: Events\Default Work Unit.wwu
     PathAndIcons:
@@ -359,8 +387,45 @@ MonoBehaviour:
     ParentPath: Events\Default Work Unit
     guid: ea1ad177c606a74582aa8d22a137547b
     GuidInternal: 
-    m_lastTime: -8584699366650876205
+    m_lastTime: -8584699166385504353
     List:
+    - name: after
+      guid: 817ebdb17ac2f049af4e9ebb8a2dba57
+      id: 2673105805
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: after
+        ObjectType: 4
+        guid: 817ebdb17ac2f049af4e9ebb8a2dba57
+      Path: Events\Default Work Unit\System\after
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
+    - name: BGM
+      guid: dfd198e8ca01cc45a00e3de396127e20
+      id: 412724365
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
+      Path: Events\Default Work Unit\BGM
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
     - name: BGM_BattleSettings
       guid: 4b31255314ea0148a7a16ae8d6149405
       id: 2316661597
@@ -371,13 +436,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_BattleSettings
         ObjectType: 3
         guid: 4b31255314ea0148a7a16ae8d6149405
-      Path: Events\Default Work Unit\BGM_BattleSettings
+      Path: Events\Default Work Unit\BGM\BGM_BattleSettings
       maxAttenuation: 0
-      maxDuration: 108.348976
-      minDuration: 108.348976
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_Loss
       guid: 5e84bb24877cb84cb8564f75a28f2d28
       id: 1142577437
@@ -388,13 +456,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_Loss
         ObjectType: 3
         guid: 5e84bb24877cb84cb8564f75a28f2d28
-      Path: Events\Default Work Unit\BGM_Loss
+      Path: Events\Default Work Unit\BGM\BGM_Loss
       maxAttenuation: 0
-      maxDuration: 87.27272
-      minDuration: 87.27272
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_NormalBattle01
       guid: 5e721f2028875342b1d80fd1130f14b8
       id: 2971848282
@@ -405,13 +476,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_NormalBattle01
         ObjectType: 3
         guid: 5e721f2028875342b1d80fd1130f14b8
-      Path: Events\Default Work Unit\BGM_NormalBattle01
+      Path: Events\Default Work Unit\BGM\BGM_NormalBattle01
       maxAttenuation: 0
-      maxDuration: 133.09091
-      minDuration: 133.09091
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_NormalBattle02
       guid: bcbbb385c7be78488e74cd2438faadc8
       id: 2971848281
@@ -422,13 +496,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_NormalBattle02
         ObjectType: 3
         guid: bcbbb385c7be78488e74cd2438faadc8
-      Path: Events\Default Work Unit\BGM_NormalBattle02
+      Path: Events\Default Work Unit\BGM\BGM_NormalBattle02
       maxAttenuation: 0
-      maxDuration: 91.46882
-      minDuration: 91.46882
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_NormalBattle03
       guid: bd0190713faafb479926f80af0c80583
       id: 2971848280
@@ -439,13 +516,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_NormalBattle03
         ObjectType: 3
         guid: bd0190713faafb479926f80af0c80583
-      Path: Events\Default Work Unit\BGM_NormalBattle03
+      Path: Events\Default Work Unit\BGM\BGM_NormalBattle03
       maxAttenuation: 0
-      maxDuration: 66.46898
-      minDuration: 66.46898
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_NormalBattle04
       guid: e7f1731e87e4944ba6fa457b2dea2a14
       id: 2971848287
@@ -456,13 +536,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_NormalBattle04
         ObjectType: 3
         guid: e7f1731e87e4944ba6fa457b2dea2a14
-      Path: Events\Default Work Unit\BGM_NormalBattle04
+      Path: Events\Default Work Unit\BGM\BGM_NormalBattle04
       maxAttenuation: 0
-      maxDuration: 85.38229
-      minDuration: 85.38229
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_RecoverRoom
       guid: 0b2c8ead5b483b4e992451586226e649
       id: 801326845
@@ -473,13 +556,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_RecoverRoom
         ObjectType: 3
         guid: 0b2c8ead5b483b4e992451586226e649
-      Path: Events\Default Work Unit\BGM_RecoverRoom
+      Path: Events\Default Work Unit\BGM\BGM_RecoverRoom
       maxAttenuation: 0
-      maxDuration: 102.25739
-      minDuration: 102.25739
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_Town
       guid: f96fdc5ca8b16947b4b79999b00aa3cd
       id: 3507265084
@@ -490,13 +576,16 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_Town
         ObjectType: 3
         guid: f96fdc5ca8b16947b4b79999b00aa3cd
-      Path: Events\Default Work Unit\BGM_Town
+      Path: Events\Default Work Unit\BGM\BGM_Town
       maxAttenuation: 0
-      maxDuration: 180
-      minDuration: 180
+      maxDuration: 0
+      minDuration: 0
     - name: BGM_Victory
       guid: e841d219620ee64a83f10727c7e0af63
       id: 4222241002
@@ -507,13 +596,582 @@ MonoBehaviour:
       - ElementName: Default Work Unit
         ObjectType: 12
         guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: BGM
+        ObjectType: 4
+        guid: dfd198e8ca01cc45a00e3de396127e20
       - ElementName: BGM_Victory
         ObjectType: 3
         guid: e841d219620ee64a83f10727c7e0af63
-      Path: Events\Default Work Unit\BGM_Victory
+      Path: Events\Default Work Unit\BGM\BGM_Victory
       maxAttenuation: 0
-      maxDuration: 45.205963
-      minDuration: 45.205963
+      maxDuration: 0
+      minDuration: 0
+    - name: SE
+      guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      id: 1584861537
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      Path: Events\Default Work Unit\SE
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
+    - name: SE_Appearance
+      guid: 44cf6908007e2748bfff0d16315c5d10
+      id: 25405498
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Appearance
+        ObjectType: 3
+        guid: 44cf6908007e2748bfff0d16315c5d10
+      Path: Events\Default Work Unit\SE\SE_Appearance
+      maxAttenuation: 0
+      maxDuration: 1.4920635
+      minDuration: 1.4920635
+    - name: SE_Axe
+      guid: f53b7723da44cd4e8529baef6331b9a4
+      id: 3492321120
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Axe
+        ObjectType: 3
+        guid: f53b7723da44cd4e8529baef6331b9a4
+      Path: Events\Default Work Unit\SE\SE_Axe
+      maxAttenuation: 0
+      maxDuration: 1.0026667
+      minDuration: 1.0026667
+    - name: SE_Bow
+      guid: e9fd4c8e784eb948aad9a531d713c628
+      id: 3643569840
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Bow
+        ObjectType: 3
+        guid: e9fd4c8e784eb948aad9a531d713c628
+      Path: Events\Default Work Unit\SE\SE_Bow
+      maxAttenuation: 0
+      maxDuration: 1.0160416
+      minDuration: 1.0160416
+    - name: SE_Cretical
+      guid: 998ed7ac2ef03d42844cacb1d3a80be2
+      id: 2626094531
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Cretical
+        ObjectType: 3
+        guid: 998ed7ac2ef03d42844cacb1d3a80be2
+      Path: Events\Default Work Unit\SE\SE_Cretical
+      maxAttenuation: 0
+      maxDuration: 1.9461224
+      minDuration: 1.9461224
+    - name: SE_Cure
+      guid: c20a93da1361bf47b83d98bdef2b44d6
+      id: 4165363523
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Cure
+        ObjectType: 3
+        guid: c20a93da1361bf47b83d98bdef2b44d6
+      Path: Events\Default Work Unit\SE\SE_Cure
+      maxAttenuation: 0
+      maxDuration: 2.0778005
+      minDuration: 2.0778005
+    - name: SE_Heal
+      guid: a92d3608e27aa44cb3dcdb6974bcdad3
+      id: 742698618
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Heal
+        ObjectType: 3
+        guid: a92d3608e27aa44cb3dcdb6974bcdad3
+      Path: Events\Default Work Unit\SE\SE_Heal
+      maxAttenuation: 0
+      maxDuration: 1.3663038
+      minDuration: 1.3663038
+    - name: SE_Hit
+      guid: 884019774f506f45b1f124c93547b57b
+      id: 3141227107
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Hit
+        ObjectType: 3
+        guid: 884019774f506f45b1f124c93547b57b
+      Path: Events\Default Work Unit\SE\SE_Hit
+      maxAttenuation: 0
+      maxDuration: 0.40798187
+      minDuration: 0.40798187
+    - name: SE_Magic
+      guid: 9e5dbf8756cd164ea9681c70c278e5ec
+      id: 1604393909
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Magic
+        ObjectType: 3
+        guid: 9e5dbf8756cd164ea9681c70c278e5ec
+      Path: Events\Default Work Unit\SE\SE_Magic
+      maxAttenuation: 0
+      maxDuration: 1.0104308
+      minDuration: 1.0104308
+    - name: SE_Shield
+      guid: 0d1c70cf5654ae4fbd8b9d544c165492
+      id: 3951230663
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Shield
+        ObjectType: 3
+        guid: 0d1c70cf5654ae4fbd8b9d544c165492
+      Path: Events\Default Work Unit\SE\SE_Shield
+      maxAttenuation: 0
+      maxDuration: 1.0134166
+      minDuration: 1.0134166
+    - name: SE_Slash
+      guid: 8a2f04f8c0bd6c47b353711dc0c7d5b1
+      id: 2885307791
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: SE
+        ObjectType: 4
+        guid: e0a29ebfeeaf5342a4debaa1ade255ac
+      - ElementName: SE_Slash
+        ObjectType: 3
+        guid: 8a2f04f8c0bd6c47b353711dc0c7d5b1
+      Path: Events\Default Work Unit\SE\SE_Slash
+      maxAttenuation: 0
+      maxDuration: 1.0298333
+      minDuration: 1.0298333
+    - name: ST_BGChange
+      guid: 0882064b38623b44b47b973bf581a6a0
+      id: 592837134
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_BGChange
+        ObjectType: 3
+        guid: 0882064b38623b44b47b973bf581a6a0
+      Path: Events\Default Work Unit\System\ST_BGChange
+      maxAttenuation: 0
+      maxDuration: 2.0054166
+      minDuration: 2.0054166
+    - name: ST_Buy
+      guid: 7faf42570c2bd042892204022c56b802
+      id: 3520170161
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Buy
+        ObjectType: 3
+        guid: 7faf42570c2bd042892204022c56b802
+      Path: Events\Default Work Unit\System\ST_Buy
+      maxAttenuation: 0
+      maxDuration: 0.8157823
+      minDuration: 0.8157823
+    - name: ST_CamZoom
+      guid: ac84504e761e09458970d469b1b190be
+      id: 1851990029
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_CamZoom
+        ObjectType: 3
+        guid: ac84504e761e09458970d469b1b190be
+      Path: Events\Default Work Unit\System\ST_CamZoom
+      maxAttenuation: 0
+      maxDuration: 2.1359863
+      minDuration: 2.1359863
+    - name: ST_ChangeEqp
+      guid: ae7ed1597950ca45b2d7f2a8298af4e3
+      id: 1429415107
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_ChangeEqp
+        ObjectType: 3
+        guid: ae7ed1597950ca45b2d7f2a8298af4e3
+      Path: Events\Default Work Unit\System\ST_ChangeEqp
+      maxAttenuation: 0
+      maxDuration: 1.1359637
+      minDuration: 1.1359637
+    - name: ST_Click
+      guid: cb62207d71f21945b927c915090408e1
+      id: 2645564349
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Click
+        ObjectType: 3
+        guid: cb62207d71f21945b927c915090408e1
+      Path: Events\Default Work Unit\System\ST_Click
+      maxAttenuation: 0
+      maxDuration: 1.048526
+      minDuration: 1.048526
+    - name: ST_Error
+      guid: 0fda33de2551204ea0f19da4c64f407a
+      id: 1828652115
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Error
+        ObjectType: 3
+        guid: 0fda33de2551204ea0f19da4c64f407a
+      Path: Events\Default Work Unit\System\ST_Error
+      maxAttenuation: 0
+      maxDuration: 0.6198639
+      minDuration: 0.6198639
+    - name: ST_Fit
+      guid: 60b10ef9f0d50e4ea69c24ab7567ba69
+      id: 3049808428
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Fit
+        ObjectType: 3
+        guid: 60b10ef9f0d50e4ea69c24ab7567ba69
+      Path: Events\Default Work Unit\System\ST_Fit
+      maxAttenuation: 0
+      maxDuration: 0.98995835
+      minDuration: 0.98995835
+    - name: ST_GetItem
+      guid: 95f2274b55909f40993d5b47013a35b3
+      id: 3977729416
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: after
+        ObjectType: 4
+        guid: 817ebdb17ac2f049af4e9ebb8a2dba57
+      - ElementName: ST_GetItem
+        ObjectType: 3
+        guid: 95f2274b55909f40993d5b47013a35b3
+      Path: Events\Default Work Unit\System\after\ST_GetItem
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
+    - name: ST_Grip
+      guid: d5f6d82635443246a3a8209d70f2320f
+      id: 4147925143
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Grip
+        ObjectType: 3
+        guid: d5f6d82635443246a3a8209d70f2320f
+      Path: Events\Default Work Unit\System\ST_Grip
+      maxAttenuation: 0
+      maxDuration: 1.0102494
+      minDuration: 1.0102494
+    - name: ST_LvUpEqp
+      guid: 05d45a37c418d7419749a228bed8e5ff
+      id: 3623674276
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_LvUpEqp
+        ObjectType: 3
+        guid: 05d45a37c418d7419749a228bed8e5ff
+      Path: Events\Default Work Unit\System\ST_LvUpEqp
+      maxAttenuation: 0
+      maxDuration: 1.0954647
+      minDuration: 1.0954647
+    - name: ST_LvUpUnit
+      guid: b64b4b2ccdb452419876e3b26c9a86eb
+      id: 3358621300
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_LvUpUnit
+        ObjectType: 3
+        guid: b64b4b2ccdb452419876e3b26c9a86eb
+      Path: Events\Default Work Unit\System\ST_LvUpUnit
+      maxAttenuation: 0
+      maxDuration: 1.7304308
+      minDuration: 1.7304308
+    - name: ST_Recover
+      guid: d166f20444dc9347955ad6004daf85b7
+      id: 188759585
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Recover
+        ObjectType: 3
+        guid: d166f20444dc9347955ad6004daf85b7
+      Path: Events\Default Work Unit\System\ST_Recover
+      maxAttenuation: 0
+      maxDuration: 1.6337188
+      minDuration: 1.6337188
+    - name: ST_ReturnItem
+      guid: fa487dcf7e6f3f4a8afb98977508df71
+      id: 3550036736
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: after
+        ObjectType: 4
+        guid: 817ebdb17ac2f049af4e9ebb8a2dba57
+      - ElementName: ST_ReturnItem
+        ObjectType: 3
+        guid: fa487dcf7e6f3f4a8afb98977508df71
+      Path: Events\Default Work Unit\System\after\ST_ReturnItem
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
+    - name: ST_Swap
+      guid: 4e40dd9a225f604e9339480304a532d5
+      id: 3084441986
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: after
+        ObjectType: 4
+        guid: 817ebdb17ac2f049af4e9ebb8a2dba57
+      - ElementName: ST_Swap
+        ObjectType: 3
+        guid: 4e40dd9a225f604e9339480304a532d5
+      Path: Events\Default Work Unit\System\after\ST_Swap
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
+    - name: ST_Trash
+      guid: 5b914751ba15684a985912e3c4569689
+      id: 126945167
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: ST_Trash
+        ObjectType: 3
+        guid: 5b914751ba15684a985912e3c4569689
+      Path: Events\Default Work Unit\System\ST_Trash
+      maxAttenuation: 0
+      maxDuration: 0.8402721
+      minDuration: 0.8402721
+    - name: ST_UpParam
+      guid: 2ed25165c9babe41940a9c233146fef9
+      id: 1221961395
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      - ElementName: after
+        ObjectType: 4
+        guid: 817ebdb17ac2f049af4e9ebb8a2dba57
+      - ElementName: ST_UpParam
+        ObjectType: 3
+        guid: 2ed25165c9babe41940a9c233146fef9
+      Path: Events\Default Work Unit\System\after\ST_UpParam
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
+    - name: System
+      guid: ccfc03f2aea36e4592f2618b2d869468
+      id: 3859886410
+      PathAndIcons:
+      - ElementName: Events
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: ea1ad177c606a74582aa8d22a137547b
+      - ElementName: System
+        ObjectType: 4
+        guid: ccfc03f2aea36e4592f2618b2d869468
+      Path: Events\Default Work Unit\System
+      maxAttenuation: 0
+      maxDuration: -1
+      minDuration: -1
   RtpcWwu:
   - PhysicalPath: Game Parameters\Default Work Unit.wwu
     PathAndIcons:
@@ -724,7 +1382,7 @@ MonoBehaviour:
     m_lastTime: -8584699714227114598
     List: []
   ExpandedFileSystemItemIds: 
-  ExpandedWaapiItemIds: 040000000500000006000000070000000a0000000c0000000e00000014000000d7000000d8000000
+  ExpandedWaapiItemIds: 04000000050000000600000007000000090000000a0000000c0000000e00000014000000d7000000d8000000
   AutoSyncSelection: 0
   autoPopulateEnabled: 1
   currentDataSource: 0

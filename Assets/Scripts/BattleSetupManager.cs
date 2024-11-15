@@ -28,52 +28,57 @@ public class BattleSetupManager : MonoBehaviour
 
     private void Start()
     {
-        // GameManagerのインスタンスを取得
+        // 必要な初期化
         gameManager = GameManager.Instance;
-        // WorldManagerのインスタンスを動的に取得
         worldManager = WorldManager.Instance;
-        // battleManagerのインスタンスを取得
         BattleManager battleManager = BattleManager.Instance;
-        
-        // 現在のルームイベントが0の場合、1に設定
+
         if (worldManager.currentRoomEvent == 0)
-        {
             worldManager.currentRoomEvent = 1;
-        }
-        iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
+
+        iventryUI = FindObjectOfType<IventryUI>();
 
         if (startBattleButton == null || worldManager == null || enemyGridPoint == null || PlayerGridPoint == null)
         {
             Debug.LogError("必要なフィールドが設定されていません。");
             return;
         }
-        // gameManagerのlivingUnitsリストが空の場合、プレイヤーキャラクターを生成
-        if (gameManager.livingUnits.Count == 0)
-        {
-            gameManager.createCharacter();
-        }
-        SetupCharacterPlacement(); // プレイヤーキャラクターの配置
-        SetupEnemies(); // 敵キャラクターの配置
-        // 全キャラを敵の方向かせる
-        foreach (var unit in gameManager.livingUnits)
-        {
-            unit.GetComponent<PlayerDraggable>().LookAtNearestTarget();
-        }
-        // enemyGridPointをunparentする
-        enemyGridPoint.SetParent(null);
-        // enemyGridPointが消えないようにする
-        DontDestroyOnLoad(enemyGridPoint.gameObject);
-        // battleManagerのenemyGridPointにenemyGridPointを渡す
-        battleManager.enemyGridPoint = enemyGridPoint;
-        // enemyGridPointの子オブジェクトをすべて取得し、positionConstraintを無効にする
-        foreach (Transform child in enemyGridPoint)
-        {
-            child.GetComponent<PositionConstraint>().enabled = false;
-        }
 
-        // 戦闘開始ボタンがクリックされたときの処理を設定
+        // プレイヤーキャラクターの生成と配置を先に完了させる
+        if (gameManager.livingUnits.Count == 0)
+            gameManager.createCharacter();
+
+        SetupCharacterPlacement(); // プレイヤーキャラクターを一気に配置
+
+        // エネミー生成を遅らせる（コルーチンで非同期処理）
+        StartCoroutine(SetupEnemiesWithDelay());
+
+        // プレイヤーの方向設定
+        foreach (var unit in gameManager.livingUnits)
+            unit.GetComponent<PlayerDraggable>().LookAtNearestTarget();
+
+        // その他の初期設定
+        enemyGridPoint.SetParent(null);
+        DontDestroyOnLoad(enemyGridPoint.gameObject);
+        battleManager.enemyGridPoint = enemyGridPoint;
+
+        foreach (Transform child in enemyGridPoint)
+            child.GetComponent<PositionConstraint>().enabled = false;
+
         startBattleButton.onClick.AddListener(OnStartBattleButtonClicked);
     }
+
+    /// <summary>
+    /// 敵キャラクターの配置を遅らせるコルーチン
+    /// </summary>
+    private IEnumerator SetupEnemiesWithDelay()
+    {
+        yield return null; // 一度フレームを待つことでプレイヤー配置を完全に終了させる
+
+        // エネミー生成処理
+        SetupEnemies();
+    }
+
 
     /// <summary>
     /// 敵キャラクターをグリッド上に配置するメソッド。
@@ -196,7 +201,6 @@ public class BattleSetupManager : MonoBehaviour
             {
                 color.a = t;
                 spriteRenderer.color = color;
-                material.color = color;
 
                 yield return null;
             }
@@ -204,7 +208,7 @@ public class BattleSetupManager : MonoBehaviour
             // 最終的にアルファを1に設定
             color.a = 1;
             spriteRenderer.color = color;
-            material.color = color;
+
         }
 
         // RectTransformを持つ子オブジェクトを再表示
@@ -212,6 +216,9 @@ public class BattleSetupManager : MonoBehaviour
         {
             child.SetActive(true);
         }
+        
+        // エネミー出現SEを再生
+        AkSoundEngine.PostEvent("SE_Appearance", gameObject);
     }
 
     /// <summary>
@@ -279,9 +286,6 @@ public class BattleSetupManager : MonoBehaviour
         // 新しいバトルシーンをロード
         GameManager.Instance.LoadScene("InToBattleScene");
 
-        // バトルシーンに遷移するSEを再生
-        AkSoundEngine.PostEvent("ST_BGChange", gameObject);
-
         // 子オブジェクトをすべて取得
         Transform[] children = enemyGroup.GetComponentsInChildren<Transform>();
 
@@ -297,6 +301,9 @@ public class BattleSetupManager : MonoBehaviour
 
         // バトル開始時の初期化処理を実行
         BattleManager.Instance.OnBattleStart();
+
+        // バトルシーンに遷移するSEを再生
+        AkSoundEngine.PostEvent("ST_BGChange", gameObject);
     }
 
 

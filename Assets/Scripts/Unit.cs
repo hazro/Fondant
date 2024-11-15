@@ -591,6 +591,9 @@ public class Unit : MonoBehaviour
         currentHp -= damage;
         UpdateHpBar();
 
+        // ダメージ音を再生
+        AkSoundEngine.PostEvent("SE_Hit", gameObject);
+
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
         {

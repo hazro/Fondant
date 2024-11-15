@@ -157,6 +157,9 @@ public class NextRoomManager : MonoBehaviour
     /// </summary>
     public void OnRoomBtn1Clicked()
     {
+        // ClickSoundを再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         ApplyRoomOptions(room1Options); // 記録されたroom1のオプション情報を適用
         LoadScene(room1Id);
     }
@@ -166,6 +169,9 @@ public class NextRoomManager : MonoBehaviour
     /// </summary>
     public void OnRoomBtn2Clicked()
     {
+        // ClickSoundを再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+        
         ApplyRoomOptions(room2Options); // 記録されたroom2のオプション情報を適用
         LoadScene(room2Id);
     }

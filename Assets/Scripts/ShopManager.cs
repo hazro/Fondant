@@ -84,6 +84,9 @@ public class ShopManager : MonoBehaviour
     /// </summary>
     public void addStockList(GameObject clickedObject)
     {
+        // Click SEを再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         // クリックされたオブジェクトの名前が"Image"を含む場合
         if(clickedObject.name.Contains("Image")){
             // 親オブジェクトの名前を取得
@@ -151,6 +154,9 @@ public class ShopManager : MonoBehaviour
     /// </summary>
     public void OnClickExitButton()
     {
+        // Click SEを再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         // StatusAdjustmentSceneに遷移
         gameManager.LoadScene("StatusAdjustmentScene");
     }
@@ -163,6 +169,9 @@ public class ShopManager : MonoBehaviour
         // ショップリセット回数が0より大きい場合
         if (statusLog.shopResetCount > 0)
         {
+            // Click SEを再生
+            AkSoundEngine.PostEvent("ST_Click", gameObject);
+
             // ストックアイテムリストを初期化
             stockItem.Clear();
             // totalPriceを0に設定
@@ -182,6 +191,9 @@ public class ShopManager : MonoBehaviour
         }
         else
         {
+            // Error SEを再生
+            AkSoundEngine.PostEvent("ST_Error", gameObject);
+
             // infoTextに"ショップリセット回数がありません"を表示
             string text = "No store reset times";
             UpdateInfoPanel(text);
@@ -199,6 +211,9 @@ public class ShopManager : MonoBehaviour
             // 現在のゴールドがtotalPriceより大きい場合
             if (statusLog.currentGold >= totalPrice)
             {
+                // 購入SEを再生
+                AkSoundEngine.PostEvent("ST_Buy", gameObject);
+
                 // 現在のゴールドからtotalPriceを引く
                 statusLog.currentGold -= totalPrice;
                 // ゴールドと経験値UIを更新
@@ -235,6 +250,9 @@ public class ShopManager : MonoBehaviour
             }
             else
             {
+                // Error SEを再生
+                AkSoundEngine.PostEvent("ST_Error", gameObject);
+
                 // infoTextに"ゴールドが足りません"を表示
                 string text = "Not enough gold";
                 UpdateInfoPanel(text);
@@ -243,6 +261,9 @@ public class ShopManager : MonoBehaviour
         else
         {
             // infoTextに"アイテムが選択されていません"を表示
+            // Error SEを再生
+            AkSoundEngine.PostEvent("ST_Error", gameObject);
+
             string text = "No item selected";
             UpdateInfoPanel(text);
         }
@@ -622,6 +643,10 @@ public class ShopManager : MonoBehaviour
             iventryUI.UpdateIventryPanel();
             //goldをPrice分増やす
             statusLog.currentGold += Price;
+            
+            // buySEを再生
+            AkSoundEngine.PostEvent("ST_Buy", gameObject);
+
             // ゴールドと経験値UIを更新
             gameManager.UpdateGoldAndExpUI();
             // 価格と所持金によってtotalPriceTextの色を変更する

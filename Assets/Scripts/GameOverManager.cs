@@ -17,6 +17,9 @@ public class GameOverManager : MonoBehaviour
     /// </summary>
     public void OnBackToTownButtonClicked()
     {
+        // click SE 
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+        
         Debug.Log("街に戻るボタンが押されました。");
         // 街シーンへ移動
         gameManager.LoadScene("InToTownScene");

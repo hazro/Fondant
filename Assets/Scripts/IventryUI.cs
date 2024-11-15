@@ -374,6 +374,9 @@ public class IventryUI : MonoBehaviour
         {
             return;
         }
+        // ClickSoundを再生
+        AkSoundEngine.PostEvent("ST_Click", gameObject);
+
         // IventryItemをソート
         IventrySorting();
         // IventryPanelの画像をすべて再設定
@@ -437,6 +440,9 @@ public class IventryUI : MonoBehaviour
                                 // イベントリに空きがあるか確認し、空きがなければエラーログを出力して終了
                                 if (Array.IndexOf(IventryItem, 0) == -1)
                                 {
+                                    // エラーSEを再生
+                                    AkSoundEngine.PostEvent("ST_Error", gameObject);
+
                                     infoPanelText.text = "Tried to remove the shield because it was a two-handed weapon \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
                                     infoPanel.SetActive(true);
                                     OKButton.gameObject.SetActive(true);
@@ -497,6 +503,9 @@ public class IventryUI : MonoBehaviour
                             // イベントリにdiffRuneList.Count以上空きがあるか確認し、空きがなければエラーログを出力して終了
                             if (CountEmptySlots() < diffRuneList.Count)
                             {
+                                // エラーSEを再生
+                                AkSoundEngine.PostEvent("ST_Error", gameObject);
+
                                 infoPanelText.text = "Tried to remove the subrune because the number of sockets decreased \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
                                 infoPanel.SetActive(true);
                                 OKButton.gameObject.SetActive(true);
@@ -581,6 +590,9 @@ public class IventryUI : MonoBehaviour
                         // originalObjのオブジェクト名を変数に代入
                         if(originalObj.name == "charWpn")
                         {
+                            // エラーSEを再生
+                            AkSoundEngine.PostEvent("ST_Error", gameObject);
+                            
                             //unit.currentWeapons = 0;
                             // 武器は外せない
                             Debug.Log("武器は交換のみで外せません");
@@ -671,6 +683,9 @@ public class IventryUI : MonoBehaviour
                     
                     // オブジェクトを移動し、イベントリとスキルパネルを更新する
                     MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj, iventryItemLv);
+
+                    // 装備変更SEを再生
+                    AkSoundEngine.PostEvent("ST_ChangeEqp", gameObject);
                     
                     // unitのステータスを更新
                     unit.updateStatus();
@@ -1087,6 +1102,9 @@ public class IventryUI : MonoBehaviour
     // ゴミ箱でOKボタンを押した際に呼び出されるメソッド
     public void TrashAllItem()
     {
+        // ゴミ捨て音を再生
+        AkSoundEngine.PostEvent("ST_Trash", gameObject);
+
         // ゴミ箱の選択状態の孫オブジェクトをすべて削除
         foreach (Transform child in IventryPanel.transform)
         {
