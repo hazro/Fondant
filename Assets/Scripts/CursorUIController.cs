@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class CursorUIController : MonoBehaviour
 {
+    [SerializeField] private bool isSystemCursor = false; // システムカーソルを使用するかどうか
     public Image cursorImage;                 // カーソルとして使うImageコンポーネント
     [Range(0.1f, 2.0f)]
     public float cursorScale = 0.75f;          // カーソルのスケール
@@ -17,7 +18,7 @@ public class CursorUIController : MonoBehaviour
     void Update()
     {
         // カーソルが表示されている場合は非表示にする
-        if(Cursor.visible) Cursor.visible = false;
+        if(Cursor.visible && !isSystemCursor) Cursor.visible = false;
 
         // マウス位置にカーソルを追従させる
         Vector3 cursorPosition = Input.mousePosition;

@@ -7,6 +7,8 @@ using TMPro;
 
 public class Unit : MonoBehaviour
 {
+    [Header("Debug")]
+    public bool isNoHpReduction = false; // HP減少なし
     //public UnitStatus unitStatus;
     public SpriteRenderer unitSprite; // ユニットのスプライト
     private Animator animator; // Animatorコンポーネントの参照
@@ -240,15 +242,43 @@ public class Unit : MonoBehaviour
             return;
         }
         // ルーンのステータスの初期化
+        int addLevel = 0;
         float pysicalAttackMultiplier = 1.0f;
         float magicAttackMultiplier = 1.0f;
+        float physicalDefenseMultiplier = 1.0f;
+        float magicalDefenseMultiplier = 1.0f;
         float delayMultiplier = 1.0f;
         float aefSpeedMultiplier = 1.0f;
+        float moveSpeedMultiplier = 1.0f;
         float maxDistanceMultiplier = 1.0f;
         float weaponScaleMultiplier = 1.0f;
         int attackCharThroughAdd = 0;
         int attackObjectThroughAdd = 0;
         float projectileLifetime = 1.0f;
+        float conditionGuard = 0.0f;
+
+        // 以下未設定
+        float bloodTime = 1.0f;
+        float poisonTime = 1.0f;
+        float criticalChance = 1.0f;
+        float guardChance = 1.0f;
+        float bloodSuck = 0.0f;
+        float poisonGuard = 0.0f;
+        float bleedGuard = 0.0f;
+        float stunGuard = 0.0f;
+        float paralysisGuard = 0.0f;
+        float wakeGuard = 0.0f;
+        float defenceDownGuard = 0.0f;
+        float comboDamage = 0.0f;
+        float comboCritical = 0.0f;
+        float criticalDamage = 1.0f;
+        float poison = 0.0f;
+        float bleed = 0.0f;
+        float stun = 0.0f;
+        float paralysis = 0.0f;
+        float wake = 0.0f;
+        float defenceDown = 0.0f;
+
         // tagがAllyでiventrySkillListがnullでなければルーンのステータスを取得
         if (gameObject.tag == "Ally" && IventrySkillList != null)
         {
@@ -269,39 +299,121 @@ public class Unit : MonoBehaviour
                 {
                     if(runeLevel == 1)
                     {
+                        if (runeListData.addLevelLv1 != 0) addLevel += runeListData.addLevelLv1;
                         if (runeListData.pysicalPowerLv1 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv1;
                         if (runeListData.magicalPowerLv1 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv1;
+                        if (runeListData.physicalDefenseLv1 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv1;
+                        if (runeListData.magicalDefenseLv1 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv1;
                         if (runeListData.delayLv1 != 0) delayMultiplier *= runeListData.delayLv1;
                         if (runeListData.speedLv1 != 0) aefSpeedMultiplier *= runeListData.speedLv1;
+                        if (runeListData.moveSpeedLv1 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv1;
                         if (runeListData.distanceLv1 != 0) maxDistanceMultiplier *= runeListData.distanceLv1;
                         if (runeListData.scaleLv1 != 0) weaponScaleMultiplier *= runeListData.scaleLv1;
                         if (runeListData.attackUnitThroughLv1 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv1;
                         if (runeListData.attackObjectThroughLv1 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv1;
                         if (runeListData.timeLv1 != 0) projectileLifetime *= runeListData.timeLv1;
+                        if (runeListData.conditionGuardLv1 != 0) conditionGuard += runeListData.conditionGuardLv1;
+
+                        // 以下未設定
+                        if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
+                        if (runeListData.poisonTimeLv1 != 0) poisonTime *= runeListData.poisonTimeLv1;
+                        //if (runeListData.criticalChanceLv1 != 0) criticalChance *= runeListData.criticalChanceLv1;
+                        if (runeListData.guardChanceLv1 != 0) guardChance *= runeListData.guardChanceLv1;
+                        if (runeListData.bloodSuckLv1 != 0) bloodSuck += runeListData.bloodSuckLv1;
+                        if (runeListData.poisonGuardLv1 != 0) poisonGuard += runeListData.poisonGuardLv1;
+                        if (runeListData.bleedGuardLv1 != 0) bleedGuard += runeListData.bleedGuardLv1;
+                        if (runeListData.stunGuardLv1 != 0) stunGuard += runeListData.stunGuardLv1;
+                        if (runeListData.paralysisGuardLv1 != 0) paralysisGuard += runeListData.paralysisGuardLv1;
+                        if (runeListData.wakeGuardLv1 != 0) wakeGuard += runeListData.wakeGuardLv1;
+                        if (runeListData.defenceDownGuardLv1 != 0) defenceDownGuard += runeListData.defenceDownGuardLv1;
+                        if (runeListData.comboDamageLv1 != 0) comboDamage += runeListData.comboDamageLv1;
+                        if (runeListData.comboCriticalLv1 != 0) comboCritical += runeListData.comboCriticalLv1;
+                        if (runeListData.criticalDamageLv1 != 0) criticalDamage *= runeListData.criticalDamageLv1;
+                        if (runeListData.poisonLv1 != 0) poison += runeListData.poisonLv1;
+                        if (runeListData.bleedLv1 != 0) bleed += runeListData.bleedLv1;
+                        if (runeListData.stunLv1 != 0) stun += runeListData.stunLv1;
+                        if (runeListData.paralysisLv1 != 0) paralysis += runeListData.paralysisLv1;
+                        if (runeListData.wakeLv1 != 0) wake += runeListData.wakeLv1;
+                        if (runeListData.defenceDownLv1 != 0) defenceDown += runeListData.defenceDownLv1;
+
                     }
                     if(runeLevel == 2)
                     {
+                        if (runeListData.addLevelLv2 != 0) addLevel += runeListData.addLevelLv2;
                         if (runeListData.pysicalPowerLv2 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv2;
                         if (runeListData.magicalPowerLv2 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv2;
+                        if (runeListData.physicalDefenseLv2 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv2;
+                        if (runeListData.magicalDefenseLv2 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv2;
                         if (runeListData.delayLv2 != 0) delayMultiplier *= runeListData.delayLv2;
                         if (runeListData.speedLv2 != 0) aefSpeedMultiplier *= runeListData.speedLv2;
+                        if (runeListData.moveSpeedLv2 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv2;
                         if (runeListData.distanceLv2 != 0) maxDistanceMultiplier *= runeListData.distanceLv2;
                         if (runeListData.scaleLv2 != 0) weaponScaleMultiplier *= runeListData.scaleLv2;
                         if (runeListData.attackUnitThroughLv2 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv2;
                         if (runeListData.attackObjectThroughLv2 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv2;
                         if (runeListData.timeLv2 != 0) projectileLifetime *= runeListData.timeLv2;
+                        if (runeListData.conditionGuardLv2 != 0) conditionGuard += runeListData.conditionGuardLv2;
+
+                        // 以下未設定
+                        if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
+                        if (runeListData.poisonTimeLv2 != 0) poisonTime *= runeListData.poisonTimeLv2;
+                        //if (runeListData.criticalChanceLv2 != 0) criticalChance *= runeListData.criticalChanceLv2;
+                        if (runeListData.guardChanceLv2 != 0) guardChance *= runeListData.guardChanceLv2;
+                        if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
+                        if (runeListData.poisonGuardLv2 != 0) poisonGuard += runeListData.poisonGuardLv2;
+                        if (runeListData.bleedGuardLv2 != 0) bleedGuard += runeListData.bleedGuardLv2;
+                        if (runeListData.stunGuardLv2 != 0) stunGuard += runeListData.stunGuardLv2;
+                        if (runeListData.paralysisGuardLv2 != 0) paralysisGuard += runeListData.paralysisGuardLv2;
+                        if (runeListData.wakeGuardLv2 != 0) wakeGuard += runeListData.wakeGuardLv2;
+                        if (runeListData.defenceDownGuardLv2 != 0) defenceDownGuard += runeListData.defenceDownGuardLv2;
+                        if (runeListData.comboDamageLv2 != 0) comboDamage += runeListData.comboDamageLv2;
+                        if (runeListData.comboCriticalLv2 != 0) comboCritical += runeListData.comboCriticalLv2;
+                        if (runeListData.criticalDamageLv2 != 0) criticalDamage *= runeListData.criticalDamageLv2;
+                        if (runeListData.poisonLv2 != 0) poison += runeListData.poisonLv2;
+                        if (runeListData.bleedLv2 != 0) bleed += runeListData.bleedLv2;
+                        if (runeListData.stunLv2 != 0) stun += runeListData.stunLv2;
+                        if (runeListData.paralysisLv2 != 0) paralysis += runeListData.paralysisLv2;
+                        if (runeListData.wakeLv2 != 0) wake += runeListData.wakeLv2;
+                        if (runeListData.defenceDownLv2 != 0) defenceDown += runeListData.defenceDownLv2;
                     }
                     if(runeLevel == 3)
                     {
+                        if (runeListData.addLevelLv3 != 0) addLevel += runeListData.addLevelLv3;
                         if (runeListData.pysicalPowerLv3 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv3;
                         if (runeListData.magicalPowerLv3 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv3;
+                        if (runeListData.physicalDefenseLv3 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv3;
+                        if (runeListData.magicalDefenseLv3 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv3;
                         if (runeListData.delayLv3 != 0) delayMultiplier *= runeListData.delayLv3;
                         if (runeListData.speedLv3 != 0) aefSpeedMultiplier *= runeListData.speedLv3;
+                        if (runeListData.moveSpeedLv3 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv3;
                         if (runeListData.distanceLv3 != 0) maxDistanceMultiplier *= runeListData.distanceLv3;
                         if (runeListData.scaleLv3 != 0) weaponScaleMultiplier *= runeListData.scaleLv3;
                         if (runeListData.attackUnitThroughLv3 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv3;
                         if (runeListData.attackObjectThroughLv3 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv3;
                         if (runeListData.timeLv3 != 0) projectileLifetime *= runeListData.timeLv3;
+                        if (runeListData.conditionGuardLv3 != 0) conditionGuard += runeListData.conditionGuardLv3;
+
+                        // 以下未設定
+                        if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
+                        if (runeListData.poisonTimeLv3 != 0) poisonTime *= runeListData.poisonTimeLv3;
+                        //if (runeListData.criticalChanceLv3 != 0) criticalChance *= runeListData.criticalChanceLv3;
+                        if (runeListData.guardChanceLv3 != 0) guardChance *= runeListData.guardChanceLv3;
+                        if (runeListData.bloodSuckLv3 != 0) bloodSuck += runeListData.bloodSuckLv3;
+                        if (runeListData.poisonGuardLv3 != 0) poisonGuard += runeListData.poisonGuardLv3;
+                        if (runeListData.bleedGuardLv3 != 0) bleedGuard += runeListData.bleedGuardLv3;
+                        if (runeListData.stunGuardLv3 != 0) stunGuard += runeListData.stunGuardLv3;
+                        if (runeListData.paralysisGuardLv3 != 0) paralysisGuard += runeListData.paralysisGuardLv3;
+                        if (runeListData.wakeGuardLv3 != 0) wakeGuard += runeListData.wakeGuardLv3;
+                        if (runeListData.defenceDownGuardLv3 != 0) defenceDownGuard += runeListData.defenceDownGuardLv3;
+                        if (runeListData.comboDamageLv3 != 0) comboDamage += runeListData.comboDamageLv3;
+                        if (runeListData.comboCriticalLv3 != 0) comboCritical += runeListData.comboCriticalLv3;
+                        if (runeListData.criticalDamageLv3 != 0) criticalDamage *= runeListData.criticalDamageLv3;
+                        if (runeListData.poisonLv3 != 0) poison += runeListData.poisonLv3;
+                        if (runeListData.bleedLv3 != 0) bleed += runeListData.bleedLv3;
+                        if (runeListData.stunLv3 != 0) stun += runeListData.stunLv3;
+                        if (runeListData.paralysisLv3 != 0) paralysis += runeListData.paralysisLv3;
+                        if (runeListData.wakeLv3 != 0) wake += runeListData.wakeLv3;
+                        if (runeListData.defenceDownLv3 != 0) defenceDown += runeListData.defenceDownLv3;
                     }
                 }
             }
@@ -331,6 +443,9 @@ public class Unit : MonoBehaviour
         // 残りの必要経験値
         remainingExp = (int)nextLevelExp - totalExp;
 
+        // ルーンによるLvの上昇
+        currentLevel += addLevel;
+
         // ステータスを計算
         Hp = (currentStr + (currentLevel - 1) * levelStr) * 10 + wpnListData.hp + shieldListData.hp + armorListData.hp + accessoriesListData.hp;
         physicalAttackPower = (currentStr + (currentLevel - 1) * levelStr) / 1 + wpnListData.physicalAttackPower + shieldListData.physicalAttackPower + armorListData.physicalAttackPower + accessoriesListData.physicalAttackPower;
@@ -338,13 +453,16 @@ public class Unit : MonoBehaviour
         magicalAttackPower = (currentMagic + (currentLevel - 1) * levelMagic) / 1 + wpnListData.magicalAttackPower + shieldListData.magicalAttackPower + armorListData.magicalAttackPower + accessoriesListData.magicalAttackPower;
         magicalAttackPower *= magicAttackMultiplier; // ルーンの魔法攻撃力倍率を適用
         physicalDefensePower = (currentStr + (currentLevel - 1) * levelStr) / 10 + wpnListData.physicalDefensePower + shieldListData.physicalDefensePower + armorListData.physicalDefensePower + accessoriesListData.physicalDefensePower;
+        physicalDefensePower *= physicalDefenseMultiplier; // ルーンの物理防御力倍率を適用
         magicalDefensePower = (currentMagic + (currentLevel - 1) * levelMagic) / 10 + wpnListData.magicalDefensePower + shieldListData.magicalDefensePower + armorListData.magicalDefensePower + accessoriesListData.magicalDefensePower;
+        magicalDefensePower *= magicalDefenseMultiplier; // ルーンの魔法防御力倍率を適用
         resistCondition = (currentResidtCondition + (currentLevel - 1) * levelResidtCondition) / 10 + wpnListData.resistCondition + shieldListData.resistCondition + armorListData.resistCondition + accessoriesListData.resistCondition;
+        resistCondition += (conditionGuard * 100); // ルーンの状態異常耐性倍率を適用
         attackDelay =  2.0f + (currentDex + (currentLevel - 1) * levelDex) / 10 + wpnListData.attackDelay + shieldListData.attackDelay + armorListData.attackDelay + accessoriesListData.attackDelay;
         attackDelay *= delayMultiplier; // ルーンの攻撃速度倍率を適用
         Speed =  3 + (currentDex + (currentLevel - 1) * levelDex) / 10 + wpnListData.speed + shieldListData.speed + armorListData.speed + accessoriesListData.speed;
         attackSpeed = Speed * aefSpeedMultiplier; // ルーンの攻撃速度倍率を適用
-        moveSpeed = Speed; // 移動速度
+        moveSpeed = Speed * moveSpeedMultiplier; // ルーンの移動速度倍率を適用
         attackUnitThrough = (int)(currentAttackUnitThrough + (currentLevel - 1) * levelAttackUnitThrough) + wpnListData.attackUnitThrough + shieldListData.attackUnitThrough + armorListData.attackUnitThrough + accessoriesListData.attackUnitThrough;
         attackUnitThrough += attackCharThroughAdd; // ルーンのキャラクター貫通力を適用
         attackObjectThrough = (int)(currentAttackObjectThrough + (currentLevel - 1) * levelAttackObjectThrough) + wpnListData.attackObjectThrough + shieldListData.attackObjectThrough + armorListData.attackObjectThrough + accessoriesListData.attackObjectThrough;
@@ -356,13 +474,14 @@ public class Unit : MonoBehaviour
         teleportation = teleportations + wpnListData.teleportation + shieldListData.teleportation + armorListData.teleportation + accessoriesListData.teleportation;
         escape = escapes + wpnListData.escape + shieldListData.escape + armorListData.escape + accessoriesListData.escape;
         attackRange = wpnListData.attackRange;
+        attackRange *= maxDistanceMultiplier; // ルーンの攻撃距離倍率を適用 
         attackStanceDuration = wpnListData.attackStanceDuration;
         attackStanceDelay = wpnListData.attackStanceDelay;
         socketCount = wpnListData.socketCount + shieldListData.socketCount + armorListData.socketCount + accessoriesListData.socketCount;
         attackLifetime = 1;
         attackLifetime = projectileLifetime; // ルーンの攻撃寿命を適用
         attackDistance = wpnListData.attackRange;
-        attackDistance = maxDistanceMultiplier; // ルーンの攻撃距離倍率を適用
+        attackDistance *= maxDistanceMultiplier; // ルーンの攻撃距離倍率を適用
 
         // タンクの場合はHP、防御力、を2倍にする代わりに移動速度やDelayを半減
         if (job == 4 || job == 34) Hp *= 2;
@@ -588,7 +707,8 @@ public class Unit : MonoBehaviour
             }
         }
 
-        currentHp -= damage;
+        // Hp減少しないフラグがfalseなら　HPを減少させる
+        if (!isNoHpReduction) currentHp -= damage;
         UpdateHpBar();
 
         // ダメージ音を再生

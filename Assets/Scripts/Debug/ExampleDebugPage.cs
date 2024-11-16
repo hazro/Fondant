@@ -9,6 +9,7 @@ using Tayx.Graphy;
 using UnityDebugSheet.Runtime.Core.Scripts.DefaultImpl.Cells;
 using UnityDebugSheet.Runtime.Extensions.IngameDebugConsole;
 using UnityDebugSheet.Runtime.Extensions.Graphy;
+using Tayx.Graphy.Utils.NumString;
 //using UnityDebugSheet.Unity;
 //using UnityDebugSheet.IngameDebugConsole;
 //using UnityDebugSheet.Graphy;
@@ -20,6 +21,7 @@ public sealed class ExampleDebugPage : DefaultDebugPageBase
     GameManager gameManager;
     IventryUI iventryUI;
     protected override string Title { get; } = "Example Debug Page";
+    private SelectPlayer selectedPlayer = SelectPlayer.Player02; // 選択されたプレイヤーを格納する変数
 
     public override IEnumerator Initialize()
     {
@@ -40,45 +42,102 @@ public sealed class ExampleDebugPage : DefaultDebugPageBase
 
         //AddButton("Example Button", clicked: () => { Debug.Log("Clicked"); });
         // バトルシーンへの遷移ボタンを追加
-        AddButton("Battle Scene", clicked: () => { gameManager.LoadScene("InToBattleScene"); });
-        // プレイヤー02をデフォルトの位置に移動
-        AddButton("Player02_Move_DefaultPosition", clicked: () => { 
-            GameObject P2 = gameManager.livingUnits[1];
-            P2.transform.position = new Vector3(-2.0f, 0, 0);
+        AddButton("Load Battle Scene", clicked: () => { gameManager.LoadScene("InToBattleScene"); });
+
+        // Enum Picker
+        var enumPickerData1 = new EnumPickerCellModel(SelectPlayer.Player02);
+        enumPickerData1.Text = "Select Player";
+        enumPickerData1.Clicked += () => Debug.Log("Clicked");
+        enumPickerData1.Confirmed += () => Debug.Log("Picking Page Closed");
+        enumPickerData1.ActiveValueChanged += value => 
+        {
+            selectedPlayer = (SelectPlayer)value;
+            Debug.Log($"Selected Option Changed: {selectedPlayer}");
+        };
+        AddEnumPicker(enumPickerData1);
+
+        // 選択したプレイヤーをデフォルトの位置に移動
+        AddButton("SelectUnit_Move_DefaultPosition", clicked: () => { 
+            // 選択したプレイヤーを取得
+            GameObject selectedUnit = gameManager.livingUnits[(int)selectedPlayer];
+            selectedUnit.transform.position = new Vector3(-2.0f, 0, 0);
          });
-         // プレイヤー02を移動&攻撃可能にする
-        AddButton("Player02_Move&Attack", clicked: () => { 
-            GameObject P2 = gameManager.livingUnits[1];
-            P2.GetComponent<UnitController>().enabled = true;
-            P2.GetComponent<AttackController>().enabled = true;
+         // 選択したプレイヤーを移動&攻撃可能にする
+        AddButton("SelectUnit_Move&Attack", clicked: () => { 
+            GameObject selectedUnit = gameManager.livingUnits[(int)selectedPlayer];
+            selectedUnit.GetComponent<UnitController>().enabled = true;
+            selectedUnit.GetComponent<AttackController>().enabled = true;
          });
-        // プレイヤー02を移動&攻撃不可能にする
-        AddButton("Player02_Move&Attack_Disable", clicked: () => { 
-            GameObject P2 = gameManager.livingUnits[1];
-            P2.GetComponent<UnitController>().enabled = false;
-            P2.GetComponent<AttackController>().enabled = false;
+        // 選択したプレイヤーを移動&攻撃不可能にする
+        AddButton("SelectUnit_Move&Attack_Disable", clicked: () => { 
+            GameObject selectedUnit = gameManager.livingUnits[(int)selectedPlayer];
+            selectedUnit.GetComponent<UnitController>().enabled = false;
+            selectedUnit.GetComponent<AttackController>().enabled = false;
          });
-        // プレイヤー02のHPを回復
-        AddButton("Player02_Recover_HP", clicked: () => { 
-            GameObject P2 = gameManager.livingUnits[1];
-            P2.GetComponent<Unit>().InitHp();
+         // すべての敵の移動&攻撃可能にする
+        AddButton("AllEnemy_Move&Attack", clicked: () => { 
+            foreach (Transform enemy in gameManager.enemyGroup.transform)
+            {
+                enemy.GetComponent<UnitController>().enabled = true;
+                enemy.GetComponent<AttackController>().enabled = true;
+            }
+         });
+        // すべての敵の移動&攻撃不可能にする
+        AddButton("AllEnemy_Move&Attack_Disable", clicked: () => {
+            foreach (Transform enemy in gameManager.enemyGroup.transform)
+            {
+                enemy.GetComponent<UnitController>().enabled = false;
+                enemy.GetComponent<AttackController>().enabled = false;
+            }
+         });
+         // すべてのユニットの移動&攻撃可能にする
+        // すべてのユニットのHPを回復
+        AddButton("AllUnit_Recover_HP", clicked: () => { 
+            foreach (GameObject unit in gameManager.livingUnits)
+            {
+                unit.GetComponent<Unit>().InitHp();
+            }
+            foreach (Transform enemy in gameManager.enemyGroup.transform)
+            {
+                enemy.GetComponent<Unit>().InitHp();
+            }
+         });
+         // すべてのユニットのHpが減少しないようにする
+        AddButton("AllUnit_HP_No_Reduction", clicked: () => { 
+            foreach (GameObject unit in gameManager.livingUnits)
+            {
+                unit.GetComponent<Unit>().isNoHpReduction = true;
+            }
+            // gameManager.enemyGroup.transformの子オブジェクトのUnitコンポーネントのisNoHpReductionをtrueにする
+            foreach (Transform enemy in gameManager.enemyGroup.transform)
+            {
+                enemy.GetComponent<Unit>().isNoHpReduction = true;
+            }
+         });
+         // すべてのユニットのHpが減少するようにする
+        AddButton("AllUnit_HP_Reduction", clicked: () => { 
+            foreach (GameObject unit in gameManager.livingUnits)
+            {
+                unit.GetComponent<Unit>().isNoHpReduction = false;
+            }
+            foreach (Transform enemy in gameManager.enemyGroup.transform)
+            {
+                enemy.GetComponent<Unit>().isNoHpReduction = false;
+            }
          });
         AddPageLinkButton<AddRuneDebugPage>(nameof(AddRuneDebugPage));
         AddPageLinkButton<AddEqpDebugPage>(nameof(AddEqpDebugPage));
         AddPageLinkButton<AddWpnDebugPage>(nameof(AddWpnDebugPage));
         AddPageLinkButton<DropMonsterDebugPage>(nameof(DropMonsterDebugPage));
-        // EnemyGroup内のエネミーのHpを回復
-        AddButton("Recover Enemy HP", clicked: () => { 
-            Transform enemyGroup = GameObject.Find("EnemyGroup")?.transform;
-            if (enemyGroup != null)
-            {
-                foreach (Transform enemy in enemyGroup)
-                {
-                    enemy.GetComponent<Unit>().InitHp();
-                }
-            }
-         });
 
         yield break;
+    }
+    private enum SelectPlayer
+    {
+        Player01 = 0,
+        Player02 = 1,
+        Player03 = 2,
+        Player04 = 3,
+        Player05 = 4
     }
 }
