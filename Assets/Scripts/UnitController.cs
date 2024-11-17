@@ -69,6 +69,7 @@ public class UnitController : MonoBehaviour
     //private bool isMoving; // 移動中かどうかのフラグ
     private int currentSpriteIndex; // 現在のスプライトインデックス
     private float lastSpriteChangeTime; // 最後にスプライトを変更した時間
+    [HideInInspector] public bool isRandomTarget = false; // ランダムなターゲットを選択するかどうかのフラグ
 
     private bool inAttackStance = false; // その場でとどまる攻撃モード中かどうか
     public bool InAttackStance => inAttackStance; // 攻撃モード中かどうかを取得するプロパティ
@@ -162,7 +163,7 @@ public class UnitController : MonoBehaviour
             }
         }
 
-        if (Time.time - lastTargetUpdateTime > targetUpdateInterval)
+        if (Time.time - lastTargetUpdateTime > targetUpdateInterval && !isRandomTarget)
         {
             SetClosestTarget();
             lastTargetUpdateTime = Time.time;
@@ -458,7 +459,7 @@ public class UnitController : MonoBehaviour
     /// <summary>
     /// ターゲットとの距離を評価し、最も近いターゲットを設定します。
     /// </summary>
-    public void SetClosestTarget(bool randomSelection = false)
+    public void SetClosestTarget()
     {
         string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy");
         float closestDistance = Mathf.Infinity;
@@ -475,7 +476,7 @@ public class UnitController : MonoBehaviour
                 if (potentialTarget == gameObject) continue;
 
                 Unit targetUnit = potentialTarget.GetComponent<Unit>();
-                if (targetUnit != null && Vector2.Distance(transform.position, potentialTarget.transform.position) <= approachRange)
+                if (targetUnit != null && Vector2.Distance(transform.position, potentialTarget.transform.position) <= followRange)
                 {
                     potentialTargets.Add(targetUnit); // HPの低い順にリストに追加
                 }
@@ -483,20 +484,24 @@ public class UnitController : MonoBehaviour
 
             if (potentialTargets.Count > 0)
             {
-                // HPの低い順にソート
-                potentialTargets.Sort((x, y) => x.Hp.CompareTo(y.Hp));
+                // currentHPの低い順にソート
+                potentialTargets.Sort((a, b) => a.currentHp.CompareTo(b.currentHp));
                 selectedTarget = potentialTargets[0].transform; // HPが最も低いユニットを選択
             }
         }
 
-        // randomSelectionがtrueの場合はApproachRange内のターゲットをランダムに選ぶ
-        if (randomSelection && selectedTarget == null)
+        // isRandomTargetがtrueの場合は範囲内のターゲットをランダムに選ぶ
+        if (isRandomTarget && selectedTarget == null)
         {
+            Debug.Log("ランダムに範囲内のターゲットを変更します。");
+
             List<Transform> potentialTargets = new List<Transform>();
 
+            // 1. approachRange内のターゲットを検索
             foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
             {
-                if (potentialTarget == gameObject) continue;
+                // 自分自身と現在のターゲットは除外
+                if (potentialTarget == gameObject || potentialTarget == targetTransform.gameObject) continue;
 
                 float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
                 if (distance <= approachRange)
@@ -505,15 +510,39 @@ public class UnitController : MonoBehaviour
                 }
             }
 
-            // ターゲットがいる場合、ランダムに1つ選ぶ
+            // 2. approachRange内にターゲットがいる場合
             if (potentialTargets.Count > 0)
             {
+                Debug.Log("approachRange内のターゲットを選択します。");
                 int randomIndex = UnityEngine.Random.Range(0, potentialTargets.Count);
                 selectedTarget = potentialTargets[randomIndex];
             }
+            else
+            {
+                // 3. approachRange内にターゲットがいない場合、followRange内を検索
+                foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+                {
+                    // 自分自身と現在のターゲットは除外
+                    if (potentialTarget == gameObject || potentialTarget == targetTransform.gameObject) continue;
+
+                    float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
+                    if (distance <= followRange)
+                    {
+                        potentialTargets.Add(potentialTarget.transform);
+                    }
+                }
+
+                // 4. followRange内にターゲットがいる場合
+                if (potentialTargets.Count > 0)
+                {
+                    Debug.Log("approachRange内にターゲットがいないため、followRange内のターゲットを選択します。");
+                    int randomIndex = UnityEngine.Random.Range(0, potentialTargets.Count);
+                    selectedTarget = potentialTargets[randomIndex];
+                }
+            }
         }
 
-        // randomSelectionがtrueでターゲットがいなかった場合、またはrandomSelectionがfalseの場合、最も近いターゲットを選ぶ
+        // それ以外の場合、最も近いターゲットを選ぶ
         if (selectedTarget == null)
         {
             foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))

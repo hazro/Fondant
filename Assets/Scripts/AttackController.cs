@@ -17,6 +17,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool damageZero = false; // ダメージを0にする
 
     [Header("direction Skill (select one)")]
+    [SerializeField] private bool shoot2Directions = false; // ターゲット前方2方向に同時に発射
     [SerializeField] private bool shoot3Directions = false; // ターゲット前方3方向に同時に発射
     [SerializeField] private bool shoot4Directions = false; // 上下左右4方向に発射
     [SerializeField] private bool shoot4DiagonalDirections = false; // 斜め4方向に発射
@@ -29,23 +30,17 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool laser = false; // 発射物に軌跡を付ける
     [SerializeField] private bool spiral = false; // 螺旋状
     private float spiralExpansionSpeed = 0.5f; // 螺旋が外側に広がる速度
-    [SerializeField] private bool chargeAttack = false; // 貯め撃ち
-    [SerializeField] private bool delayRandomRangeEnabled = false; // 発射間の遅延時間にランダムな範囲を追加 
-    private float delayRandomRange = 3.0f; // 発射間の遅延時間に掛けるランダムな範囲の最大値
+    [SerializeField] private bool delayRandom = false; // 発射間の遅延時間にランダムな範囲を追加 
     [SerializeField] private bool wave = false; // 武器の振幅の範囲を設定
-    private float shakeAmplitude = 3.0f; // 振幅的な揺れの強さ
-    [SerializeField] private bool powerAttack = false; // 強撃
-    [SerializeField] private bool enableContinuousAttack = false; //連続攻撃
+    private float shakeAmplitude = 0.3f; // 振幅的な揺れの強さ
     [SerializeField] private bool backStep = false; // 攻撃後に後ろに下がる
     private float moveBackDistance = 0.3f; // 後ろに下がる距離
     [SerializeField] private bool targetLowHp = false; // 低HPのターゲットを優先
-    [SerializeField] private bool changeTargetRandomly = false; // 攻撃ごとにターゲットをランダムに変更
+    [SerializeField] private bool changeTarget = false; // 攻撃ごとにターゲットをランダムに変更
     [SerializeField] private bool randomDirectHit = false; // 直撃するターゲットをランダムに変更
     [SerializeField] private bool directHit = false; // ターゲットを直撃
     [SerializeField] private bool scaleUpBlow = false; // 時間経過に応じてスケール
-    [SerializeField] private bool barrageAttack = false; // 一度の攻撃で発射する回数を設定
     private int numberOfShots = 3; // 一度の攻撃で発射する回数
-    [SerializeField] private bool speedAttack = false; // 速撃
     [SerializeField] private bool chainAttack = false; // 貫通したら近い別の対手をターゲットにする
 
     [Header("Projectile Settings")]
@@ -167,12 +162,6 @@ public class AttackController : MonoBehaviour
             wasShootingEnabled = isShootingEnabled; // 前回の状態を更新(状態が変化したときだけコールーチンの切り替えを行うため)
         }
 
-        // ターゲット追従の方向設定を更新
-        if (autoUpdateDirection && targetObject != null)
-        {
-            Vector2 targetDirection = (targetObject.position - transform.position).normalized;
-            direction = targetDirection;
-        }
     }
 
     /// <summary>
@@ -265,6 +254,8 @@ public class AttackController : MonoBehaviour
         float maxDelay = 10.0f;  // 最大ディレイ
         float minDelay = 0.1f;   // 最小ディレイ
         float offset = 3.0f;     // オフセット値
+        float shotInterval = 0.03f * unit.attackSpeed; // 発射間隔
+
         while (isShooting)
         {
             // 装備によるskillの発動が有効の場合は、装備しているルーンのスキルをすべて取得し有効無効を判定
@@ -284,6 +275,7 @@ public class AttackController : MonoBehaviour
                     eqpRuneNames.Add(gameManager.itemData.runeList.Find(x => x.ID == eqpRuneIDs[i]).name);
                 }
                 // skill関連のboolメソッドのメソッド名がeqpRuneNamesに含まれるかどうかで有効無効を切り替える
+                shoot2Directions = eqpRuneNames.Contains(nameof(shoot2Directions));
                 shoot3Directions = eqpRuneNames.Contains(nameof(shoot3Directions));
                 shoot4Directions = eqpRuneNames.Contains(nameof(shoot4Directions));
                 shoot4DiagonalDirections = eqpRuneNames.Contains(nameof(shoot4DiagonalDirections));
@@ -293,33 +285,26 @@ public class AttackController : MonoBehaviour
                 followTarget = eqpRuneNames.Contains(nameof(followTarget));
                 laser = eqpRuneNames.Contains(nameof(laser));
                 spiral = eqpRuneNames.Contains(nameof(spiral));
-                chargeAttack = eqpRuneNames.Contains(nameof(chargeAttack));
-                delayRandomRangeEnabled = eqpRuneNames.Contains(nameof(delayRandomRangeEnabled));
+                delayRandom = eqpRuneNames.Contains(nameof(delayRandom));
                 wave = eqpRuneNames.Contains(nameof(wave));
-                powerAttack = eqpRuneNames.Contains(nameof(powerAttack));
-                enableContinuousAttack = eqpRuneNames.Contains(nameof(enableContinuousAttack));
                 backStep = eqpRuneNames.Contains(nameof(backStep));
                 targetLowHp = eqpRuneNames.Contains(nameof(targetLowHp));
-                changeTargetRandomly = eqpRuneNames.Contains(nameof(changeTargetRandomly));
+                changeTarget = eqpRuneNames.Contains(nameof(changeTarget));
                 randomDirectHit = eqpRuneNames.Contains(nameof(randomDirectHit));
                 directHit = eqpRuneNames.Contains(nameof(directHit));
                 scaleUpBlow = eqpRuneNames.Contains(nameof(scaleUpBlow));
-                barrageAttack = eqpRuneNames.Contains(nameof(barrageAttack));
-                speedAttack = eqpRuneNames.Contains(nameof(speedAttack));
                 chainAttack = eqpRuneNames.Contains(nameof(chainAttack));
                 // 以下同様に設定予定
             }
 
             // コールーチンで-範囲～範囲の範囲で武器を振る(RotationZ)
             if (weaponPrefab != null) StartCoroutine(ShakeWeapon(weapomAmplitude)); // 武器を振るコルーチン
-            // 一度の攻撃で発射するが無効の場合は、numberOfShotsを1に設定
-            if (!barrageAttack) numberOfShots = 1; else numberOfShots = 3;
             // ディレイ時間を乗算
-            float delayBetweenShots = Mathf.Max(unit.attackDelay * (float)numberOfShots, 0);
+            float delayBetweenShots = Mathf.Max(unit.attackDelay, 0);
             // 数値が増えるほどディレイ時間が短くなるようにし最大値と最小値の間に収まるように調整
             float delayShots = Mathf.Max(maxDelay / (delayBetweenShots + offset), minDelay); //(例)delayBetweenShotsが1より5の方がdelayが短くなる
             // ディレイ時間にランダムな範囲を追加
-            if(!delayRandomRangeEnabled) delayRandomRange = 0;
+            float delayRandomRange = delayRandom ? 3.0f : 0.0f; // delayRandomの場合は3.0f、それ以外は0.0f
             adjustedDelay = delayShots + Random.Range(-delayRandomRange / 2f, delayRandomRange / 2f); // ディレイを設定攻撃再開までのディレイ時間にも使用
 
             /////////////////////////////////////////////////////////////////////////
@@ -343,41 +328,53 @@ public class AttackController : MonoBehaviour
             /////////////////////////////////////////////////////////////////////////
             //// 2, 発射物の動きを決める /////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////
+            
+            UpdateDirection(firingPosition); // 攻撃が進む方向を更新
 
             /////////////////////////////////////////////////////////////////////////
             //// 3, 攻撃方向を決める(どれか一つ) //////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////
             
+            // ターゲット前方2方向に同時に発射する場合
+            if (shoot2Directions)
+            {
+                // ターゲットへの方向を０度として、左右に15度ずつずらした方向に発射する
+                Vector2 targetDirection = ((Vector2)targetObject.position - firingPosition).normalized;
+                Vector2 leftDirection = Quaternion.Euler(0, 0, 15) * targetDirection;
+                Vector2 rightDirection = Quaternion.Euler(0, 0, -15) * targetDirection;
+                yield return StartCoroutine(ShootWithDelay(new Vector2[] { leftDirection, rightDirection }, shotInterval));
+            }
+            
             // ターゲット前方3方向に同時に発射する場合
-            if (shoot3Directions)
+            else if (shoot3Directions)
             {
                 // ターゲットへの方向を０度として、左右に30度ずつずらした方向に発射する
                 Vector2 targetDirection = ((Vector2)targetObject.position - firingPosition).normalized;
                 Vector2 leftDirection = Quaternion.Euler(0, 0, 30) * targetDirection;
                 Vector2 rightDirection = Quaternion.Euler(0, 0, -30) * targetDirection;
-                ShootInMultipleDirections(new Vector2[] { targetDirection, leftDirection, rightDirection });
+                yield return StartCoroutine(ShootWithDelay(new Vector2[] { targetDirection, leftDirection, rightDirection }, shotInterval));
             }
             // 8方向に発射する場合
             else if (shoot8Directions)
             {
-                ShootInMultipleDirections(new Vector2[] {
+                yield return StartCoroutine(ShootWithDelay(new Vector2[] {
                     Vector2.up, Vector2.down, Vector2.left, Vector2.right,
                     new Vector2(1, 1).normalized, new Vector2(1, -1).normalized,
                     new Vector2(-1, 1).normalized, new Vector2(-1, -1).normalized
-                });
+                }, shotInterval));
             }
             // 上下左右4方向に発射する場合
             else if (shoot4Directions)
             {
-                ShootInMultipleDirections(new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right });
+                yield return StartCoroutine(ShootWithDelay(new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right }, shotInterval));
             }
             // 斜め4方向に発射する場合
             else if (shoot4DiagonalDirections)
             {
-                ShootInMultipleDirections(new Vector2[] {
+                yield return StartCoroutine(ShootWithDelay(new Vector2[] {
                     new Vector2(1, 1).normalized, new Vector2(1, -1).normalized,
                     new Vector2(-1, 1).normalized, new Vector2(-1, -1).normalized
-                });
+                }, shotInterval));
             }
             // それ以外の場合は、指定された方向に発射する
             else
@@ -396,9 +393,14 @@ public class AttackController : MonoBehaviour
             }
             
             // 攻撃後にターゲットをランダムに変更する
-            if (changeTargetRandomly || randomDirectHit && unitController != null)
+            if ((changeTarget || randomDirectHit) && unitController != null)
             {
-                unitController.SetClosestTarget(true);
+                unitController.isRandomTarget = true;
+                unitController.SetClosestTarget();
+            }
+            else
+            {
+                unitController.isRandomTarget = false;
             }
 
             // ディレイ時間を待つ
@@ -417,8 +419,8 @@ public class AttackController : MonoBehaviour
             Vector2 targetPosition = targetObject.position;
             Vector2 unitPosition = transform.position;
             Vector2 directionToUnit = (unitPosition - targetPosition).normalized;
-            // ターゲットの位置に向かって1f手前の位置を返す
-            return targetPosition + directionToUnit * 1f;
+            // ターゲットの位置に向かって0.5f手前の位置を返す
+            return targetPosition + directionToUnit * 0.5f;
         }
         return transform.position;
     }
@@ -438,13 +440,15 @@ public class AttackController : MonoBehaviour
 
     /// <summary>
     /// 指定した複数の方向に向けて発射する
+    /// interval秒ごとに発射する
     /// </summary>
     /// <param name="directions">発射する方向の配列</param>
-    private void ShootInMultipleDirections(Vector2[] directions)
+    private IEnumerator ShootWithDelay(Vector2[] directions, float interval)
     {
         foreach (var dir in directions)
         {
             ShootProjectileInDirection(dir);
+            yield return new WaitForSeconds(interval);
         }
     }
 
@@ -490,7 +494,16 @@ public class AttackController : MonoBehaviour
         // 螺旋運動が有効な場合は、経過時間の寿命を3倍にする
         float adjustedLifetime = spiral ? unit.attackLifetime * 3.0f : unit.attackLifetime;
         // 武器の振幅の範囲が無効な場合は、振幅を0にする
-        if(!wave) shakeAmplitude = 0;
+        float aefShakeAmplitude = shakeAmplitude;
+        if(!wave)
+        {
+            aefShakeAmplitude = 0;
+        }
+        else
+        {
+            aefShakeAmplitude = shakeAmplitude * unit.attackSpeed;
+        }
+         
         float pysicalAttackPower = unit.physicalAttackPower;
         float magicAttackAttackPower = unit.magicalAttackPower;
         if(damageZero) 
@@ -516,7 +529,7 @@ public class AttackController : MonoBehaviour
             laser,
             spiral,
             spiralExpansionSpeed,
-            shakeAmplitude,
+            aefShakeAmplitude,
             scaleUpBlow,
             chainAttack
             );
@@ -538,6 +551,19 @@ public class AttackController : MonoBehaviour
         if (weaponPrefab != null)
         {
             weaponPrefab.SetActive(false); // 武器を非アクティブにする
+        }
+    }
+
+    /// <summary>
+    /// 発射位置を引数として進行方向を更新する
+    /// </summary>
+    private void UpdateDirection(Vector2 firingPosition)
+    {
+        // ターゲット追従の方向設定を更新
+        if (autoUpdateDirection && targetObject != null)
+        {
+            Vector2 targetDirection = ((Vector2)targetObject.position - firingPosition).normalized;
+            direction = targetDirection;
         }
     }
 }

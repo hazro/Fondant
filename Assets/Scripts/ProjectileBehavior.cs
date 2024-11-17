@@ -266,7 +266,7 @@ public class ProjectileBehavior : MonoBehaviour
 
         if (scaleOverTime)
         {
-            float scaleIncrease = 1 + moveSpeed * Time.deltaTime * 0.1f;
+            float scaleIncrease = 1 + moveSpeed * Time.deltaTime * 0.3f;
             transform.localScale *= scaleIncrease;
         }
     }

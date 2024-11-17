@@ -72,7 +72,7 @@ public class Unit : MonoBehaviour
     public Image hpColor;
     public TextMeshProUGUI damageText; // ダメージ数値表示テキスト
     private float maxHp;
-    private float currentHp;
+    public float currentHp; // 現在のHP
 
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
