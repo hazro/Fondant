@@ -394,7 +394,6 @@ public class ProjectileBehavior : MonoBehaviour
         if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && 
             ((targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag)))
         {
-            Debug.Log("トレイルのコライダーに接触");
             GameObject target = collision.gameObject;
 
             // 最初の接触またはダメージ間隔を超えた場合にダメージを与える
@@ -504,7 +503,6 @@ public class ProjectileBehavior : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("即座に削除");
                     // トレイルがない場合は即座に消滅
                     Destroy(gameObject);
                 }

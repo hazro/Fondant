@@ -22,7 +22,6 @@ public class TrailColliderBehavior : MonoBehaviour
     /// <param name="collision">接触したオブジェクト</param>
     private void OnTriggerStay2D(Collider2D collision)
     {
-        Debug.Log("Unitが接触した: " + collision.gameObject.name + "親ProjectileBehavior" + projectile);
         if (projectile != null)
         {
             projectile.OnTrailColliderTriggerStay(this, collision);
