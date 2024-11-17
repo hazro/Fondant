@@ -112,9 +112,11 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        // ターゲットが低HPのものを優先する場合はUnitControllerのフラグを変更する
         if (unitController != null)
         {
+            // 自分のグループをターゲットにするかどうかを設定
+            unitController.targetSameTag = targetYourGroup;
+            // ターゲットが低HPのものを優先する場合はUnitControllerのフラグを変更する
             unitController.targetLowHpFirst = targetLowHp;
         }
         // 攻撃が有効になる条件をチェック
@@ -388,10 +390,6 @@ public class AttackController : MonoBehaviour
             /// /////////////////////////////////////////////////////////////////////
             if (unitController != null)
             {
-                // 自分のグループをターゲットにするかどうかを設定
-                if (!unitController.targetSameTag){
-                    unitController.targetSameTag = targetYourGroup;
-                }
                 // 攻撃後に後ろに下がる
                 unitController.MoveBackFlag = backStep;
                 unitController.MoveBackDistance = moveBackDistance;

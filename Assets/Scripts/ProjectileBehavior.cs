@@ -9,6 +9,7 @@ public class ProjectileBehavior : MonoBehaviour
 {
     [HideInInspector] public int unitID; // 発射元のユニットID
     private HashSet<GameObject> hitObjects = new HashSet<GameObject>(); // ヒットしたオブジェクトを追跡するためのセット
+    private Dictionary<GameObject, float> damageTimers = new Dictionary<GameObject, float>(); // trailColliderが接触中のオブジェクトと最後にダメージを与えた時間を管理
     private Vector2 moveDirection;
     private float moveSpeed;
     private int remainingCharThrough;
@@ -16,12 +17,16 @@ public class ProjectileBehavior : MonoBehaviour
     private string shooterTag; // 発射元のタグ
     private Transform followTarget;
     private TrailRenderer trailRenderer; // 軌跡を描くためのTrail Renderer
+    [SerializeField] private List<GameObject> trailColliders = new List<GameObject>();
+    private Vector3 lastColliderPosition; // 最後にtrailコライダーを生成した位置
+    private float colliderSpacing = 0.33f; // trailコライダーを生成する間隔
     private SpriteRenderer[] spriteRenderers; // PrefabのすべてのSpriteRenderer
     private float shakeAmplitude; // 振幅の強さ
     private bool scaleOverTime; // スケーリングを時間経過に応じて行うか
     private float followStrength = 0f; // 追従の強さ
     private float followIncreaseDuration = 1.0f; // 追従力が最大になるまでの時間
     private float timeSinceLaunch; // 発射後の経過時間
+    private float damageInterval = 0.5f; // ダメージを与える間隔（秒）
 
     [Header("Attributes")]
     [SerializeField] public List<Attribute> attributes = new List<Attribute>(); // Attributesをpublicに変更
@@ -29,10 +34,12 @@ public class ProjectileBehavior : MonoBehaviour
     private float magicalPower = 1.0f; // 魔法攻撃力
 
     [Header("Trail Settings")]
-    [SerializeField] private float trailTime = 0.5f; // 軌跡が残る時間（秒）
+    [SerializeField] private GameObject projectileImage; // 発射物の画像
+    private float trailTime = 1.0f; // 軌跡が残る時間（秒）
     [SerializeField] private float trailWidth = 0.1f; // 軌跡の幅
     [SerializeField] private Color trailStartColor = Color.white; // 軌跡の開始色
     [SerializeField] private Color trailEndColor = new Color(1, 1, 1, 0); // 軌跡の終了色
+    private bool isWaitingForTrailToDisappear = false; // トレイルの消失待機フラグ
 
     // 消滅条件
     [Header("Destruction Conditions")]
@@ -107,9 +114,12 @@ public class ProjectileBehavior : MonoBehaviour
 
     private void Start()
     {
+        // 初期位置を設定
+        lastColliderPosition = transform.position;
         // Prefab以下のすべてのSpriteRendererを取得
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
     }
+
 
     /// <summary>
     /// 発射物の初期化
@@ -211,6 +221,9 @@ public class ProjectileBehavior : MonoBehaviour
     {
         timeSinceLaunch += Time.deltaTime;
 
+        // 軌跡に沿ったコライダーを生成・更新
+        GenerateTrailColliders();
+
         // 追従力を徐々に増加させる
         if (followTarget != null)
         {
@@ -258,6 +271,49 @@ public class ProjectileBehavior : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// TrailRendererに沿って等間隔でコライダーを生成する
+    /// </summary>
+    private void GenerateTrailColliders()
+    {
+        if (trailRenderer == null) return;
+
+        Vector3 currentTrailPosition = transform.position;
+
+        float distance = Vector3.Distance(lastColliderPosition, currentTrailPosition);
+
+        if (distance >= colliderSpacing)
+        {
+            GameObject colliderObject = new GameObject("TrailCollider");
+            colliderObject.transform.position = currentTrailPosition;
+            colliderObject.transform.parent = trailRenderer.transform.parent;
+
+            // コライダーの設定
+            BoxCollider2D collider = colliderObject.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            // コライダーのサイズを設定
+            collider.size = new Vector2(distance, 0.1f);
+
+            // Rigidbody2Dを追加して設定
+            Rigidbody2D rb = colliderObject.AddComponent<Rigidbody2D>();
+            rb.bodyType = RigidbodyType2D.Kinematic; // 物理演算に影響しない
+            rb.gravityScale = 0; // 重力の影響を受けない
+
+            // TrailColliderBehaviorを追加し、ProjectileBehaviorへの参照を渡す
+            TrailColliderBehavior trailBehavior = colliderObject.AddComponent<TrailColliderBehavior>();
+            trailBehavior.Initialize(this);
+
+            // 発射物のすべてのコライダーを取得してIgnoreCollisionを適用
+            Collider2D[] projectileColliders = GetComponents<Collider2D>();
+            foreach (var projectileCollider in projectileColliders)
+            {
+                Physics2D.IgnoreCollision(collider, projectileCollider);
+            }
+
+            trailColliders.Add(colliderObject);
+            lastColliderPosition = currentTrailPosition;
+        }
+    }
 
     /// <summary>
     /// 発射元のユニットを設定する
@@ -288,7 +344,16 @@ public class ProjectileBehavior : MonoBehaviour
     private IEnumerator DestroyAfterLifetime()
     {
         yield return new WaitForSeconds(lifetime);
-        Destroy(gameObject);
+            // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+            if (trailRenderer != null && trailRenderer.time > 0)
+            {
+                StartCoroutine(WaitForTrailToDisappear());
+            }
+            else
+            {
+                // トレイルがない場合は即座に消滅
+                Destroy(gameObject);
+            }
     }
 
     /// <summary>
@@ -302,7 +367,56 @@ public class ProjectileBehavior : MonoBehaviour
         {
             yield return null;
         }
-        Destroy(gameObject);
+            // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+            if (trailRenderer != null && trailRenderer.time > 0)
+            {
+                StartCoroutine(WaitForTrailToDisappear());
+            }
+            else
+            {
+                // トレイルがない場合は即座に消滅
+                Destroy(gameObject);
+            }
+    }
+
+    /// <summary>
+    /// トレイルコライダーが接触を検知した際に呼び出される
+    /// TriggerStay2D処理：接触したオブジェクトにダメージを間隔をあけて与え続ける
+    /// </summary>
+    /// <param name="collision">接触したオブジェクト</param>
+    public void OnTrailColliderTriggerStay(TrailColliderBehavior trailCollider, Collider2D collision)
+    {
+        // 接触対象が有効でない場合はスキップ
+        if (collision == null || shooterUnit == null) return;
+        // 発射元のtargetSameTagを取得
+        bool targetSameTag = shooterUnit.GetComponent<UnitController>().targetSameTag;
+
+        if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && 
+            ((targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag)))
+        {
+            Debug.Log("トレイルのコライダーに接触");
+            GameObject target = collision.gameObject;
+
+            // 最初の接触またはダメージ間隔を超えた場合にダメージを与える
+            if (!damageTimers.ContainsKey(target) || Time.time - damageTimers[target] >= damageInterval)
+            {
+                Unit targetUnit = target.gameObject.GetComponent<Unit>();
+                ApplyDamage(targetUnit , 0.25f); // 通常のダメージの1/4を与える
+                damageTimers[target] = Time.time; // 最終ダメージ時間を記録
+            }
+        }
+    }
+
+    /// <summary>
+    /// TriggerExit2D処理：接触が終了したオブジェクトをタイマーから削除
+    /// </summary>
+    /// <param name="collision">接触が終了したオブジェクト</param>
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (damageTimers.ContainsKey(collision.gameObject))
+        {
+            damageTimers.Remove(collision.gameObject);
+        }
     }
 
     /// <summary>
@@ -311,6 +425,18 @@ public class ProjectileBehavior : MonoBehaviour
     /// <param name="collision">衝突したオブジェクトの情報</param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // トレイルの消失待機中なら処理を無視
+        if (isWaitingForTrailToDisappear)
+        {
+            return;
+        }
+
+        // TrailColliderとの衝突を無視する
+        if (collision.gameObject.name.StartsWith("TrailCollider"))
+        {
+            return;
+        }
+        
         // ヒットしたオブジェクトをセットに追加
         hitObjects.Add(collision.gameObject);
 
@@ -335,19 +461,30 @@ public class ProjectileBehavior : MonoBehaviour
             remainingObjectThrough--;
             if (remainingObjectThrough <= 0)
             {
-                StartCoroutine(FadeOutAndDestroy());
+                // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+                if (trailRenderer != null && trailRenderer.time > 0)
+                {
+                    StartCoroutine(WaitForTrailToDisappear());
+                }
+                else
+                {
+                    // トレイルがない場合は即座に消滅
+                    Destroy(gameObject);
+                }
             }
         }
 
+        /* 攻撃は範囲外に出るのを許可するためコメントアウト
         // 衝突したオブジェクトがArenaLimitタグを持つ場合は消滅する(そこまでしか行けない)
         else if (collision.CompareTag("ArenaLimit"))
         {
             Destroy(gameObject);
         }
+        */
         
         // 発射元のtargetSameTagがfalseであれば発射元のタグと異なる場合、trueであれば発射元のタグと同じ場合の処理
         // collision
-        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && (targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag))
+        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && ((targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag)))
         {
             // 自分をターゲットにしていないのに自分に当たった場合は無視する
             if (collision.gameObject == shooterUnit.gameObject)
@@ -356,51 +493,21 @@ public class ProjectileBehavior : MonoBehaviour
             }
             // ダメージを与える
             Unit targetUnit = collision.gameObject.GetComponent<Unit>();
-            if (targetUnit != null)
-            {
-                float totalDamage = 0;
-                float totalHealing = 0;
-
-                foreach (Attribute attribute in attributes)
-                {
-                    switch (attribute)
-                    {
-                        case Attribute.Magical:
-                        case Attribute.Technology:
-                        case Attribute.Nature:
-                            float magicDamage = magicalPower - (targetUnit.magicalDefensePower * 0.1f);
-                            totalDamage += magicDamage;
-                            break;
-
-                        case Attribute.Physical:
-                            float physicalDamage = pysicalPower - (targetUnit.physicalDefensePower * 0.1f);
-                            totalDamage += physicalDamage;
-                            break;
-
-                        case Attribute.Healing:
-                            float healing = magicalPower;
-                            totalHealing += healing;
-                            break;
-                    }
-                }
-
-                if (totalDamage > 0)
-                {
-                    targetUnit.TakeDamage(totalDamage, unitID);
-                }
-
-                if (totalHealing > 0)
-                {
-                    targetUnit.Heal(totalHealing, unitID);
-                }
-            }
-            // 通過回数を減らす
-            remainingCharThrough--;
+            ApplyDamage(targetUnit);
             // 通過回数が0以下になったら消滅する
             if (remainingCharThrough <= 0)
             {
-                Destroy(gameObject);
-                //StartCoroutine(FadeOutAndDestroy());
+                // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+                if (trailRenderer != null && trailRenderer.time > 0)
+                {
+                    StartCoroutine(WaitForTrailToDisappear());
+                }
+                else
+                {
+                    Debug.Log("即座に削除");
+                    // トレイルがない場合は即座に消滅
+                    Destroy(gameObject);
+                }
             }
             // 衝突後消滅しない場合は現在のターゲット以外の一番近い位置にいるターゲットに変更する
             else
@@ -445,35 +552,102 @@ public class ProjectileBehavior : MonoBehaviour
                     }
                 }
             }
+
+            // 通過回数を減らす
+            remainingCharThrough--;
         }
     }
 
     /// <summary>
-    /// 発射物をフェードアウトさせてから消滅させるコルーチン
+    /// トレイルが完全に消えるまで待機し、発射物を削除する
     /// </summary>
-    /// <returns>コルーチン</returns>
-    private IEnumerator FadeOutAndDestroy()
+    private IEnumerator WaitForTrailToDisappear()
     {
-        SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>();
-        float fadeDuration = 0.1f; // フェードアウトにかける時間
-        float elapsedTime = 0f;
+        isWaitingForTrailToDisappear = true;
 
-        while (elapsedTime < fadeDuration)
+        // 発射物の見た目用オブジェクトを非表示にする
+        if (spriteRenderers != null)
         {
-            elapsedTime += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeDuration);
-
-            foreach (SpriteRenderer sprite in sprites)
+            if (projectileImage.activeSelf)
             {
-                Color color = sprite.color;
-                color.a = alpha;
-                sprite.color = color;
+                projectileImage.SetActive(false);
             }
-
-            yield return null;
         }
 
-        // フェードアウト完了後、オブジェクトを消滅させる
+        // 発射物をその場に固定
+        moveSpeed = 0;
+        followTarget = null;
+
+        // 発射物の接触処理を停止
+        var collider = GetComponent<Collider2D>();
+        if (collider != null)
+        {
+            collider.enabled = false;
+        }
+
+        // コライダーを削除
+        while (trailColliders.Count > 0)
+        {
+            GameObject trailCollider = trailColliders[0]; // 最初のコライダーを取得
+            trailColliders.RemoveAt(0); // リストから削除
+            if (trailCollider != null)
+            {
+                Destroy(trailCollider); // コライダーを削除
+            }
+
+            // 次の削除まで少し待機
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        // トレイルが完全に消えるまで待機
+        yield return new WaitForSeconds(trailRenderer.time);
+
+        // 親オブジェクトを削除
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// 指定のUnitにダメージを与える
+    /// </summary>
+    private void ApplyDamage(Unit target , float damageMultiplier = 1.0f)
+    {
+        float totalDamage = 0;
+        float totalHealing = 0;
+
+        foreach (Attribute attribute in attributes)
+        {
+            switch (attribute)
+            {
+                case Attribute.Magical:
+                case Attribute.Technology:
+                case Attribute.Nature:
+                    float magicDamage = magicalPower - (target.magicalDefensePower * 0.1f);
+                    magicDamage *= damageMultiplier;
+                    totalDamage += magicDamage;
+                    break;
+
+                case Attribute.Physical:
+                    float physicalDamage = pysicalPower - (target.physicalDefensePower * 0.1f);
+                    physicalDamage *= damageMultiplier;
+                    totalDamage += physicalDamage;
+                    break;
+
+                case Attribute.Healing:
+                    float healing = magicalPower;
+                    healing *= damageMultiplier;
+                    totalHealing += healing;
+                    break;
+            }
+        }
+
+        if (totalDamage > 0)
+        {
+            target.TakeDamage(totalDamage, unitID);
+        }
+
+        if (totalHealing > 0)
+        {
+            target.Heal(totalHealing, unitID);
+        }
     }
 }
