@@ -237,6 +237,7 @@ MonoBehaviour:
   remainingExp: 0
   addLevel: 0
   Hp: 50
+  currentHp: 0
   physicalAttackPower: 5
   magicalAttackPower: 1
   physicalDefensePower: 0.5
@@ -253,6 +254,12 @@ MonoBehaviour:
   attackDistance: 0
   attackSpeed: 0
   moveSpeed: 0
+  guardChance: 0
+  criticalChance: 0
+  criticalDamage: 0
+  comboDamage: 0
+  comboCriticalCount: 0
+  comboCount: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -272,7 +279,7 @@ MonoBehaviour:
   hpBar: {fileID: 9193314682009210437}
   hpColor: {fileID: 399429916090135461}
   damageText: {fileID: 7375849884378710377}
-  currentHp: 0
+  comboText: {fileID: 9003269089623753577}
 --- !u!61 &6376528810690273896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -356,6 +363,7 @@ MonoBehaviour:
   escapeSpeedMultiplier: 1.5
   escapeDistanceMultiplier: 1.5
   targetSameTag: 0
+  targetSameTagWpn: 0
   targetLowHpFirst: 0
   movementSpeed: 1
   followRange: 7
@@ -643,6 +651,17 @@ RectTransform:
 --- !u!114 &7375849884378710377 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4318217576371372145, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
+  m_PrefabInstance: {fileID: 6751226131603063064}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9003269089623753577 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2396801124596073073, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
   m_PrefabInstance: {fileID: 6751226131603063064}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}

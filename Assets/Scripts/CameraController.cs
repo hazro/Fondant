@@ -45,6 +45,7 @@ public class CameraController : MonoBehaviour
     /// <returns>コルーチン</returns>
     private IEnumerator ZoomAndSlowCoroutine(float zoomSpeed, float slowMotionDuration, GameObject targetObject)
     {
+        Debug.Log("敵全滅時のターゲット" + targetObject.name);
         Vector3 targetPosition = targetObject.transform.position;
         float startSize = mainCamera.orthographicSize;
         Vector3 startPosition = mainCamera.transform.position;

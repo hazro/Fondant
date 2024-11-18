@@ -27,6 +27,7 @@ public class Unit : MonoBehaviour
     [SerializeField] public int remainingExp;
     [SerializeField] public int addLevel;
     [SerializeField] public float Hp;
+    public float currentHp; // 現在のHP
     [SerializeField] public float physicalAttackPower;
     [SerializeField] public float magicalAttackPower;
     [SerializeField] public float physicalDefensePower;
@@ -46,6 +47,13 @@ public class Unit : MonoBehaviour
     [SerializeField] public float attackDistance;
     [SerializeField] public float attackSpeed;
     [SerializeField] public float moveSpeed;
+    [SerializeField] public float guardChance;
+    [SerializeField] public float criticalChance;
+    [SerializeField] public float criticalDamage;
+    [SerializeField] public float comboDamage; // count x 10% ダメージアップ
+    [SerializeField] public float comboCriticalCount; // コンボ何回毎にクリティカルするか
+    public int comboCount = 0; // コンボカウント
+    public float lastHitTime = 0; // 最後にダメージを与えた時間
     [Header("///////////////")]
     ///
 
@@ -71,8 +79,8 @@ public class Unit : MonoBehaviour
     public Slider hpBar;
     public Image hpColor;
     public TextMeshProUGUI damageText; // ダメージ数値表示テキスト
+    public TextMeshProUGUI comboText; // コンボ数値表示テキスト
     private float maxHp;
-    public float currentHp; // 現在のHP
 
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
@@ -256,12 +264,15 @@ public class Unit : MonoBehaviour
         int attackObjectThroughAdd = 0;
         float projectileLifetime = 1.0f;
         float conditionGuard = 0.0f;
+        float guardChanceMultiplier = 1.0f;
+        float comboDamageUp = 0.0f;
+        float comboCriticalCountUp = 0.0f;
+        float criticalChanceMult = 1.0f;
+        float criticalDamageMult = 1.0f;
 
         // 以下未設定
         float bloodTime = 1.0f;
         float poisonTime = 1.0f;
-        float criticalChance = 1.0f;
-        float guardChance = 1.0f;
         float bloodSuck = 0.0f;
         float poisonGuard = 0.0f;
         float bleedGuard = 0.0f;
@@ -269,9 +280,6 @@ public class Unit : MonoBehaviour
         float paralysisGuard = 0.0f;
         float wakeGuard = 0.0f;
         float defenceDownGuard = 0.0f;
-        float comboDamage = 0.0f;
-        float comboCritical = 0.0f;
-        float criticalDamage = 1.0f;
         float poison = 0.0f;
         float bleed = 0.0f;
         float stun = 0.0f;
@@ -313,12 +321,15 @@ public class Unit : MonoBehaviour
                         if (runeListData.attackObjectThroughLv1 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv1;
                         if (runeListData.timeLv1 != 0) projectileLifetime *= runeListData.timeLv1;
                         if (runeListData.conditionGuardLv1 != 0) conditionGuard += runeListData.conditionGuardLv1;
+                        if (runeListData.guardChanceLv1 != 0) guardChanceMultiplier *= runeListData.guardChanceLv1;
+                        if (runeListData.comboDamageLv1 != 0) comboDamageUp += runeListData.comboDamageLv1;
+                        if (runeListData.comboCriticalLv1 != 0) comboCriticalCountUp += runeListData.comboCriticalLv1;
+                        if (runeListData.criticalChanceLv1 != 0) criticalChanceMult *= runeListData.criticalChanceLv1;
+                        if (runeListData.criticalDamageLv1 != 0) criticalDamageMult *= runeListData.criticalDamageLv1;
 
                         // 以下未設定
                         if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
                         if (runeListData.poisonTimeLv1 != 0) poisonTime *= runeListData.poisonTimeLv1;
-                        //if (runeListData.criticalChanceLv1 != 0) criticalChance *= runeListData.criticalChanceLv1;
-                        if (runeListData.guardChanceLv1 != 0) guardChance *= runeListData.guardChanceLv1;
                         if (runeListData.bloodSuckLv1 != 0) bloodSuck += runeListData.bloodSuckLv1;
                         if (runeListData.poisonGuardLv1 != 0) poisonGuard += runeListData.poisonGuardLv1;
                         if (runeListData.bleedGuardLv1 != 0) bleedGuard += runeListData.bleedGuardLv1;
@@ -326,9 +337,6 @@ public class Unit : MonoBehaviour
                         if (runeListData.paralysisGuardLv1 != 0) paralysisGuard += runeListData.paralysisGuardLv1;
                         if (runeListData.wakeGuardLv1 != 0) wakeGuard += runeListData.wakeGuardLv1;
                         if (runeListData.defenceDownGuardLv1 != 0) defenceDownGuard += runeListData.defenceDownGuardLv1;
-                        if (runeListData.comboDamageLv1 != 0) comboDamage += runeListData.comboDamageLv1;
-                        if (runeListData.comboCriticalLv1 != 0) comboCritical += runeListData.comboCriticalLv1;
-                        if (runeListData.criticalDamageLv1 != 0) criticalDamage *= runeListData.criticalDamageLv1;
                         if (runeListData.poisonLv1 != 0) poison += runeListData.poisonLv1;
                         if (runeListData.bleedLv1 != 0) bleed += runeListData.bleedLv1;
                         if (runeListData.stunLv1 != 0) stun += runeListData.stunLv1;
@@ -353,12 +361,15 @@ public class Unit : MonoBehaviour
                         if (runeListData.attackObjectThroughLv2 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv2;
                         if (runeListData.timeLv2 != 0) projectileLifetime *= runeListData.timeLv2;
                         if (runeListData.conditionGuardLv2 != 0) conditionGuard += runeListData.conditionGuardLv2;
+                        if (runeListData.guardChanceLv2 != 0) guardChanceMultiplier *= runeListData.guardChanceLv2;
+                        if (runeListData.comboDamageLv2 != 0) comboDamageUp += runeListData.comboDamageLv2;
+                        if (runeListData.comboCriticalLv2 != 0) comboCriticalCountUp += runeListData.comboCriticalLv2;
+                        if (runeListData.criticalChanceLv2 != 0) criticalChanceMult *= runeListData.criticalChanceLv2;
+                        if (runeListData.criticalDamageLv2 != 0) criticalDamageMult *= runeListData.criticalDamageLv2;
 
                         // 以下未設定
                         if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
                         if (runeListData.poisonTimeLv2 != 0) poisonTime *= runeListData.poisonTimeLv2;
-                        //if (runeListData.criticalChanceLv2 != 0) criticalChance *= runeListData.criticalChanceLv2;
-                        if (runeListData.guardChanceLv2 != 0) guardChance *= runeListData.guardChanceLv2;
                         if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
                         if (runeListData.poisonGuardLv2 != 0) poisonGuard += runeListData.poisonGuardLv2;
                         if (runeListData.bleedGuardLv2 != 0) bleedGuard += runeListData.bleedGuardLv2;
@@ -366,9 +377,6 @@ public class Unit : MonoBehaviour
                         if (runeListData.paralysisGuardLv2 != 0) paralysisGuard += runeListData.paralysisGuardLv2;
                         if (runeListData.wakeGuardLv2 != 0) wakeGuard += runeListData.wakeGuardLv2;
                         if (runeListData.defenceDownGuardLv2 != 0) defenceDownGuard += runeListData.defenceDownGuardLv2;
-                        if (runeListData.comboDamageLv2 != 0) comboDamage += runeListData.comboDamageLv2;
-                        if (runeListData.comboCriticalLv2 != 0) comboCritical += runeListData.comboCriticalLv2;
-                        if (runeListData.criticalDamageLv2 != 0) criticalDamage *= runeListData.criticalDamageLv2;
                         if (runeListData.poisonLv2 != 0) poison += runeListData.poisonLv2;
                         if (runeListData.bleedLv2 != 0) bleed += runeListData.bleedLv2;
                         if (runeListData.stunLv2 != 0) stun += runeListData.stunLv2;
@@ -392,12 +400,15 @@ public class Unit : MonoBehaviour
                         if (runeListData.attackObjectThroughLv3 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv3;
                         if (runeListData.timeLv3 != 0) projectileLifetime *= runeListData.timeLv3;
                         if (runeListData.conditionGuardLv3 != 0) conditionGuard += runeListData.conditionGuardLv3;
+                        if (runeListData.guardChanceLv3 != 0) guardChanceMultiplier *= runeListData.guardChanceLv3;
+                        if (runeListData.comboDamageLv3 != 0) comboDamageUp += runeListData.comboDamageLv3;
+                        if (runeListData.comboCriticalLv3 != 0) comboCriticalCountUp += runeListData.comboCriticalLv3;
+                        if (runeListData.criticalChanceLv3 != 0) criticalChanceMult *= runeListData.criticalChanceLv3;
+                        if (runeListData.criticalDamageLv3 != 0) criticalDamageMult *= runeListData.criticalDamageLv3;
 
                         // 以下未設定
                         if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
                         if (runeListData.poisonTimeLv3 != 0) poisonTime *= runeListData.poisonTimeLv3;
-                        //if (runeListData.criticalChanceLv3 != 0) criticalChance *= runeListData.criticalChanceLv3;
-                        if (runeListData.guardChanceLv3 != 0) guardChance *= runeListData.guardChanceLv3;
                         if (runeListData.bloodSuckLv3 != 0) bloodSuck += runeListData.bloodSuckLv3;
                         if (runeListData.poisonGuardLv3 != 0) poisonGuard += runeListData.poisonGuardLv3;
                         if (runeListData.bleedGuardLv3 != 0) bleedGuard += runeListData.bleedGuardLv3;
@@ -405,9 +416,6 @@ public class Unit : MonoBehaviour
                         if (runeListData.paralysisGuardLv3 != 0) paralysisGuard += runeListData.paralysisGuardLv3;
                         if (runeListData.wakeGuardLv3 != 0) wakeGuard += runeListData.wakeGuardLv3;
                         if (runeListData.defenceDownGuardLv3 != 0) defenceDownGuard += runeListData.defenceDownGuardLv3;
-                        if (runeListData.comboDamageLv3 != 0) comboDamage += runeListData.comboDamageLv3;
-                        if (runeListData.comboCriticalLv3 != 0) comboCritical += runeListData.comboCriticalLv3;
-                        if (runeListData.criticalDamageLv3 != 0) criticalDamage *= runeListData.criticalDamageLv3;
                         if (runeListData.poisonLv3 != 0) poison += runeListData.poisonLv3;
                         if (runeListData.bleedLv3 != 0) bleed += runeListData.bleedLv3;
                         if (runeListData.stunLv3 != 0) stun += runeListData.stunLv3;
@@ -482,6 +490,14 @@ public class Unit : MonoBehaviour
         attackLifetime = projectileLifetime; // ルーンの攻撃寿命を適用
         attackDistance = wpnListData.attackRange;
         attackDistance *= maxDistanceMultiplier; // ルーンの攻撃距離倍率を適用
+        guardChance = shieldListData.guardChance; // シールドガード確率を適用
+        guardChance *= guardChanceMultiplier; // ルーンのガード確率倍率を適用
+        criticalChance = (currentDex + (currentLevel - 1) * levelDex) / 100 + wpnListData.criticalChance + shieldListData.criticalChance + armorListData.criticalChance + accessoriesListData.criticalChance;
+        criticalChance *= criticalChanceMult; // ルーンのクリティカル確率倍率を適用
+        criticalDamage = 3 + wpnListData.criticalDamage + shieldListData.criticalDamage + armorListData.criticalDamage + accessoriesListData.criticalDamage;
+        criticalDamage *= criticalDamageMult; // ルーンのクリティカルダメージ倍率を適用
+        comboDamage = (1.0f + comboDamageUp) / 10; // ルーンのコンボダメージを加算
+        comboCriticalCount =  20 - comboCriticalCountUp; // ルーンのコンボクリティカルカウントを加算
 
         // タンクの場合はHP、防御力、を2倍にする代わりに移動速度やDelayを半減
         if (job == 4 || job == 34) Hp *= 2;
@@ -545,6 +561,11 @@ public class Unit : MonoBehaviour
             foreach (Transform child in weapon.transform)
             {
                 child.gameObject.SetActive(true);
+                // オブジェクト名が"scale"の場合はステータスのattackSizeを適用
+                if (child.gameObject.name == "scale")
+                {
+                    child.localScale *= attackSize;
+                }
             }
             weapon.SetActive(false);
             // unitのweaponPrefabにweaponをセット
@@ -611,12 +632,14 @@ public class Unit : MonoBehaviour
             List<ProjectileBehavior.Attribute> attributes = projectileBehavior.attributes;
 
             unitController.targetSameTag = false;
+            unitController.targetSameTagWpn = false;
             for (int i = 0; i < attributes.Count; i++)
             {
                 string attributeName = attributes[i].ToString();  // Enumから文字列を取得
                 if (attributeName == "Healing")
                 {
                     unitController.targetSameTag = true;
+                    unitController.targetSameTagWpn = true;
                 }
             }
         }
@@ -681,8 +704,76 @@ public class Unit : MonoBehaviour
     }
 
     // HPを減少させるメソッド
-    public void TakeDamage(float damage, int attackUnitID)
+    public void TakeDamage(float damage, Unit attacker)
     {
+        // gurdChanceの確率でガード
+        if (guardChance > 0)
+        {
+            float guardRandom = UnityEngine.Random.Range(0.0f, 100.0f);
+            if (guardRandom < guardChance*100)
+            {
+                // ガード音を再生
+                AkSoundEngine.PostEvent("SE_Gurd", gameObject);
+                // 盾のプレハブを取得
+                GameObject shield = Resources.Load<GameObject>("Prefabs/Equipment/" + currentShields.ToString("D6"));
+                // 盾のプレハブを生成
+                GameObject shieldPrefab = Instantiate(shield, transform.position, Quaternion.identity);
+                shieldPrefab.transform.SetParent(transform);
+                // shieldPrefabにセットしてあるItemDandDHandlerとBoxCollider2Dコンポーネントを非アクティブにする
+                shieldPrefab.GetComponent<ItemDandDHandler>().enabled = false;
+                shieldPrefab.GetComponent<BoxCollider2D>().enabled = false;
+                // shieldPrefabの名前から(Clone)を削除
+                shieldPrefab.name = shieldPrefab.name.Replace("(Clone)", "");
+
+                // weaponPrefabの子オブジェクトを検索してscaleという名前のオブジェクトがあったら、そこに装備中の盾を表示
+                if (GetComponent<AttackController>().weaponPrefab != null)
+                {
+                    // weaponPrefabが無効な場合でも子オブジェクトを検索する
+                    Transform[] children = GetComponent<AttackController>().weaponPrefab.GetComponentsInChildren<Transform>(true);
+                    foreach (Transform child in children)
+                    {
+                        if (child.name == "scale")
+                        {
+                            // 生成した盾をscaleのワールド座標に移動
+                            shieldPrefab.transform.position = child.position;
+                            break;
+                        }
+                    }
+                }
+
+                // 1秒後にshieldPrefabを削除
+                Destroy(shieldPrefab, 0.5f);
+                return; // ガードした場合はダメージ処理を終了
+            }
+        }
+
+        // 攻撃元にコンボ回数の更新通知を送る.
+        if (attacker.gameObject.tag == "Ally")
+        {
+            attacker.comboCountUpdate();
+        }
+
+        // クリティカルダメージの計算
+        // attakerのクリティカル確率を取得
+        // 又はattakerのcomboCountがcomboCriticalCountの倍数の場合はクリティカルダメージを適用
+        float criticalRandom = UnityEngine.Random.Range(0.0f, 100.0f);
+        bool isCritical = false;
+        if (criticalRandom < attacker.criticalChance * 100 || (attacker.comboCount > 0 && attacker.comboCount % attacker.comboCriticalCount == 0))
+        {
+            isCritical = true;
+            damage *= attacker.criticalDamage;
+            // クリティカル音を再生
+            AkSoundEngine.PostEvent("SE_Critical", gameObject);
+        }
+        else
+        {
+            // 通常のダメージ音を再生
+            AkSoundEngine.PostEvent("SE_Hit", gameObject);
+        }
+
+        // コンボ回数に応じてダメージを増加
+        damage += attacker.comboDamage * attacker.comboCount;
+
         // tagがEnemyの場合はダメージを表示する
         if (gameObject.tag == "Enemy")
         {
@@ -703,7 +794,14 @@ public class Unit : MonoBehaviour
             damageTextClone.text = Mathf.Round(damage).ToString();
             // ダメージの桁数に応じてフォントサイズを拡大(10の位を基準にする)
             damageTextClone.fontSize = 18 + (int)(Mathf.Log10(damage) * 10);
-            damageTextClone.color = Color.white;
+            if (isCritical)
+            {
+                damageTextClone.color = Color.yellow;
+            }
+            else
+            {
+                damageTextClone.color = Color.white;
+            }
 
             // textアニメーションを開始
             StartCoroutine(AnimateDamageText(damageTextRect, damageTextClone));
@@ -714,16 +812,13 @@ public class Unit : MonoBehaviour
             if (battleManager != null)
             {
                 // unitDamageにダメージを記録
-                battleManager.RecordUnitDamage(attackUnitID - 1, (int)damage);
+                battleManager.RecordUnitDamage(attacker.ID - 1, (int)damage);
             }
         }
 
         // Hp減少しないフラグがfalseなら　HPを減少させる
         if (!isNoHpReduction) currentHp -= damage;
         UpdateHpBar();
-
-        // ダメージ音を再生
-        AkSoundEngine.PostEvent("SE_Hit", gameObject);
 
         // unitSpriteを光らせる
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
@@ -741,13 +836,13 @@ public class Unit : MonoBehaviour
         {
             live = false;
             currentHp = 0;
-            Die(attackUnitID);
+            Die(attacker.ID);
         };
 
     }
 
     // ダメージ数値のアニメーション
-    IEnumerator AnimateDamageText(RectTransform damageTextRect, TextMeshProUGUI damageTextClone)
+    IEnumerator AnimateDamageText(RectTransform damageTextRect, TextMeshProUGUI damageTextClone , bool isCombo = false)
     {
         // フェーズ1: 0.1秒でスケールを0.5 ~ 1.4、alphaを0 ~ 0.64に変更
         float duration1 = 0.1f;
@@ -794,8 +889,11 @@ public class Unit : MonoBehaviour
         damageTextRect.localScale = endScale2;
         damageTextClone.color = endColor2;
 
-        // アニメーションが終わったらオブジェクトを削除
-        Destroy(damageTextRect.gameObject);
+        // コンボテキストでなければアニメーションが終わったらオブジェクトを削除
+        if (!isCombo)
+        {
+            Destroy(damageTextRect.gameObject);
+        }
     }
 
 
@@ -809,8 +907,34 @@ public class Unit : MonoBehaviour
         unitSprite.material.SetColor("_HardlightColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));
     }
 
+    // hitされた相手からコンボの更新通知を受け取りコンボ回数を更新するメソッド
+    public void comboCountUpdate()
+    {
+        {
+            // 現在の時間を取得
+            float currentTime = Time.time;
+            // 前回のヒット時間から1秒以上経過していたらコンボ回数をリセット
+            if (currentTime - lastHitTime > 1.0f)
+            {
+                comboCount = 0;
+            }
+            else
+            {
+                // 1秒以内にヒットした場合はコンボ回数を加算
+                comboCount++;
+                // コンボテキストに回数を表示
+                comboText.text = "Combo " + comboCount.ToString();
+                RectTransform comboTextRect = comboText.GetComponent<RectTransform>();
+                // コンボテキストをアニメーション
+                StartCoroutine(AnimateDamageText(comboTextRect, comboText, true));
+            }
+
+            lastHitTime = currentTime;
+        }
+    }
+
     // HPを回復させるメソッド
-    public void Heal(float amount, int attackUnitID)
+    public void Heal(float amount, Unit attacker)
     {
         // 回復値を表示する
         // damageTextを複製する
@@ -842,6 +966,12 @@ public class Unit : MonoBehaviour
         }
         UpdateHpBar();
 
+        // 攻撃元にコンボ回数の更新通知を送る.
+        if (attacker.gameObject.tag == "Ally")
+        {
+            attacker.comboCountUpdate();
+        }
+
         //// tagがAllyであれば回復を記録
         if (gameObject.tag == "Ally")
         {
@@ -850,7 +980,7 @@ public class Unit : MonoBehaviour
             if (battleManager != null)
             {
                 // unitDamageにダメージを記録
-                battleManager.RecordUnitDamage(attackUnitID - 1, (int)amount);
+                battleManager.RecordUnitDamage(attacker.ID - 1, (int)amount);
             }
         }
 
@@ -967,7 +1097,7 @@ public class Unit : MonoBehaviour
                 if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
                 if (battleManager != null)
                 {
-                    battleManager.OnBattleEnd();
+                    battleManager.OnBattleEnd(gameObject);
                 }
             }
             else

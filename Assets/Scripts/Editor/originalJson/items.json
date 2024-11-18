@@ -248,7 +248,8 @@
       "ability": "Raise physical defense just a little.",
       "world": 1,
       "price": 30,
-      "physicalDefensePower": 1
+      "physicalDefensePower": 1,
+      "guardChance": 0.1
     },
     {
       "ID": 213001,
@@ -578,7 +579,7 @@
       "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "laser",
+      "ability": "laser damage1/4",
       "pysicalPowerLv1": 0.33,
       "pysicalPowerLv2": 0.5,
       "pysicalPowerLv3": 0.75,
@@ -836,7 +837,7 @@
     {
       "ID": 412020,
       "name": "changeTarget",
-      "world": 1,
+      "world": 0,
       "price": 50,
       "maxLevel": 1,
       "ability": "Changes target within range with every shot."
@@ -874,10 +875,7 @@
       "world": 1,
       "price": 30,
       "maxLevel": 1,
-      "ability": "Randomly varies delay time from 0.3 to 3  multiplier",
-      "delayLv1": 3,
-      "delayLv2": 3,
-      "delayLv3": 3
+      "ability": "Randomly varies delay time from 0.3 to 3  multiplier"
     },
     {
       "ID": 413003,
@@ -1027,9 +1025,9 @@
       "price": 30,
       "maxLevel": 3,
       "ability": "Increased Critical Establishment (x multiplier)",
-      "cretecalChanceLv1": 1.5,
-      "cretecalChanceLv2": 2,
-      "cretecalChanceLv3": 3
+      "criticalChanceLv1": 1.5,
+      "criticalChanceLv2": 2,
+      "criticalChanceLv3": 3
     },
     {
       "ID": 413016,

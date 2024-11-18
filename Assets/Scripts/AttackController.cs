@@ -40,7 +40,6 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool randomDirectHit = false; // 直撃するターゲットをランダムに変更
     [SerializeField] private bool directHit = false; // ターゲットを直撃
     [SerializeField] private bool scaleUpBlow = false; // 時間経過に応じてスケール
-    private int numberOfShots = 3; // 一度の攻撃で発射する回数
     [SerializeField] private bool chainAttack = false; // 貫通したら近い別の対手をターゲットにする
 
     [Header("Projectile Settings")]
@@ -109,8 +108,11 @@ public class AttackController : MonoBehaviour
     {
         if (unitController != null)
         {
-            // 自分のグループをターゲットにするかどうかを設定
-            unitController.targetSameTag = targetYourGroup;
+            // 武器によってメンバーをターゲット指定していなければ、自分のグループをターゲットにするかどうかを設定
+            if (!unitController.targetSameTagWpn)
+            {
+                unitController.targetSameTag = targetYourGroup;
+            }
             // ターゲットが低HPのものを優先する場合はUnitControllerのフラグを変更する
             unitController.targetLowHpFirst = targetLowHp;
         }
@@ -524,6 +526,7 @@ public class AttackController : MonoBehaviour
             unit.attackUnitThrough,
             unit.attackObjectThrough,
             unit.attackDistance,
+            unit.attackSize,
             // 以下、オプションパラメータ
             followTarget ? targetObject : null,
             laser,

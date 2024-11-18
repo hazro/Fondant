@@ -131,12 +131,19 @@ public class StatusAdjustmentManager : MonoBehaviour
             "" + "\n" +
             "   AttackDelay: " + unit.attackDelay.ToString() + "\n" +
             "   AtkRange: " + unit.attackRange.ToString() + "\n" +
+            "   WeaponScale: " + unit.attackSize.ToString() + "\n" +
+            "   ShildGurdChance: " + (unit.guardChance * 100).ToString() + "%\n" +
             "   ShootingSPD: " + unit.attackSpeed.ToString() + "\n" +
             "   ShootingLifeTime(s): " + unit.attackLifetime.ToString() + "\n" +
             "   ShootingUnitThrough: " + unit.attackUnitThrough.ToString() + "\n" +
             "   ShootingObjectThrough: " + unit.attackObjectThrough.ToString() + "\n" +
             "   ResistCondition: " + unit.resistCondition.ToString() + "\n" +
-            "   KnockBackDistance: " + unit.knockBack.ToString() + "\n\n";
+            "   KnockBackDistance: " + unit.knockBack.ToString() + "\n" +
+            "" + "\n" +
+            "   CriticalChance: " + (unit.criticalChance * 100).ToString() + "%\n" +
+            "   CriticalDamage: " + unit.criticalDamage.ToString() + " x AttackDamage\n" +
+            "   comboDamage: " + (unit.comboDamage * 10).ToString() + "\n" +
+            "   comboCritical: " + (unit.comboCriticalCount).ToString() + " x times \n\n";
             if(unit.escape >= 1)
             {
                 statusTexts[i].text += "   Escape: true" + "\n";

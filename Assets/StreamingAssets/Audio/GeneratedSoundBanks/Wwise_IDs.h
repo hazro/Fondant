@@ -25,8 +25,9 @@ namespace AK
         static const AkUniqueID SE_APPEARANCE = 25405498U;
         static const AkUniqueID SE_AXE = 3492321120U;
         static const AkUniqueID SE_BOW = 3643569840U;
-        static const AkUniqueID SE_CRETICAL = 2626094531U;
+        static const AkUniqueID SE_CRITICAL = 2865401879U;
         static const AkUniqueID SE_CURE = 4165363523U;
+        static const AkUniqueID SE_GURD = 1272061286U;
         static const AkUniqueID SE_HEAL = 742698618U;
         static const AkUniqueID SE_HIT = 3141227107U;
         static const AkUniqueID SE_MAGIC = 1604393909U;

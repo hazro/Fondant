@@ -136,6 +136,7 @@ public class ProjectileBehavior : MonoBehaviour
         int attackUnitThrough,
         int attackObjectThrough,
         float attackDistance,
+        float attackSize,
         // オプションパラメータ
         Transform target = null, 
         bool enableTrail = false, 
@@ -165,6 +166,7 @@ public class ProjectileBehavior : MonoBehaviour
         this.magicalPower = magicalAttackPower;
         this.maxDistance = attackDistance;
         this.chainAttackEnabled = chainAttack;
+        this.transform.localScale *= attackSize;
 
         if (attributes != null)
         {
@@ -640,12 +642,12 @@ public class ProjectileBehavior : MonoBehaviour
 
         if (totalDamage > 0)
         {
-            target.TakeDamage(totalDamage, unitID);
+            target.TakeDamage(totalDamage, shooterUnit);
         }
 
         if (totalHealing > 0)
         {
-            target.Heal(totalHealing, unitID);
+            target.Heal(totalHealing, shooterUnit);
         }
     }
 }

@@ -100,7 +100,9 @@ public class BattleManager : MonoBehaviour
                 countDownText.text = "0";
                 countDownText.fontSize = 200;
                 countDownText.color = new Color(1, 1, 1, 1);
-                OnBattleEnd();
+                // ランダムなモンスターを選択
+                GameObject targetObject = enemyGroup.GetChild(Random.Range(0, enemyGroup.childCount)).gameObject;
+                OnBattleEnd(targetObject);
             }
             // バトル経過時間を00:00形式で表示
             string crearTimeStr = string.Format("{0:00}:{1:00}", clearTime / 60, clearTime % 60);
@@ -195,7 +197,7 @@ public class BattleManager : MonoBehaviour
     /// <summary>
     /// バトル終了時の処理
     /// </summary>
-    public void OnBattleEnd()
+    public void OnBattleEnd(GameObject targetObject = null)
     {
         // player全員の攻撃を停止
         foreach (GameObject player in gameManager.livingUnits)
@@ -247,7 +249,7 @@ public class BattleManager : MonoBehaviour
         statusLog.unitKill = unitKill;
 
         // gameManagerにバトル終了を通知
-        gameManager.victory(gameObject);
+        gameManager.victory(targetObject);
     }
 
 

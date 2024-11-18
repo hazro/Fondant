@@ -187,9 +187,9 @@ public class ItemData {
         public float poisonTimeLv1;
         public float poisonTimeLv2;
         public float poisonTimeLv3;
-        public float cretecalChanceLv1;
-        public float cretecalChanceLv2;
-        public float cretecalChanceLv3;
+        public float criticalChanceLv1;
+        public float criticalChanceLv2;
+        public float criticalChanceLv3;
         public float guardChanceLv1;
         public float guardChanceLv2;
         public float guardChanceLv3;

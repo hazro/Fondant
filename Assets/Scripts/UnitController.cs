@@ -30,6 +30,7 @@ public class UnitController : MonoBehaviour
 
     [Header("ターゲット設定")]
     public bool targetSameTag = false; // 自分と同じタグを持つオブジェクトをターゲットにするかどうか
+    [HideInInspector] public bool targetSameTagWpn = false; // 武器によるターゲットの同一タグ設定
     [HideInInspector] public bool targetLowHpFirst = false; // 低HPのターゲットを優先するかどうか
 
     [Header("通常移動設定")]

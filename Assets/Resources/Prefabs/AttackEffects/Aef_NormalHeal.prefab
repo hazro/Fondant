@@ -9915,10 +9915,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitID: 0
   trailColliders: []
-  colliderSpacing: 0.1
   attributes: 04000000
   projectileImage: {fileID: 4005015342315961555}
-  trailTime: 10
   trailWidth: 0.05
   trailStartColor: {r: 0.70980394, g: 1, b: 0.5254902, a: 1}
   trailEndColor: {r: 0.5372549, g: 1, b: 0.5686275, a: 0}
