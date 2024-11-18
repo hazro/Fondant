@@ -28,6 +28,9 @@ public class BattleSetupManager : MonoBehaviour
 
     private void Start()
     {
+        // startBattleButtonを非表示にする
+        startBattleButton.gameObject.SetActive(false);
+
         // 必要な初期化
         gameManager = GameManager.Instance;
         worldManager = WorldManager.Instance;
@@ -134,6 +137,7 @@ public class BattleSetupManager : MonoBehaviour
 
         // 配置処理を開始
         StartCoroutine(SpawnEnemiesWithDelay(worldEnemySpawn, enemyCounts));
+
     }
 
     /// <summary>
@@ -166,6 +170,36 @@ public class BattleSetupManager : MonoBehaviour
                 yield return new WaitForSeconds(0.5f); // 次のスポーンまで待機
             }
         }
+        // 1秒待機
+        yield return new WaitForSeconds(1f);
+        // 配置が完了したらボタンを表示
+        StartCoroutine(FadeInStartButton());
+    }
+
+    /// <summary>
+    /// 戦闘開始ボタンをフェードインするコルーチン。
+    /// </summary>
+    private IEnumerator FadeInStartButton()
+    {
+        // startBattleButtonを表示
+        startBattleButton.gameObject.SetActive(true);
+        
+        // startBattleButtonのImageコンポーネントを取得
+        Image startBattleButtonImage = startBattleButton.GetComponent<Image>();
+
+        for (float t = 0; t < 1f; t += Time.deltaTime)
+        {
+            Color color = startBattleButtonImage.color;
+            color.a = t;
+            startBattleButtonImage.color = color;
+
+            yield return null;
+        }
+
+        // 最終的にアルファを1に設定
+        Color finalColor = startBattleButtonImage.color;
+        finalColor.a = 1;
+        startBattleButtonImage.color = finalColor;
     }
 
     /// <summary>
@@ -280,6 +314,14 @@ public class BattleSetupManager : MonoBehaviour
 
     private void OnStartBattleButtonClicked()
     {
+        // ボタンのアルファが1以外の場合は処理を中断
+        Image startBattleButtonImage = startBattleButton.GetComponent<Image>();
+        Color color = startBattleButtonImage.color;
+        if (color.a != 1)
+        {
+            return;
+        }
+
         // クリックSEを再生
         AkSoundEngine.PostEvent("ST_Click", gameObject);
 

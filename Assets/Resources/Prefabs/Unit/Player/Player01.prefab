@@ -222,6 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0aafabfa5aec7a46a986bd4f464f9f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isNoHpReduction: 0
   unitSprite: {fileID: 8894279849393891494}
   live: 1
   ID: 1
@@ -271,6 +272,7 @@ MonoBehaviour:
   hpBar: {fileID: 9193314682009210437}
   hpColor: {fileID: 399429916090135461}
   damageText: {fileID: 7375849884378710377}
+  currentHp: 0
 --- !u!61 &6376528810690273896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -344,6 +346,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 8894279849393891494}
+  isMoving: 1
   showGizmos: 1
   showDebugInfo: 0
   enableTeleport: 0
@@ -364,6 +367,7 @@ MonoBehaviour:
   targetUpdateInterval: 0.5
   MoveBackFlag: 0
   MoveBackDistance: 1
+  isRandomTarget: 0
 --- !u!114 &6157364335249203468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,10 +380,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 769132681452f0e47a54f0e2fce59db6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDebugInfo: 0
   isShootingEnabled: 0
   enableEqpSkill: 1
   autoUpdateDirection: 1
   damageZero: 0
+  shoot2Directions: 0
   shoot3Directions: 0
   shoot4Directions: 0
   shoot4DiagonalDirections: 0
@@ -389,24 +395,20 @@ MonoBehaviour:
   followTarget: 0
   laser: 0
   spiral: 0
-  chargeAttack: 0
-  delayRandomRangeEnabled: 0
+  delayRandom: 0
   wave: 0
-  powerAttack: 0
-  enableContinuousAttack: 0
   backStep: 0
   targetLowHp: 0
-  changeTargetRandomly: 0
+  changeTarget: 0
   randomDirectHit: 0
   directHit: 0
   scaleUpBlow: 0
-  barrageAttack: 0
-  speedAttack: 0
   chainAttack: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
+  lastAttackStopTime: 0
   wasShootingEnabled: 0
 --- !u!114 &5217602943116784099
 MonoBehaviour:
@@ -600,7 +602,8 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2830319206586452982, guid: de219cff27a2bc9479e4d9b9141b04a3, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

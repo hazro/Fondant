@@ -686,16 +686,27 @@ public class Unit : MonoBehaviour
         // tagがEnemyの場合はダメージを表示する
         if (gameObject.tag == "Enemy")
         {
+            // damageTextを複製する
+            GameObject damageObjClone = Instantiate(damageText.gameObject, damageText.transform.position, damageText.transform.rotation);
+            damageObjClone.transform.SetParent(damageText.transform.parent); // 親を設定
+
+            TextMeshProUGUI damageTextClone = damageObjClone.GetComponent<TextMeshProUGUI>();
+
             // ダメージ数値のRectTransformを取得し、PosXとPosYを-10.0~10.0のランダム値に変更
-            RectTransform damageTextRect = damageText.GetComponent<RectTransform>();
+            RectTransform damageTextRect = damageObjClone.GetComponent<RectTransform>();
+            //位置とスケールをコピー元と同じにする
+            damageTextRect.localScale = damageText.GetComponent<RectTransform>().localScale;
+            //ランダムな位置にする
             damageTextRect.localPosition = new Vector3(UnityEngine.Random.Range(-10.0f, 10.0f), UnityEngine.Random.Range(-10.0f, 10.0f), 0);
+
             // ダメージ数値を四捨五入して表示
-            damageText.text = Mathf.Round(damage).ToString();
-            // ダメージの桁数にが上がるにつれてフォントサイズを拡大(10の位を基準にする)
-            damageText.fontSize = 18 + (int)(Mathf.Log10(damage) * 10);
-            damageText.color = Color.white;
-            // ダメージ数値のアニメーションstateを直接再生
-            HPBarAnimator.Play("HPBar_damage", 0, 0);
+            damageTextClone.text = Mathf.Round(damage).ToString();
+            // ダメージの桁数に応じてフォントサイズを拡大(10の位を基準にする)
+            damageTextClone.fontSize = 18 + (int)(Mathf.Log10(damage) * 10);
+            damageTextClone.color = Color.white;
+
+            // textアニメーションを開始
+            StartCoroutine(AnimateDamageText(damageTextRect, damageTextClone));
 
             //// ダメージを記録
             // BattleManagerがあればインスタンスを取得
@@ -733,7 +744,60 @@ public class Unit : MonoBehaviour
             Die(attackUnitID);
         };
 
-    } 
+    }
+
+    // ダメージ数値のアニメーション
+    IEnumerator AnimateDamageText(RectTransform damageTextRect, TextMeshProUGUI damageTextClone)
+    {
+        // フェーズ1: 0.1秒でスケールを0.5 ~ 1.4、alphaを0 ~ 0.64に変更
+        float duration1 = 0.1f;
+        float elapsedTime = 0f;
+
+        Vector3 startScale = new Vector3(0.5f, 0.5f, 1f);
+        Vector3 endScale = new Vector3(1.4f, 1.4f, 1f);
+        Color startColor = new Color(damageTextClone.color.r, damageTextClone.color.g, damageTextClone.color.b, 0f);
+        Color endColor = new Color(damageTextClone.color.r, damageTextClone.color.g, damageTextClone.color.b, 0.64f);
+
+        while (elapsedTime < duration1)
+        {
+            float t = elapsedTime / duration1;
+            damageTextRect.localScale = Vector3.Lerp(startScale, endScale, t);
+            damageTextClone.color = Color.Lerp(startColor, endColor, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        // 最終状態を設定
+        damageTextRect.localScale = endScale;
+        damageTextClone.color = endColor;
+
+        // フェーズ2: 0.4秒間維持
+        yield return new WaitForSeconds(0.4f);
+
+        // フェーズ3: 1秒でスケールを1.4 ~ 1.0、alphaを0.64 ~ 0に変更
+        float duration3 = 1f;
+        elapsedTime = 0f;
+
+        Vector3 startScale2 = new Vector3(1.4f, 1.4f, 1f);
+        Vector3 endScale2 = new Vector3(1.0f, 1.0f, 1f);
+        Color startColor2 = new Color(damageTextClone.color.r, damageTextClone.color.g, damageTextClone.color.b, 0.64f);
+        Color endColor2 = new Color(damageTextClone.color.r, damageTextClone.color.g, damageTextClone.color.b, 0f);
+
+        while (elapsedTime < duration3)
+        {
+            float t = elapsedTime / duration3;
+            damageTextRect.localScale = Vector3.Lerp(startScale2, endScale2, t);
+            damageTextClone.color = Color.Lerp(startColor2, endColor2, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        // 最終状態を設定
+        damageTextRect.localScale = endScale2;
+        damageTextClone.color = endColor2;
+
+        // アニメーションが終わったらオブジェクトを削除
+        Destroy(damageTextRect.gameObject);
+    }
+
 
     // unitSpriteを光らせる
     private IEnumerator FlashSprite(Color flashColor)
@@ -749,16 +813,27 @@ public class Unit : MonoBehaviour
     public void Heal(float amount, int attackUnitID)
     {
         // 回復値を表示する
-        // 値のRectTransformを取得し、PosXとPosYを-10.0~10.0のランダム値に変更
-        RectTransform damageTextRect = damageText.GetComponent<RectTransform>();
+        // damageTextを複製する
+        GameObject damageObjClone = Instantiate(damageText.gameObject, damageText.transform.position, damageText.transform.rotation);
+        damageObjClone.transform.SetParent(damageText.transform.parent); // 親を設定
+
+        TextMeshProUGUI damageTextClone = damageObjClone.GetComponent<TextMeshProUGUI>();
+
+        // ダメージ数値のRectTransformを取得し、PosXとPosYを-10.0~10.0のランダム値に変更
+        RectTransform damageTextRect = damageObjClone.GetComponent<RectTransform>();
+        //位置とスケールをコピー元と同じにする
+        damageTextRect.localScale = damageText.GetComponent<RectTransform>().localScale;
+        //ランダムな位置にする
         damageTextRect.localPosition = new Vector3(UnityEngine.Random.Range(-10.0f, 10.0f), UnityEngine.Random.Range(-10.0f, 10.0f), 0);
-        // 値を四捨五入して表示
-        damageText.text = Mathf.Round(amount).ToString();
-        // 桁数にが上がるにつれてフォントサイズを拡大(10の位を基準にする)
-        damageText.fontSize = 12 + (int)(Mathf.Log10(amount) * 10);
-        damageText.color = Color.green;
-        // 値のアニメーションstateを直接再生
-        HPBarAnimator.Play("HPBar_damage", 0, 0);
+
+        // ダメージ数値を四捨五入して表示
+        damageTextClone.text = Mathf.Round(amount).ToString();
+        // ダメージの桁数に応じてフォントサイズを拡大(10の位を基準にする)
+        damageTextClone.fontSize = 18 + (int)(Mathf.Log10(amount) * 10);
+        damageTextClone.color = Color.green;
+
+        // textアニメーションを開始
+        StartCoroutine(AnimateDamageText(damageTextRect, damageTextClone));
 
         currentHp += amount;
         if (currentHp > maxHp)
