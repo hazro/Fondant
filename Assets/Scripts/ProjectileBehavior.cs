@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class ProjectileBehavior : MonoBehaviour
 {
+    private AttackController attackController; // 攻撃コントローラーの参照
     [HideInInspector] public int unitID; // 発射元のユニットID
     private HashSet<GameObject> hitObjects = new HashSet<GameObject>(); // ヒットしたオブジェクトを追跡するためのセット
     private Dictionary<GameObject, float> damageTimers = new Dictionary<GameObject, float>(); // trailColliderが接触中のオブジェクトと最後にダメージを与えた時間を管理
@@ -14,6 +15,7 @@ public class ProjectileBehavior : MonoBehaviour
     private float moveSpeed;
     private int remainingCharThrough;
     private int remainingObjectThrough;
+    private bool throughOff = false; // 通過を強制無効にするかどうか
     private string shooterTag; // 発射元のタグ
     private Transform followTarget;
     private TrailRenderer trailRenderer; // 軌跡を描くためのTrail Renderer
@@ -27,6 +29,7 @@ public class ProjectileBehavior : MonoBehaviour
     private float followIncreaseDuration = 1.0f; // 追従力が最大になるまでの時間
     private float timeSinceLaunch; // 発射後の経過時間
     private float damageInterval = 0.5f; // ダメージを与える間隔（秒）
+    private GameObject skipObject; // 衝突判定をスキップするオブジェクト
 
     [Header("Attributes")]
     [SerializeField] public List<Attribute> attributes = new List<Attribute>(); // Attributesをpublicに変更
@@ -51,6 +54,7 @@ public class ProjectileBehavior : MonoBehaviour
     // スキルの効果
     [Header("Skill Effects")]
     [HideInInspector] public bool chainAttackEnabled = false; // チェイン攻撃の有効化
+    [HideInInspector] public bool spreadAttackEnabled = false; // スプレッド攻撃の有効化
 
     // 発射元のユニット
     public Unit shooterUnit { get; private set; }
@@ -128,6 +132,7 @@ public class ProjectileBehavior : MonoBehaviour
         // 必須パラメータ
         int unitID, // 死亡時にステータスログに記録するためのユニットID
         Vector2 direction, 
+        GameObject skipObj,
         float adjustedLifetime, 
         string shooterTag, 
         float pysicalAttackPower,
@@ -145,6 +150,8 @@ public class ProjectileBehavior : MonoBehaviour
         float shakeAmplitude = 0f, 
         bool scaleOverTime = false,
         bool chainAttack = false,
+        bool spreadAttack = false,
+        bool throughEnforce = false,
         List<Attribute> attributes = null, 
         StatusAilment? statusAilment = null, 
         StatusEffect? statusEffect = null
@@ -152,6 +159,7 @@ public class ProjectileBehavior : MonoBehaviour
     {
         this.unitID = unitID;
         this.moveDirection = direction.normalized;
+        this.skipObject = skipObj;
         this.moveSpeed = attackSpeed;
         this.lifetime = lifetime * adjustedLifetime;
         this.remainingCharThrough = attackUnitThrough;
@@ -167,6 +175,8 @@ public class ProjectileBehavior : MonoBehaviour
         this.maxDistance = attackDistance;
         this.chainAttackEnabled = chainAttack;
         this.transform.localScale *= attackSize;
+        this.spreadAttackEnabled = spreadAttack;
+        this.throughOff = throughEnforce;
 
         if (attributes != null)
         {
@@ -324,6 +334,7 @@ public class ProjectileBehavior : MonoBehaviour
     public void SetShooterUnit(Unit unit)
     {
         shooterUnit = unit;
+        attackController = unit.GetComponent<AttackController>();
     }
 
     private void SetSpriteRenderersAlpha(float alpha)
@@ -485,7 +496,7 @@ public class ProjectileBehavior : MonoBehaviour
         
         // 発射元のtargetSameTagがfalseであれば発射元のタグと異なる場合、trueであれば発射元のタグと同じ場合の処理
         // collision
-        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && ((targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag)))
+        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && ((targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag)) && skipObject != collision.gameObject)
         {
             // 自分をターゲットにしていないのに自分に当たった場合は無視する
             if (collision.gameObject == shooterUnit.gameObject)
@@ -495,7 +506,7 @@ public class ProjectileBehavior : MonoBehaviour
             // ダメージを与える
             Unit targetUnit = collision.gameObject.GetComponent<Unit>();
             ApplyDamage(targetUnit);
-            // 通過回数が0以下になったら消滅する
+            // 通過回数が0以下になったら消滅する throughOffがtrueの場合は強制消滅
             if (remainingCharThrough <= 0)
             {
                 // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
@@ -512,6 +523,16 @@ public class ProjectileBehavior : MonoBehaviour
             // 衝突後消滅しない場合は現在のターゲット以外の一番近い位置にいるターゲットに変更する
             else
             {
+                // 拡散攻撃が有効の場合は進んでいた方向の-30度と+30度の2方向それぞれにもう1発づつ発射する
+                if (spreadAttackEnabled  && !throughOff)
+                {
+                    if (attackController == null)
+                    {
+                        attackController = shooterUnit.GetComponent<AttackController>();
+                    }
+                    // 0.1秒起きに拡散発射を行う。引数はスキップするオブジェクト
+                    StartCoroutine(WaitForNextSpreadAttack(collision.gameObject));
+                }
                 // チェイン攻撃が有効の場合は一番近いターゲットを取得してターゲットを変更する
                 if (chainAttackEnabled)
                 {
@@ -555,6 +576,27 @@ public class ProjectileBehavior : MonoBehaviour
 
             // 通過回数を減らす
             remainingCharThrough--;
+        }
+    }
+
+    /// <summary>
+    /// 拡散発射を行う
+    /// </summary>
+    private IEnumerator WaitForNextSpreadAttack(GameObject skipObj)
+    {
+        // 拡散数
+        int spreadCount = 1 + shooterUnit.spreadCount;
+        float damageMulti = shooterUnit.spreadDamage;
+        for (int i = 0; i < spreadCount; i++)
+        {
+            // 拡散角度
+            float spreadAngle = (30 * (i + 1)) - ((spreadCount+1) * 30)/2;
+            // 拡散角度の方向
+            Vector2 spreadDirection = Quaternion.Euler(0, 0, spreadAngle) * moveDirection;
+            // 発射、現在の位置から発射するためにtransform.positionを渡し、貫通を強制無効にする
+            attackController.ShootProjectileInDirection(spreadDirection, transform.position, true, damageMulti , skipObj);
+            // 0.1秒待機して次の発射を行う
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

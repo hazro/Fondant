@@ -41,6 +41,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool directHit = false; // ターゲットを直撃
     [SerializeField] private bool scaleUpBlow = false; // 時間経過に応じてスケール
     [SerializeField] private bool chainAttack = false; // 貫通したら近い別の対手をターゲットにする
+    [SerializeField] private bool spread = false; // 発射物がぶつかったら2つに拡散する
 
     [Header("Projectile Settings")]
     public GameObject weaponPrefab; // 武器のPrefab
@@ -296,6 +297,7 @@ public class AttackController : MonoBehaviour
                 directHit = eqpRuneNames.Contains(nameof(directHit));
                 scaleUpBlow = eqpRuneNames.Contains(nameof(scaleUpBlow));
                 chainAttack = eqpRuneNames.Contains(nameof(chainAttack));
+                spread = eqpRuneNames.Contains(nameof(spread));
                 // 以下同様に設定予定
             }
 
@@ -458,8 +460,12 @@ public class AttackController : MonoBehaviour
     /// 単一の方向に向けて発射する
     /// </summary>
     /// <param name="dir">発射する方向</param>
-    private void ShootProjectileInDirection(Vector2 dir)
+    public void ShootProjectileInDirection(Vector2 dir, Vector2 changePosition = default , bool throughEnforce = false, float damageMult = 1.0f, GameObject skipObject = null)
     {
+        if (changePosition != default)
+        {
+            firingPosition = changePosition;
+        }
         //発射位置(transformX)に0.1fオフセットをかける weaponPrefab.transform.localScale.x < 0の場合は-0.1fオフセットをかける
         float offset = 0;
         if (weaponPrefab != null)
@@ -480,7 +486,7 @@ public class AttackController : MonoBehaviour
         if (projectileBehavior != null)
         {
             // ProjectileBehaviorの初期化
-            ProjectileInitialize(projectileBehavior,dir);
+            ProjectileInitialize(projectileBehavior,dir, throughEnforce, damageMult, skipObject);
 
             // Unit型のインスタンスをSetShooterUnitメソッドに渡す
             if (unit != null)
@@ -491,7 +497,7 @@ public class AttackController : MonoBehaviour
     }
 
     // ProjectileBehaviorの初期化処理
-    private void ProjectileInitialize(ProjectileBehavior projectileBehavior, Vector2 dir)
+    private void ProjectileInitialize(ProjectileBehavior projectileBehavior, Vector2 dir, bool throughEnforce , float damageMult, GameObject skipObject)
     {
         // 螺旋運動が有効な場合は、経過時間の寿命を3倍にする
         float adjustedLifetime = spiral ? unit.attackLifetime * 3.0f : unit.attackLifetime;
@@ -506,8 +512,8 @@ public class AttackController : MonoBehaviour
             aefShakeAmplitude = shakeAmplitude * unit.attackSpeed;
         }
          
-        float pysicalAttackPower = unit.physicalAttackPower;
-        float magicAttackAttackPower = unit.magicalAttackPower;
+        float pysicalAttackPower = unit.physicalAttackPower * damageMult;
+        float magicAttackAttackPower = unit.magicalAttackPower * damageMult;
         if(damageZero) 
         {
             pysicalAttackPower = 0;
@@ -518,6 +524,7 @@ public class AttackController : MonoBehaviour
         projectileBehavior.Initialize(
             unit.ID,
             dir,
+            skipObject,
             adjustedLifetime,
             gameObject.tag,
             pysicalAttackPower,
@@ -534,7 +541,9 @@ public class AttackController : MonoBehaviour
             spiralExpansionSpeed,
             aefShakeAmplitude,
             scaleUpBlow,
-            chainAttack
+            chainAttack,
+            spread,
+            throughEnforce
             );
     }
 

@@ -151,6 +151,9 @@ public class ItemData {
         public float scaleLv1;
         public float scaleLv2;
         public float scaleLv3;
+        public float knockBackLv1;
+        public float knockBackLv2;
+        public float knockBackLv3;
         public float distanceLv1;
         public float distanceLv2;
         public float distanceLv3;

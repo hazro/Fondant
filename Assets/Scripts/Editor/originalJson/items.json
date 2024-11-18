@@ -123,13 +123,13 @@
     {
       "ID": 30,
       "name": "pysicalMonster",
-      "magic": 0.5,
-      "str": 2.5,
-      "dex": 1,
+      "magic": 1,
+      "str": 5,
+      "dex": 2,
       "levelScaleFactor": 1,
-      "levelMagic": 0.15,
-      "levelStr": 1,
-      "levelDex": 0.5,
+      "levelMagic": 0.33,
+      "levelStr": 2,
+      "levelDex": 1,
       "levelKnockBack": 0.2,
       "equeLargeSwordAxe": 1,
       "equeSwordDagger": 1,
@@ -145,13 +145,13 @@
     {
       "ID": 31,
       "name": "mageMonster",
-      "magic": 2.5,
-      "str": 0.5,
-      "dex": 1,
+      "magic": 5,
+      "str": 1,
+      "dex": 2,
       "levelScaleFactor": 1,
-      "levelMagic": 1,
-      "levelStr": 0.15,
-      "levelDex": 0.5,
+      "levelMagic": 2,
+      "levelStr": 0.33,
+      "levelDex": 1,
       "equeLargeSwordAxe": 1,
       "equeSwordDagger": 1,
       "equeStickStaffBook": 1,
@@ -166,15 +166,15 @@
     {
       "ID": 32,
       "name": "assasinMonster",
-      "magic": 0.5,
-      "str": 1.5,
-      "dex": 2.5,
-      "residCondition": 1.5,
+      "magic": 1,
+      "str": 3,
+      "dex": 5,
+      "residCondition": 3,
       "levelScaleFactor": 1,
-      "levelMagic": 0.15,
-      "levelStr": 0.75,
-      "levelDex": 1,
-      "levelResidtCondition": 0.15,
+      "levelMagic": 0.33,
+      "levelStr": 1.5,
+      "levelDex": 2,
+      "levelResidtCondition": 0.33,
       "equeLargeSwordAxe": 1,
       "equeSwordDagger": 1,
       "equeStickStaffBook": 1,
@@ -189,17 +189,17 @@
     {
       "ID": 33,
       "name": "helarMonster",
-      "magic": 2.5,
-      "str": 0.5,
-      "dex": 0.5,
-      "residCondition": 5,
+      "magic": 5,
+      "str": 1,
+      "dex": 1,
+      "residCondition": 10,
       "attackUnitThrough": 3,
       "attackObjectThrough": 3,
       "levelScaleFactor": 1,
-      "levelMagic": 1,
-      "levelStr": 0.15,
-      "levelDex": 0.15,
-      "levelResidtCondition": 0.5,
+      "levelMagic": 2,
+      "levelStr": 0.33,
+      "levelDex": 0.33,
+      "levelResidtCondition": 1,
       "escape": 0.07,
       "equeLargeSwordAxe": 1,
       "equeSwordDagger": 1,
@@ -215,17 +215,17 @@
     {
       "ID": 34,
       "name": "tankMonster",
-      "magic": 1.5,
-      "str": 1.5,
-      "dex": 0.5,
-      "residCondition": 1.5,
-      "initKnockBack": 2.5,
+      "magic": 3,
+      "str": 3,
+      "dex": 1,
+      "residCondition": 3,
+      "initKnockBack": 5,
       "levelScaleFactor": 1,
-      "levelMagic": 0.5,
-      "levelStr": 0.5,
-      "levelDex": 0.5,
-      "levelResidtCondition": 0.5,
-      "levelKnockBack": 0.2,
+      "levelMagic": 1,
+      "levelStr": 1,
+      "levelDex": 1,
+      "levelResidtCondition": 1,
+      "levelKnockBack": 0.4,
       "equeLargeSwordAxe": 1,
       "equeSwordDagger": 1,
       "equeStickStaffBook": 1,
@@ -433,7 +433,6 @@
     {
       "ID": 411001,
       "name": "fanning",
-      "world": 1,
       "price": 100,
       "maxLevel": 3,
       "ability": "Fanning out the attack range",
@@ -489,7 +488,6 @@
     {
       "ID": 411005,
       "name": "fullPerimeter",
-      "world": 1,
       "price": 100,
       "maxLevel": 3,
       "ability": "Extends all around",
@@ -503,7 +501,6 @@
     {
       "ID": 411006,
       "name": "frontAndBack",
-      "world": 1,
       "price": 100,
       "maxLevel": 3,
       "ability": "Instant attack back and forth",
@@ -517,7 +514,6 @@
     {
       "ID": 411007,
       "name": "tornado",
-      "world": 1,
       "price": 100,
       "maxLevel": 3,
       "ability": "tornado attack",
@@ -628,7 +624,6 @@
     {
       "ID": 412007,
       "name": "targetAnomaly",
-      "world": 1,
       "price": 50,
       "maxLevel": 1,
       "ability": "Target those with abnormalities (priority over low HP)"
@@ -738,7 +733,10 @@
       "world": 1,
       "price": 50,
       "maxLevel": 1,
-      "ability": "Double knockback"
+      "ability": "Double knockback",
+      "knockBackLv1": 2,
+      "knockBackLv2": 2,
+      "knockBackLv3": 2
     },
     {
       "ID": 412015,
@@ -746,19 +744,10 @@
       "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "If it penetrates the target, the attack scatters in two directions",
+      "ability": "If it penetrates the target, the attack scatters in two directions (damage lv x 0.25)",
       "distanceLv1": 3,
       "distanceLv2": 3,
-      "distanceLv3": 3,
-      "timeLv1": 0.5,
-      "timeLv2": 0.5,
-      "timeLv3": 0.5,
-      "pysicalPowerLv1": 0.125,
-      "pysicalPowerLv2": 0.167,
-      "pysicalPowerLv3": 0.25,
-      "magicalPowerLv1": 0.125,
-      "magicalPowerLv2": 0.167,
-      "magicalPowerLv3": 0.25
+      "distanceLv3": 3
     },
     {
       "ID": 412016,
@@ -837,7 +826,7 @@
     {
       "ID": 412020,
       "name": "changeTarget",
-      "world": 0,
+      "world": 1,
       "price": 50,
       "maxLevel": 1,
       "ability": "Changes target within range with every shot."
@@ -845,7 +834,6 @@
     {
       "ID": 412021,
       "name": "changeTargetAll",
-      "world": 1,
       "price": 50,
       "maxLevel": 1,
       "ability": "Change targets, including out of range with every shot."
@@ -999,7 +987,6 @@
     {
       "ID": 413013,
       "name": "bloodTimeUp",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Burns and bleeds last longer and increase effectiveness (x multiplier)",
@@ -1010,7 +997,6 @@
     {
       "ID": 413014,
       "name": "poisonTimeUp",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Poison Duration of effect, increase effect (x multiplier)",
@@ -1043,7 +1029,6 @@
     {
       "ID": 413017,
       "name": "priorityOthers",
-      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "Targets other than yourself in the enemy's attack range are given priority."
@@ -1051,7 +1036,6 @@
     {
       "ID": 413018,
       "name": "regenerative",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Gradual HP recovery  (x% second)"
@@ -1059,7 +1043,6 @@
     {
       "ID": 413019,
       "name": "bloodSuck",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Recovers HP by x-multiplier of the damage inflicted.",
@@ -1070,7 +1053,6 @@
     {
       "ID": 413020,
       "name": "guardPoison",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Prevent poison (x * 100% add)",
@@ -1081,7 +1063,6 @@
     {
       "ID": 413021,
       "name": "guardBleed",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Prevents bleeding (x * 100% add)",
@@ -1092,7 +1073,6 @@
     {
       "ID": 413022,
       "name": "stunGuard",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Prevent stun (x * 100% add)",
@@ -1103,7 +1083,6 @@
     {
       "ID": 413023,
       "name": "guardParalysis",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Prevents paralysis (x * 100% add)",
@@ -1114,7 +1093,6 @@
     {
       "ID": 413024,
       "name": "guardWakeing",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Prevent Weakness (x * 100% add)",
@@ -1125,7 +1103,6 @@
     {
       "ID": 413025,
       "name": "defenseDownGurad",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Prevent vulnerability (x * 100% add)",
@@ -1136,7 +1113,6 @@
     {
       "ID": 413026,
       "name": "nonAttackMagicUp",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Significantly increases the magic defense when non-attacking (x multiplied)",
@@ -1147,7 +1123,6 @@
     {
       "ID": 413027,
       "name": "nonAttackGuardChanceUp",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Significantly increase the guard probability on non-attacks (x multiplier)",
@@ -1156,9 +1131,8 @@
       "guardChanceLv3": 2
     },
     {
-      "ID": 413028,
+      "ID": 413027,
       "name": "conditionGuardUp",
-      "world": 1,
       "price": 30,
       "maxLevel": 3,
       "ability": "Abnormality resistance up (x multiplier added)",
@@ -1184,9 +1158,9 @@
       "price": 30,
       "maxLevel": 3,
       "ability": "Critical every x number of combos.",
-      "comboCriticalLv1": 5,
-      "comboCriticalLv2": 4,
-      "comboCriticalLv3": 3
+      "comboCriticalLv1": 2,
+      "comboCriticalLv2": 6,
+      "comboCriticalLv3": 10
     },
     {
       "ID": 413031,
@@ -1202,7 +1176,6 @@
     {
       "ID": 413032,
       "name": "conditionRecavery",
-      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "Recovery Attacks with Condition Recovery"
@@ -1217,7 +1190,6 @@
     {
       "ID": 413034,
       "name": "priorityTarget",
-      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "Easier to be selected as a target and harder to be released once selected"
@@ -1250,7 +1222,6 @@
     {
       "ID": 414001,
       "name": "poison",
-      "world": 1,
       "price": 50,
       "maxLevel": 3,
       "ability": "Inflicts a poison effect on the attack with a probability of. Damage level * x (every 2 seconds)",
@@ -1261,7 +1232,6 @@
     {
       "ID": 414002,
       "name": "bleed",
-      "world": 1,
       "price": 50,
       "maxLevel": 3,
       "ability": "Inflicts a bleeding effect on attacks with a probability of.   Damage level * x (every 2 seconds)",
@@ -1272,7 +1242,6 @@
     {
       "ID": 414003,
       "name": "stun",
-      "world": 1,
       "price": 50,
       "maxLevel": 3,
       "ability": "Inflicts a stun effect on attacks with a probability of.   (level * x second)",
@@ -1283,7 +1252,6 @@
     {
       "ID": 414004,
       "name": "paralysis",
-      "world": 1,
       "price": 50,
       "maxLevel": 3,
       "ability": "Gives a paralyzing effect to attacks with a probability of paralysis.   (level * x second)",
@@ -1294,7 +1262,6 @@
     {
       "ID": 414005,
       "name": "defenseDown",
-      "world": 1,
       "price": 50,
       "maxLevel": 3,
       "ability": "Adds vulnerability to attacks with a probability of.   (level * x second)",
@@ -1305,7 +1272,6 @@
     {
       "ID": 414006,
       "name": "weakening",
-      "world": 1,
       "price": 50,
       "maxLevel": 3,
       "ability": "Probability of inflicting a weakening to the attack.   (level * x second)",

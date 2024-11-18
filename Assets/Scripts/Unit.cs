@@ -54,6 +54,8 @@ public class Unit : MonoBehaviour
     [SerializeField] public float comboCriticalCount; // コンボ何回毎にクリティカルするか
     public int comboCount = 0; // コンボカウント
     public float lastHitTime = 0; // 最後にダメージを与えた時間
+    public int spreadCount = 0; // スプレッドカウント
+    public float spreadDamage = 0; // スプレッドダメージ倍率
     [Header("///////////////")]
     ///
 
@@ -269,6 +271,7 @@ public class Unit : MonoBehaviour
         float comboCriticalCountUp = 0.0f;
         float criticalChanceMult = 1.0f;
         float criticalDamageMult = 1.0f;
+        float knockBackMultiplier = 1.0f;
 
         // 以下未設定
         float bloodTime = 1.0f;
@@ -287,9 +290,14 @@ public class Unit : MonoBehaviour
         float wake = 0.0f;
         float defenceDown = 0.0f;
 
+        // その他
+        int spreadTotalLv = 0;
+
         // tagがAllyでiventrySkillListがnullでなければルーンのステータスを取得
         if (gameObject.tag == "Ally" && IventrySkillList != null)
         {
+            spreadCount = 0; // スプレッドカウントの初期化
+
             for (int i = 6; i < IventrySkillList.Count; i++)
             {
                 // もしi=6でmainSocketまたはi=7以上でsubSocket[i-7]が0ならばスキップ
@@ -326,6 +334,7 @@ public class Unit : MonoBehaviour
                         if (runeListData.comboCriticalLv1 != 0) comboCriticalCountUp += runeListData.comboCriticalLv1;
                         if (runeListData.criticalChanceLv1 != 0) criticalChanceMult *= runeListData.criticalChanceLv1;
                         if (runeListData.criticalDamageLv1 != 0) criticalDamageMult *= runeListData.criticalDamageLv1;
+                        if (runeListData.knockBackLv1 != 0) knockBackMultiplier *= runeListData.knockBackLv1;
 
                         // 以下未設定
                         if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
@@ -366,6 +375,7 @@ public class Unit : MonoBehaviour
                         if (runeListData.comboCriticalLv2 != 0) comboCriticalCountUp += runeListData.comboCriticalLv2;
                         if (runeListData.criticalChanceLv2 != 0) criticalChanceMult *= runeListData.criticalChanceLv2;
                         if (runeListData.criticalDamageLv2 != 0) criticalDamageMult *= runeListData.criticalDamageLv2;
+                        if (runeListData.knockBackLv2 != 0) knockBackMultiplier *= runeListData.knockBackLv2;
 
                         // 以下未設定
                         if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
@@ -405,6 +415,7 @@ public class Unit : MonoBehaviour
                         if (runeListData.comboCriticalLv3 != 0) comboCriticalCountUp += runeListData.comboCriticalLv3;
                         if (runeListData.criticalChanceLv3 != 0) criticalChanceMult *= runeListData.criticalChanceLv3;
                         if (runeListData.criticalDamageLv3 != 0) criticalDamageMult *= runeListData.criticalDamageLv3;
+                        if (runeListData.knockBackLv3 != 0) knockBackMultiplier *= runeListData.knockBackLv3;
 
                         // 以下未設定
                         if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
@@ -424,6 +435,13 @@ public class Unit : MonoBehaviour
                         if (runeListData.defenceDownLv3 != 0) defenceDown += runeListData.defenceDownLv3;
                     }
                 }
+                // ルーンIDが412015の場合はspreadCountを1増やす
+                if(runeId == 412015)
+                {
+                    spreadCount++;
+                    spreadTotalLv += runeLevel;
+                }
+                spreadDamage = spreadTotalLv * 0.25f;
             }
         }
         
@@ -477,7 +495,8 @@ public class Unit : MonoBehaviour
         attackObjectThrough += attackObjectThroughAdd; // ルーンのオブジェクト貫通力を適用
         attackSize = 1 + wpnListData.attackSize + shieldListData.attackSize + armorListData.attackSize + accessoriesListData.attackSize;
         attackSize *= weaponScaleMultiplier; // ルーンの攻撃サイズ倍率を適用
-        knockBack = (currentKnockBack + (currentLevel - 1) * levelKnockBack) / 10 + wpnListData.knockBack + shieldListData.knockBack + armorListData.knockBack + accessoriesListData.knockBack;
+        knockBack = ((currentKnockBack + (currentLevel - 1) * levelKnockBack) + wpnListData.knockBack + shieldListData.knockBack + armorListData.knockBack + accessoriesListData.knockBack) / 100;
+        knockBack *= knockBackMultiplier; // ルーンのノックバック倍率を適用
         targetJob = JtargetJob;
         teleportation = teleportations + wpnListData.teleportation + shieldListData.teleportation + armorListData.teleportation + accessoriesListData.teleportation;
         escape = escapes + wpnListData.escape + shieldListData.escape + armorListData.escape + accessoriesListData.escape;
@@ -746,6 +765,21 @@ public class Unit : MonoBehaviour
                 return; // ガードした場合はダメージ処理を終了
             }
         }
+
+        // attacjerのknockBack確率でノックバック
+        float knockBackRandom = UnityEngine.Random.Range(0.0f, 100.0f);
+        if (knockBackRandom < attacker.knockBack * 100)
+        {
+            // ノックバック音を再生
+            //AkSoundEngine.PostEvent("SE_KnockBack", gameObject);
+            // ノックバック処理
+            Vector2 direction = gameObject.transform.position - attacker.transform.position;
+            direction.Normalize();
+            // attackerの逆方向にattacker.knockBack分移動する(knockBack距離分移動)
+            gameObject.transform.position += new Vector3(direction.x, direction.y, 0) * attacker.knockBack;
+            
+        }
+
 
         // 攻撃元にコンボ回数の更新通知を送る.
         if (attacker.gameObject.tag == "Ally")
