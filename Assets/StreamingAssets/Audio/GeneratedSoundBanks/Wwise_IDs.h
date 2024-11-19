@@ -50,6 +50,7 @@ namespace AK
     namespace GAME_PARAMETERS
     {
         static const AkUniqueID BGMVOLUME = 3043206523U;
+        static const AkUniqueID MASTERVOLUME = 2918011349U;
         static const AkUniqueID SEVOLUME = 3362400191U;
         static const AkUniqueID SS_AIR_FEAR = 1351367891U;
         static const AkUniqueID SS_AIR_FREEFALL = 3002758120U;

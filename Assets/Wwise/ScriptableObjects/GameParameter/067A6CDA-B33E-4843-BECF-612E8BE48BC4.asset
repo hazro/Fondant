@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac68bfb8d6b09544dacc9ab70c8b2f0c, type: 3}
+  m_Name: 067A6CDA-B33E-4843-BECF-612E8BE48BC4
+  m_EditorClassIdentifier: 
+  objectName: SystemVolume
+  id: 2417814656
+  guid: 067A6CDA-B33E-4843-BECF-612E8BE48BC4

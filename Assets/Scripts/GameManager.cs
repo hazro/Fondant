@@ -13,6 +13,8 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    [SerializeField] private Button settingOpenButton; // 設定画面を開くボタン
+    public SettingManager settingManager; // SettingManagerのインスタンスを取得するためのフィールド
 
     [Header("------------------------ ]")]
     private JsonDecryptor jsonDecryptor; // JsonDecryptorクラスのインスタンスを取得するためのフィールド
@@ -87,7 +89,11 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-      
+        // settingManagerのインスタンスを取得
+        settingManager = SettingManager.Instance;
+        // settingOpenButtonのOnClickイベントにOpenSettingメソッドを追加
+        settingOpenButton.onClick.AddListener(OpenSetting);
+
         // JsonDecryptorクラスを使用する
         jsonDecryptor = new JsonDecryptor();
         string filename = "items"; // ファイル名
@@ -802,6 +808,20 @@ public class GameManager : MonoBehaviour
         iventryUI.UpdateUnitSkillUI(unit);
         // ユニットのステータスを更新
         unit.GetComponent<Unit>().updateStatus();
+    }
+
+    /// <summary>
+    /// 設定画面を開くボタンを押した時の処理
+    /// </summary>
+    public void OpenSetting()
+    {
+        if(settingManager == null){
+            settingManager = SettingManager.Instance;
+        }
+        if(settingManager != null)
+        {
+            settingManager.OpenSettingPanel();
+        }
     }
     
 }
