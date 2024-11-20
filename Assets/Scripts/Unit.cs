@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour
     public List<GameObject> IventrySkillList; // ユニットのスキルリスト
 
     [SerializeField] public string unitName;
-    [SerializeField] public int condition; // 0:通常, 1:死亡 2:火傷(時間xダメージ) 3:麻痺(動きが遅くなる), 4:毒(重ねがけ), 5:凍結(動けない、防御力上がる)、6:弱体化(攻撃力が下がる)、7:脆弱化 (防御力が下がる)
+    [SerializeField] public bool[] condition = new bool[7]; // 状態異常（各要素がtrueの時） 0:死亡、1:毒、2:出血、3:スタン、4:麻痺、5:脆弱、6:弱体、7:吸血、8:リジェネ
     [SerializeField] public int job;
     [SerializeField] public int totalExp;
     [SerializeField] public int currentLevel;
@@ -82,12 +82,15 @@ public class Unit : MonoBehaviour
     public Image hpColor;
     public TextMeshProUGUI damageText; // ダメージ数値表示テキスト
     public TextMeshProUGUI comboText; // コンボ数値表示テキスト
-    private float maxHp;
+    [HideInInspector] public float maxHp;
 
     private GameManager gameManager; // GameManagerの参照
     private IventryUI iventryUI; // IventryUIの参照
     private WorldManager worldManager; // WorldManagerの参照
     private BattleManager battleManager; // BattleManagerの参照
+
+    [Header("calc Condition")]
+    private float lastDamageTime = 0; // 最後にダメージを受けた時間
 
     void Start()
     {
@@ -177,6 +180,32 @@ public class Unit : MonoBehaviour
         if(PlayAnimatorStateIfExists(stateName))
         {
             animator.Play(stateName); // 動いていない場合はIdleステートをセット
+        }
+    }
+
+    void Update()
+    {
+        // 1秒起きに状態効果の計算
+        if (Time.time - lastDamageTime > 1)
+        {
+            CalcCondition();
+        }
+
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void CalcCondition()
+    {
+        // 状態異常効果の計算
+        if (condition[1]) // 毒
+        {
+            // 2秒毎LVx0.5のダメージ、重ねがけ3回までダメージを2倍、初回10秒、攻撃を受けるたびに効果時間を10秒延長
+        }
+        if (condition[2]) // 出血
+        {
+            // 2秒毎LVx0.8のダメージ、重ねがけ3回までダメージを1.5倍、初回6秒、攻撃を受けるたびに効果時間を6秒延長(1分間で5回の確率でHit)
         }
     }
 
@@ -1156,7 +1185,7 @@ public class Unit : MonoBehaviour
                 Instantiate(dieEffect, transform.position, Quaternion.identity);
             }
             // プレイヤーが死亡した場合はSetActive(false)にして非表示にする
-            condition = 1;
+            condition[0] = true;
             // ユニットの色を元に戻す(念のため)
             unitSprite.material.SetColor("_HardlightColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));
             gameObject.SetActive(false);
@@ -1173,7 +1202,7 @@ public class Unit : MonoBehaviour
             foreach (GameObject player in gameManager.livingUnits)
             {
                 Unit unit = player.GetComponent<Unit>();
-                if (unit.condition != 1)
+                if (!unit.condition[0])
                 {
                     return; // 1人でも生存していればゲームオーバー処理を行わない
                 }
@@ -1190,9 +1219,8 @@ public class Unit : MonoBehaviour
             if (BattleManager.Instance != null) battleManager = BattleManager.Instance;
             if (battleManager != null)
             {
-                battleManager.OnBattleEnd();
+                battleManager.OnBattleEnd(null,true);
             }
-            gameManager.LoadScene("GameOverScene"); // ゲームオーバーシーンに遷移
         }
     }
 

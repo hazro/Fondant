@@ -303,7 +303,7 @@ MonoBehaviour:
     ParentPath: Master-Mixer Hierarchy\Default Work Unit
     guid: f8a90ce4f1f5a940af24eb616bc5513a
     GuidInternal: 
-    m_lastTime: -8584699714226574528
+    m_lastTime: -8584696147473871410
     List:
     - name: Master Audio Bus
       guid: d8a41415a61d2a41a17e75ca0c2149f3
@@ -387,7 +387,7 @@ MonoBehaviour:
     ParentPath: Events\Default Work Unit
     guid: ea1ad177c606a74582aa8d22a137547b
     GuidInternal: 
-    m_lastTime: -8584696586392753783
+    m_lastTime: -8584696165968091564
     List:
     - name: after
       guid: 817ebdb17ac2f049af4e9ebb8a2dba57
@@ -1204,8 +1204,64 @@ MonoBehaviour:
     ParentPath: Game Parameters\Default Work Unit
     guid: 6bd3c80337e71e4d94f1380e65a1f1c4
     GuidInternal: 
-    m_lastTime: -8584699714226339354
-    List: []
+    m_lastTime: -8584695657914589431
+    List:
+    - name: BGMVolume
+      guid: c09c5dded0109348a86b43db8c95afbe
+      id: 3043206523
+      PathAndIcons:
+      - ElementName: Game Parameters
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 6bd3c80337e71e4d94f1380e65a1f1c4
+      - ElementName: BGMVolume
+        ObjectType: 13
+        guid: c09c5dded0109348a86b43db8c95afbe
+      Path: Game Parameters\Default Work Unit\BGMVolume
+    - name: MasterVolume
+      guid: 9e091f9201e1ad4aa383b1be5b46d350
+      id: 2918011349
+      PathAndIcons:
+      - ElementName: Game Parameters
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 6bd3c80337e71e4d94f1380e65a1f1c4
+      - ElementName: MasterVolume
+        ObjectType: 13
+        guid: 9e091f9201e1ad4aa383b1be5b46d350
+      Path: Game Parameters\Default Work Unit\MasterVolume
+    - name: SEVolume
+      guid: 00ab32554d9bba4e982a53fd112a92bc
+      id: 3362400191
+      PathAndIcons:
+      - ElementName: Game Parameters
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 6bd3c80337e71e4d94f1380e65a1f1c4
+      - ElementName: SEVolume
+        ObjectType: 13
+        guid: 00ab32554d9bba4e982a53fd112a92bc
+      Path: Game Parameters\Default Work Unit\SEVolume
+    - name: SystemVolume
+      guid: da6c7a063eb34348becf612e8be48bc4
+      id: 2417814656
+      PathAndIcons:
+      - ElementName: Game Parameters
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 6bd3c80337e71e4d94f1380e65a1f1c4
+      - ElementName: SystemVolume
+        ObjectType: 13
+        guid: da6c7a063eb34348becf612e8be48bc4
+      Path: Game Parameters\Default Work Unit\SystemVolume
   - PhysicalPath: Game Parameters\Factory Soundseed Air Game Syncs.wwu
     PathAndIcons:
     - ElementName: Game Parameters
@@ -1402,7 +1458,7 @@ MonoBehaviour:
     m_lastTime: -8584699714227114598
     List: []
   ExpandedFileSystemItemIds: 
-  ExpandedWaapiItemIds: 02000000030000000400000005000000090000000a0000000b0000000c0000000d0000000e0000001200000016000000170000001a0000001b000000d7000000d8000000
+  ExpandedWaapiItemIds: 020000000300000004000000050000000600000007000000080000000a0000000b0000000c0000000d0000000e0000001100000012000000150000001600000017000000190000001a0000001b000000d7000000d8000000
   AutoSyncSelection: 0
   autoPopulateEnabled: 1
   currentDataSource: 0

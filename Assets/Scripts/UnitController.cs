@@ -462,7 +462,7 @@ public class UnitController : MonoBehaviour
     /// </summary>
     public void SetClosestTarget()
     {
-        string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy");
+        string targetTag = targetSameTag ? gameObject.tag : (gameObject.CompareTag("Enemy") ? "Ally" : "Enemy"); // 同じタグのオブジェクトをターゲットにするかどうか
         float closestDistance = Mathf.Infinity;
         Transform selectedTarget = null;
 
@@ -472,9 +472,13 @@ public class UnitController : MonoBehaviour
             // HPの低い順にターゲットを選択
             List<Unit> potentialTargets = new List<Unit>();
 
+            Debug.Log("HPの低い順にターゲットを選択します。");
+            Debug.Log("targetTag: " + targetTag);
+
             foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
             {
-                if (potentialTarget == gameObject) continue;
+                if (potentialTarget == gameObject) continue; // 自分自身は除外
+                Debug.Log("potentialTarget: " + potentialTarget.name);
 
                 Unit targetUnit = potentialTarget.GetComponent<Unit>();
                 if (targetUnit != null && Vector2.Distance(transform.position, potentialTarget.transform.position) <= followRange)
@@ -486,8 +490,9 @@ public class UnitController : MonoBehaviour
             if (potentialTargets.Count > 0)
             {
                 // currentHPの低い順にソート
-                potentialTargets.Sort((a, b) => a.currentHp.CompareTo(b.currentHp));
+                potentialTargets.Sort((a, b) => (a.currentHp / a.maxHp).CompareTo(b.currentHp / b.maxHp));
                 selectedTarget = potentialTargets[0].transform; // HPが最も低いユニットを選択
+                Debug.Log("HPの低いユニットを選択しました。" + selectedTarget.name);
             }
         }
 

@@ -123,15 +123,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitID: 0
   trailColliders: []
-  colliderSpacing: 0.1
+  followIncreaseDuration: 10
   attributes: 01000000
   projectileImage: {fileID: 631865301491240310}
-  trailTime: 1
   trailWidth: 0.05
   trailStartColor: {r: 0.7490196, g: 0.43921572, b: 0, a: 1}
   trailEndColor: {r: 0.495, g: 0, b: 0, a: 0}
   useDistance: 0
   chainAttackEnabled: 0
+  spreadAttackEnabled: 0
 --- !u!114 &7134446607684246992
 MonoBehaviour:
   m_ObjectHideFlags: 0

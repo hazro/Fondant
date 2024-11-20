@@ -156,15 +156,15 @@ public class RecoverSceneManager : MonoBehaviour
             // jobに応じて顔グラフィックを変更
             FaceImages[i].sprite = FaceSprites[unit.job];
             // コンディションを取得
-            string conditionTx = unit.condition == 0 ? "Normal" : unit.condition == 1 ? "Dead" : unit.condition == 2 ? "Poison" : unit.condition == 3 ? "Bleed" : unit.condition == 4 ? "Stun" : unit.condition == 5 ? "Paralysis" : unit.condition == 6 ? "Weaken" : "DefenceDown";
+            string conditionTx = unit.condition[0] ? "Dead" : unit.condition[1] ? "Poison" : unit.condition[2] ? "Bleed" : unit.condition[3] ? "Stun" : unit.condition[4] ? "Paralysis" : unit.condition[5] ? "Weaken" : unit.condition[6] ? "DefenceDown" : "Normal";
             float getAlpha = FaceImages[i].color.a;
-            if (unit.condition == 1)
+            if (unit.condition[0])
             {
                 conditionTx = "<color=red>" + conditionTx + "</color>";
                 // 顔グラフィックのRGBだけ変更
                 FaceImages[i].color = new Color(0.5f, 0.0f, 0.0f, getAlpha);
             }
-            else if (unit.condition != 0)
+            else if (unit.condition[1] || unit.condition[2] || unit.condition[3] || unit.condition[4] || unit.condition[5] || unit.condition[6])
             {
                 conditionTx = "<color=yellow>" + conditionTx + "</color>";
                 FaceImages[i].color = new Color(0.8f, 0.6f, 0.3f, getAlpha);
@@ -196,12 +196,13 @@ public class RecoverSceneManager : MonoBehaviour
                 index = 4;
                 break;
         }
-        if (gameManager.livingUnits[index].GetComponent<Unit>().condition == 1)
+        Unit livingUnit = gameManager.livingUnits[index].GetComponent<Unit>();
+        if (livingUnit.condition[0])
         {
             Price = gameManager.livingUnits[index].GetComponent<Unit>().currentLevel * 100;
             Price = Price * (100 - gameManager.roomOptions.salePercentage) / 100;
         }
-        else if (gameManager.livingUnits[index].GetComponent<Unit>().condition != 0)
+        else if (livingUnit.condition[1] || livingUnit.condition[2] || livingUnit.condition[3] || livingUnit.condition[4] || livingUnit.condition[5] || livingUnit.condition[6])
         {
             Price = gameManager.livingUnits[index].GetComponent<Unit>().currentLevel * 30;
             Price = Price * (100 - gameManager.roomOptions.salePercentage) / 100;

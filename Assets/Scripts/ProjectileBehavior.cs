@@ -26,7 +26,7 @@ public class ProjectileBehavior : MonoBehaviour
     private float shakeAmplitude; // 振幅の強さ
     private bool scaleOverTime; // スケーリングを時間経過に応じて行うか
     private float followStrength = 0f; // 追従の強さ
-    private float followIncreaseDuration = 1.0f; // 追従力が最大になるまでの時間
+    public float followIncreaseDuration = 1.0f; // 追従力が最大になるまでの時間
     private float timeSinceLaunch; // 発射後の経過時間
     private float damageInterval = 0.5f; // ダメージを与える間隔（秒）
     private GameObject skipObject; // 衝突判定をスキップするオブジェクト
@@ -236,52 +236,57 @@ public class ProjectileBehavior : MonoBehaviour
         // 軌跡に沿ったコライダーを生成・更新
         GenerateTrailColliders();
 
-        // 追従力を徐々に増加させる
-        if (followTarget != null)
+        Vector2 totalMovement = Vector2.zero; // 総移動ベクトルを初期化
+
+        // Spiral Movement の計算
+        if (spiralMovementEnabled)
         {
-            followStrength = Mathf.Clamp01(timeSinceLaunch / followIncreaseDuration);
-            // ターゲットに向かう方向を徐々に強化
-            moveDirection = Vector2.Lerp(moveDirection, (followTarget.position - transform.position).normalized, followStrength);
+            spiralAngle += moveSpeed * Time.deltaTime; // 螺旋の角度を更新
+            float radius = spiralAngle * spiralExpansionSpeed; // 時間とともに半径を広げる
+            Vector2 spiralOffset = new Vector2(Mathf.Cos(spiralAngle), Mathf.Sin(spiralAngle)) * radius;
+            totalMovement += spiralOffset; // 螺旋運動を総移動に加算
         }
 
-        // サインカーブの揺れを左右方向に加える
+        // Follow Target の計算
+        if (followTarget != null)
+        {
+            followStrength = Mathf.Clamp01(timeSinceLaunch / followIncreaseDuration); // 追従力を徐々に増加
+            Vector2 targetDirection = (followTarget.position - transform.position).normalized;
+            moveDirection = Vector2.Lerp(moveDirection, targetDirection, followStrength); // 現在の方向を徐々にターゲット方向に向ける
+            totalMovement += moveDirection * moveSpeed; // Follow Target の影響を加算
+        }
+
+        // Spiral Movement と Follow Target 両方が有効の場合
+        if (spiralMovementEnabled && followTarget != null)
+        {
+            totalMovement = totalMovement.normalized * moveSpeed; // 総移動を正規化して速度を調整
+        }
+        else if (!spiralMovementEnabled && !followTarget)
+        {
+            // Spiral Movement も Follow Target も無効の場合は直進
+            totalMovement = moveDirection * moveSpeed;
+        }
+
+        // 実際の移動と揺れを適用
         shakeOffset = Mathf.Sin(Time.time * moveSpeed) * shakeAmplitude;
         Vector2 perpendicularDirection = new Vector2(-moveDirection.y, moveDirection.x); // 進行方向に直交するベクトル
         Vector2 shakeVector = perpendicularDirection * shakeOffset; // 直交方向の揺れを計算
 
-        if (spiralMovementEnabled)
-        {
-            spiralAngle += moveSpeed * Time.deltaTime;
-            float radius = spiralAngle * spiralExpansionSpeed;
-            Vector2 spiralOffset = new Vector2(Mathf.Cos(spiralAngle), Mathf.Sin(spiralAngle)) * radius;
-            transform.position = (Vector2)transform.position + (spiralOffset + shakeVector) * Time.deltaTime;
+        transform.Translate((totalMovement + shakeVector) * Time.deltaTime, Space.World);
 
-            float angle = Mathf.Atan2(spiralOffset.y, spiralOffset.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-        }
-        else if (followTarget != null)
-        {
-            // ターゲットに向かって移動
-            transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
-            
-            float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-        }
-        else
-        {
-            // followTargetがない場合は直進
-            transform.Translate((moveDirection * moveSpeed + shakeVector) * Time.deltaTime, Space.World);
-            
-            float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-        }
+        // 移動方向に基づいて角度を計算
+        float angle = Mathf.Atan2(totalMovement.y, totalMovement.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
 
+        // スケーリングを時間経過で適用
         if (scaleOverTime)
         {
-            float scaleIncrease = 1 + moveSpeed * Time.deltaTime * 0.3f;
+            float scaleIncrease = 1 + moveSpeed * Time.deltaTime * 0.1f;
             transform.localScale *= scaleIncrease;
         }
     }
+
+
 
     /// <summary>
     /// TrailRendererに沿って等間隔でコライダーを生成する
@@ -470,7 +475,6 @@ public class ProjectileBehavior : MonoBehaviour
         // 衝突したオブジェクトが障害物タグを持つ場合の処理
         if (collision.CompareTag("Obstacle"))
         {
-            remainingObjectThrough--;
             if (remainingObjectThrough <= 0)
             {
                 // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
@@ -484,6 +488,8 @@ public class ProjectileBehavior : MonoBehaviour
                     Destroy(gameObject);
                 }
             }
+            // 障害物通過回数を減らす
+            remainingObjectThrough--;
         }
 
         /* 攻撃は範囲外に出るのを許可するためコメントアウト
@@ -496,7 +502,10 @@ public class ProjectileBehavior : MonoBehaviour
         
         // 発射元のtargetSameTagがfalseであれば発射元のタグと異なる場合、trueであれば発射元のタグと同じ場合の処理
         // collision
-        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && ((targetSameTag && collision.tag == shooterTag) || (!targetSameTag && collision.tag != shooterTag)) && skipObject != collision.gameObject)
+        else if ((collision.CompareTag("Ally") || collision.CompareTag("Enemy")) && 
+        ((targetSameTag && collision.tag == shooterTag) || 
+        (!targetSameTag && collision.tag != shooterTag)) && 
+        skipObject != collision.gameObject)
         {
             // 自分をターゲットにしていないのに自分に当たった場合は無視する
             if (collision.gameObject == shooterUnit.gameObject)
@@ -506,7 +515,7 @@ public class ProjectileBehavior : MonoBehaviour
             // ダメージを与える
             Unit targetUnit = collision.gameObject.GetComponent<Unit>();
             ApplyDamage(targetUnit);
-            // 通過回数が0以下になったら消滅する throughOffがtrueの場合は強制消滅
+            // 通過回数が0以下になったら消滅する
             if (remainingCharThrough <= 0)
             {
                 // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
@@ -523,7 +532,7 @@ public class ProjectileBehavior : MonoBehaviour
             // 衝突後消滅しない場合は現在のターゲット以外の一番近い位置にいるターゲットに変更する
             else
             {
-                // 拡散攻撃が有効の場合は進んでいた方向の-30度と+30度の2方向それぞれにもう1発づつ発射する
+                // 拡散攻撃が有効の場合は進んでいた方向から扇状にspreadCount発づつ発射する
                 if (spreadAttackEnabled  && !throughOff)
                 {
                     if (attackController == null)
@@ -569,8 +578,13 @@ public class ProjectileBehavior : MonoBehaviour
                     else
                     {
                         // 一番近いターゲットがいない場合は今のmoveDirection方向に直進する
-                        return;
+                        followTarget = null;
                     }
+                }
+                else
+                {
+                    // それ以外の場合はtargetがあっても外す
+                    followTarget = null;
                 }
             }
 

@@ -29,7 +29,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] [Tooltip("ターゲットを追従")] private bool followTarget = false; // ターゲットを追従
     [SerializeField] private bool laser = false; // 発射物に軌跡を付ける
     [SerializeField] private bool spiral = false; // 螺旋状
-    private float spiralExpansionSpeed = 0.5f; // 螺旋が外側に広がる速度
+    [SerializeField] private float spiralExpansionSpeed = 0.5f; // 螺旋が外側に広がる速度
     [SerializeField] private bool delayRandom = false; // 発射間の遅延時間にランダムな範囲を追加 
     [SerializeField] private bool wave = false; // 武器の振幅の範囲を設定
     private float shakeAmplitude = 0.3f; // 振幅的な揺れの強さ

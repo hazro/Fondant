@@ -176,7 +176,7 @@ MonoBehaviour:
   positionID: 0
   IventrySkillList: []
   unitName: Bat
-  condition: 0
+  condition: 0000000000000000
   job: 0
   totalExp: 0
   currentLevel: 0
@@ -207,6 +207,9 @@ MonoBehaviour:
   comboDamage: 0
   comboCriticalCount: 0
   comboCount: 0
+  lastHitTime: 0
+  spreadCount: 0
+  spreadDamage: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -335,6 +338,7 @@ MonoBehaviour:
   followTarget: 0
   laser: 0
   spiral: 0
+  spiralExpansionSpeed: 0.5
   delayRandom: 0
   wave: 0
   backStep: 0
@@ -344,6 +348,7 @@ MonoBehaviour:
   directHit: 0
   scaleUpBlow: 0
   chainAttack: 0
+  spread: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}

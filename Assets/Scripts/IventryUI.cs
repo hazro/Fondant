@@ -918,7 +918,7 @@ public class IventryUI : MonoBehaviour
             {
                 Unit unit = unitObj.GetComponent<Unit>();
                 // 死亡中でない場合
-                if (unit != null && unit.condition != 1)
+                if (unit != null && !unit.condition[0])
                 {
                     // joblistからunit.jonに該当するIDのjobDataを取得
                     ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == unit.job);

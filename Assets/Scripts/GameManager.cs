@@ -276,7 +276,7 @@ public class GameManager : MonoBehaviour
                 unit.GetComponent<PlayerDraggable>().enabled = true;
                 unit.GetComponent<AttackController>().enabled = false;
                 unit.GetComponent<Unit>().ChangeEqpByJob(); // 初期装備に変更
-                unit.GetComponent<Unit>().condition = 0; // 状態異常を解除
+                unit.GetComponent<Unit>().condition = new bool[7]; // 状態異常を解除
                 unit.GetComponent<Unit>().live = true; // 生存状態に変更
                 // subSocketをすべて0にする
                 for (int i = 0; i < unit.GetComponent<Unit>().subSocket.Length; i++)
@@ -689,9 +689,12 @@ public class GameManager : MonoBehaviour
     /// <returns>コルーチン</returns>
     private IEnumerator VictoryCoroutine(GameObject lastEnemy)
     {
-        // 勝利演出
-        yield return StartCoroutine(GetComponent<CameraController>().StartZoomAndSlowMotion(zoomSpeed, slowMotionDuration, lastEnemy));
-        
+        if (lastEnemy != null)
+        {
+            // 勝利カメラ演出
+            yield return StartCoroutine(GetComponent<CameraController>().StartZoomAndSlowMotion(zoomSpeed, slowMotionDuration, lastEnemy));
+        }
+
         // ↑の処理が終わったら、次のシーンに遷移
         // enemyGroupを削除
         Destroy(enemyGroup);
@@ -802,7 +805,7 @@ public class GameManager : MonoBehaviour
         // ユニットのHPを回復
         unit.GetComponent<Unit>().InitHp();
         // ユニットの状態異常を解除
-        unit.GetComponent<Unit>().condition = 0;
+        unit.GetComponent<Unit>().condition = new bool[7];
         unit.GetComponent<Unit>().live = true;
         // ユニットのスキルUIを更新
         iventryUI.UpdateUnitSkillUI(unit);

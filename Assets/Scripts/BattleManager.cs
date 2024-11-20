@@ -100,9 +100,17 @@ public class BattleManager : MonoBehaviour
                 countDownText.text = "0";
                 countDownText.fontSize = 200;
                 countDownText.color = new Color(1, 1, 1, 1);
-                // ランダムなモンスターを選択
-                GameObject targetObject = enemyGroup.GetChild(Random.Range(0, enemyGroup.childCount)).gameObject;
-                OnBattleEnd(targetObject);
+                // enemyGroupに子オブジェクトが存在する場合のみランダムなモンスターを選択
+                if (enemyGroup.childCount > 0)
+                {
+                    GameObject targetObject = enemyGroup.GetChild(Random.Range(0, enemyGroup.childCount)).gameObject;
+                    OnBattleEnd(targetObject);
+                }
+                else
+                {
+                    Debug.LogWarning("No enemies found in enemyGroup.");
+                    OnBattleEnd(null); // もしくは適切な処理を行う
+                }
             }
             // バトル経過時間を00:00形式で表示
             string crearTimeStr = string.Format("{0:00}:{1:00}", clearTime / 60, clearTime % 60);
@@ -197,7 +205,7 @@ public class BattleManager : MonoBehaviour
     /// <summary>
     /// バトル終了時の処理
     /// </summary>
-    public void OnBattleEnd(GameObject targetObject = null)
+    public void OnBattleEnd(GameObject targetObject = null, bool isGameOver = false)
     {
         // player全員の攻撃を停止
         foreach (GameObject player in gameManager.livingUnits)
@@ -248,8 +256,16 @@ public class BattleManager : MonoBehaviour
         statusLog.unitDamage = unitDamage;
         statusLog.unitKill = unitKill;
 
-        // gameManagerにバトル終了を通知
-        gameManager.victory(targetObject);
+        // ゲームオーバーの場合はゲームオーバーシーンに遷移
+        if (isGameOver)
+        {
+            gameManager.LoadScene("GameOverScene"); // ゲームオーバーシーンに遷移
+        }
+        // gameManagerにバトル勝利を通知
+        else
+        {
+            gameManager.victory(targetObject);
+        }
     }
 
 

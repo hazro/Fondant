@@ -296,7 +296,7 @@ public class BattleSetupManager : MonoBehaviour
         for(int i = 0; i < livingUnits.Length; i++)
         {
             // SetActive(false)で、Unit.ConditionがDeadの場合は処理をスキップ
-            if (!livingUnits[i].activeSelf && livingUnits[i].GetComponent<Unit>().condition == 1)
+            if (!livingUnits[i].activeSelf && livingUnits[i].GetComponent<Unit>().condition[0])
             {
                 continue;
             }
