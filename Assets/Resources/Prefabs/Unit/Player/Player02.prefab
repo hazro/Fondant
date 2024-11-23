@@ -229,7 +229,7 @@ MonoBehaviour:
   positionID: 9
   IventrySkillList: []
   unitName: P2
-  condition: 0000000000000000
+  condition: 000000000000000000
   job: 1
   totalExp: 0
   currentLevel: 1
@@ -263,6 +263,43 @@ MonoBehaviour:
   lastHitTime: 0
   spreadCount: 0
   spreadDamage: 0
+  conditionChance: 0
+  poisonAttack: 0
+  poisonAmount: 0
+  poisonDealTime: 0
+  bleedAttack: 0
+  bleedAmount: 0
+  bleedDealTime: 0
+  stunAttack: 0
+  stunDealTime: 0
+  paralysisAttack: 0
+  paralysisDealTime: 0
+  weakAttack: 0
+  weakDealTime: 0
+  defenceDownAttack: 0
+  defenceDownDealTime: 0
+  bloodSuckAttack: 0
+  bloodSuckAmount: 0
+  regeneAttack: 0
+  regeneAmount: 0
+  regeneDealTime: 0
+  poisonTime: 0
+  poisonDamage: 0
+  poisonCount: 0
+  bleedTime: 0
+  bleedDamage: 0
+  bleedCount: 0
+  stunTime: 0
+  previousStunCondition: 0
+  paralysisTime: 0
+  previousParalysisCondition: 0
+  weakeTime: 0
+  previousWeakeCondition: 0
+  defenceDownTime: 0
+  previousDefenceDownCondition: 0
+  bloodDamage: 0
+  regeneTime: 0
+  regeneDamage: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -283,6 +320,7 @@ MonoBehaviour:
   hpColor: {fileID: 1245905081514122521}
   damageText: {fileID: 8258791455586807765}
   comboText: {fileID: 7508449454592159189}
+  maxHp: 0
 --- !u!114 &1432032924240862352
 MonoBehaviour:
   m_ObjectHideFlags: 0

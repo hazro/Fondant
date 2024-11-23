@@ -76,8 +76,8 @@
       "str": 1,
       "dex": 1,
       "residCondition": 10,
-      "attackUnitThrough": 3,
-      "attackObjectThrough": 3,
+      "attackUnitThrough": 1,
+      "attackObjectThrough": 1,
       "levelScaleFactor": 1,
       "levelMagic": 2,
       "levelStr": 0.33,
@@ -193,8 +193,8 @@
       "str": 1,
       "dex": 1,
       "residCondition": 10,
-      "attackUnitThrough": 3,
-      "attackObjectThrough": 3,
+      "attackUnitThrough": 1,
+      "attackObjectThrough": 1,
       "levelScaleFactor": 1,
       "levelMagic": 2,
       "levelStr": 0.33,
@@ -556,6 +556,35 @@
       "magicalPowerLv3": 1
     },
     {
+      "ID": 411010,
+      "name": "ironWall",
+      "price": 100,
+      "maxLevel": 3,
+      "ability": "ironWall (Defend without attacking. Tanks effective x 2.)",
+      "moveSpeedLv1": 0.25,
+      "moveSpeedLv2": 0.25,
+      "moveSpeedLv3": 0.25,
+      "physicalDefenseLv1": 0.5,
+      "physicalDefenseLv2": 0.75,
+      "physicalDefenseLv3": 1,
+      "magicalDefenseLv1": 0.5,
+      "magicalDefenseLv2": 0.75,
+      "magicalDefenseLv3": 1,
+      "pysicalPowerLv1": 0,
+      "pysicalPowerLv2": 0,
+      "pysicalPowerLv3": 0,
+      "magicalPowerLv1": 0,
+      "magicalPowerLv2": 0,
+      "magicalPowerLv3": 0,
+      "guardChanceLv1": 0.65,
+      "guardChanceLv2": 0.75,
+      "guardChanceLv3": 1,
+      "poisonGuardLv2": 1,
+      "poisonGuardLv3": 1.5,
+      "bleedGuardLv2": 1,
+      "bleedGuardLv3": 1.5
+    },
+    {
       "ID": 412001,
       "name": "followTarget",
       "world": 1,
@@ -619,7 +648,7 @@
       "world": 1,
       "price": 50,
       "maxLevel": 1,
-      "ability": "Target the lowest HP opponent."
+      "ability": "Target the lowest HP. (% of remaining Hp)"
     },
     {
       "ID": 412007,
@@ -832,11 +861,7 @@
       "ability": "Changes target within range with every shot."
     },
     {
-      "ID": 412021,
-      "name": "changeTargetAll",
-      "price": 50,
-      "maxLevel": 1,
-      "ability": "Change targets, including out of range with every shot."
+      "ID": 412021
     },
     {
       "ID": 412022,
@@ -845,6 +870,33 @@
       "price": 50,
       "maxLevel": 1,
       "ability": "If you penetrate the target, target another opposing hand that is closer."
+    },
+    {
+      "ID": 412023,
+      "name": "counter",
+      "price": 50,
+      "maxLevel": 3,
+      "ability": "Offset your opponent's attack by cutting x times your own attack.\nLv1: 0.25, Lv2: 2.0, Lv3: 3.0 (RuneLVx2 for tanks)."
+    },
+    {
+      "ID": 412024,
+      "name": "reflection",
+      "price": 50,
+      "maxLevel": 3,
+      "ability": "Reflects the opponent's attack by cutting x times its own attack.\nLv1: 0.25, Lv2: 0.375, Lv3: 0.5 (RuneLVx2 for tanks)."
+    },
+    {
+      "ID": 412025,
+      "name": "rangeAttack",
+      "price": 50,
+      "maxLevel": 3,
+      "ability": "Grants a sustained ranged attack with x times attack power.\n(Range also increases with RuneLv).",
+      "pysicalPowerLv1": 0.025,
+      "pysicalPowerLv2": 0.05,
+      "pysicalPowerLv3": 0.1,
+      "magicalPowerLv1": 0.025,
+      "magicalPowerLv2": 0.05,
+      "magicalPowerLv3": 0.1
     },
     {
       "ID": 413001,
@@ -1034,21 +1086,10 @@
       "ability": "Targets other than yourself in the enemy's attack range are given priority."
     },
     {
-      "ID": 413018,
-      "name": "regenerative",
-      "price": 30,
-      "maxLevel": 3,
-      "ability": "Gradual HP recovery  (x% second)"
+      "ID": 413018
     },
     {
-      "ID": 413019,
-      "name": "bloodSuck",
-      "price": 30,
-      "maxLevel": 3,
-      "ability": "Recovers HP by x-multiplier of the damage inflicted.",
-      "bloodSuckLv1": 0.1,
-      "bloodSuckLv2": 0.2,
-      "bloodSuckLv3": 0.3
+      "ID": 413019
     },
     {
       "ID": 413020,
@@ -1181,11 +1222,7 @@
       "ability": "Recovery Attacks with Condition Recovery"
     },
     {
-      "ID": 413033,
-      "name": "changeRegenerative",
-      "price": 30,
-      "maxLevel": 3,
-      "ability": "Changed recovery attack to grant automatic HP recovery  (x% second)"
+      "ID": 413033
     },
     {
       "ID": 413034,
@@ -1222,62 +1259,90 @@
     {
       "ID": 414001,
       "name": "poison",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Inflicts a poison effect on the attack with a probability of. Damage level * x (every 2 seconds)",
-      "poisonLv1": 0.033,
-      "poisonLv2": 0.05,
-      "poisonLv3": 0.075
+      "ability": "Inflicts a poison effect on the attack with a probability of. Damage level * x (every 2 seconds)\n(Assassins are RuneLVx3).",
+      "poisonLv1": 0.17,
+      "poisonLv2": 0.34,
+      "poisonLv3": 0.51
     },
     {
       "ID": 414002,
       "name": "bleed",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Inflicts a bleeding effect on attacks with a probability of.   Damage level * x (every 2 seconds)",
-      "bleedLv1": 0.75,
-      "bleedLv2": 0.1,
-      "bleedLv3": 0.15
+      "ability": "Inflicts a bleeding effect on attacks with a probability of.   Damage level * x (every 2 seconds)\n(Assassins are RuneLVx3).",
+      "bleedLv1": 0.27,
+      "bleedLv2": 0.54,
+      "bleedLv3": 0.81
     },
     {
       "ID": 414003,
       "name": "stun",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Inflicts a stun effect on attacks with a probability of.   (level * x second)",
-      "stunLv1": 0.05,
-      "stunLv2": 0.1,
-      "stunLv3": 0.15
+      "ability": "Inflicts a stun effect on attacks with a probability of.   (level * x second)\n(Assassins are RuneLVx3).",
+      "stunLv1": 1,
+      "stunLv2": 2,
+      "stunLv3": 3
     },
     {
       "ID": 414004,
       "name": "paralysis",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Gives a paralyzing effect to attacks with a probability of paralysis.   (level * x second)",
-      "paralysisLv1": 0.05,
-      "paralysisLv2": 0.1,
-      "paralysisLv3": 0.15
+      "ability": "Gives a paralyzing effect to attacks with a probability of paralysis.   (level * x second)\n(Assassins are RuneLVx3).",
+      "paralysisLv1": 1,
+      "paralysisLv2": 2,
+      "paralysisLv3": 3
     },
     {
       "ID": 414005,
       "name": "defenseDown",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Adds vulnerability to attacks with a probability of.   (level * x second)",
-      "wakeLv1": 0.05,
-      "wakeLv2": 0.1,
-      "wakeLv3": 0.15
+      "ability": "Adds vulnerability to attacks with a probability of.   (level * x second)\n(Assassins are RuneLVx3).",
+      "wakeLv1": 1,
+      "wakeLv2": 2,
+      "wakeLv3": 3
     },
     {
       "ID": 414006,
       "name": "weakening",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Probability of inflicting a weakening to the attack.   (level * x second)",
-      "defenceDownLv1": 0.05,
-      "defenceDownLv2": 0.1,
-      "defenceDownLv3": 0.15
+      "ability": "Probability of inflicting a weakening to the attack.   (level * x second)\n(Assassins are RuneLVx3).",
+      "defenceDownLv1": 1,
+      "defenceDownLv2": 2,
+      "defenceDownLv3": 3
+    },
+    {
+      "ID": 414007,
+      "name": "regenerative",
+      "world": 1,
+      "price": 30,
+      "maxLevel": 3,
+      "ability": "Gives the attack a gradual HP recovery  (x% second)",
+      "regeneLv1": 0.2,
+      "regeneLv2": 0.4,
+      "regeneLv3": 0.6
+    },
+    {
+      "ID": 414008,
+      "name": "bloodSuck",
+      "world": 1,
+      "price": 30,
+      "maxLevel": 3,
+      "ability": "Recovers HP by x-multiplier of the damage inflicted.",
+      "bloodSuckLv1": 0.03,
+      "bloodSuckLv2": 0.06,
+      "bloodSuckLv3": 0.09
     }
   ],
   "enemySpawnSettings": [

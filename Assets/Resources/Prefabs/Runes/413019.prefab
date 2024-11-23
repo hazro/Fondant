@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 5
-  m_Sprite: {fileID: 21300000, guid: 318bcf3c2d267284f976c2845eb0a700, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a1a1c490199da064dafd32478ef19634, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isShopItem: 0
   isCharaName: 0
+  isEmptyPanel: 0
   isSelected: 0
   infomationPanelDisplay: {fileID: 0}
   runeLevel: 1

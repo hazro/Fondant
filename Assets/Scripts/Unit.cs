@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour
     public List<GameObject> IventrySkillList; // ユニットのスキルリスト
 
     [SerializeField] public string unitName;
-    [SerializeField] public bool[] condition = new bool[7]; // 状態異常（各要素がtrueの時） 0:死亡、1:毒、2:出血、3:スタン、4:麻痺、5:脆弱、6:弱体、7:吸血、8:リジェネ
+    [SerializeField] public bool[] condition = new bool[9]; // 状態異常（各要素がtrueの時） 0:死亡、1:毒、2:出血、3:スタン、4:麻痺、5:脆弱、6:弱体、7:吸血、8:リジェネ
     [SerializeField] public int job;
     [SerializeField] public int totalExp;
     [SerializeField] public int currentLevel;
@@ -57,7 +57,65 @@ public class Unit : MonoBehaviour
     public int spreadCount = 0; // スプレッドカウント
     public float spreadDamage = 0; // スプレッドダメージ倍率
     [Header("///////////////")]
+
+    [Header("------ 状態異常の能力値-------")]
+    public float conditionChance = 0; // 状態異常を与える確率(%)
+    public bool poisonAttack = false; // 毒攻撃を行うか
+    public float poisonAmount = 0; // 毒の効果量
+    public float poisonDealTime = 0; // 毒の効果時間
+    public bool bleedAttack = false; //　出血攻撃を行うか
+    public float bleedAmount = 0; // 出血の効果量
+    public float bleedDealTime = 0; // 出血の効果時間
+    public bool stunAttack = false; // スタン攻撃を行うか
+    public float stunDealTime = 0; // スタンの効果時間
+    public bool paralysisAttack = false; // 麻痺攻撃を行うか
+    public float paralysisDealTime = 0; // 麻痺の効果時間
+    public bool weakAttack = false; // 脆弱攻撃を行うか
+    public float weakDealTime = 0; // 脆弱の効果時間
+    public bool defenceDownAttack = false; // 弱体攻撃を行うか
+    public float defenceDownDealTime = 0; // 弱体の効果時間
+    public bool bloodSuckAttack = false; // 吸血攻撃を行うか
+    public float bloodSuckAmount = 0; // 吸血の効果量
+    public bool regeneAttack = false; // リジェネ攻撃を行うか
+    public float regeneAmount = 0; // リジェネの効果量
+    public float regeneDealTime = 0; // リジェネの効果時間
+
+    [Header("///////////////")]
     ///
+
+    [Header("///////////////")]
+    [Header("------ 状態異常のステータス -------")]
+    [Header("--- 毒 ---")]
+    [SerializeField] public float poisonTime; // 毒の効果時間累積
+    [SerializeField] public float poisonDamage; // くらった時にLVx0.5を加算する
+    [SerializeField] public int poisonCount; // 毒の重ねがけ回数 max3
+    [SerializeField] private Unit poisonAttacker; // 毒を与えたユニット
+    [Header("--- 出血 ---")]
+    [SerializeField] public float bleedTime; // 出血の効果時間累積
+    [SerializeField] public float bleedDamage; // くらった時にLVx0.8を加算する
+    [SerializeField] public int bleedCount; // 出血の重ねがけ回数 max3
+    [SerializeField] private Unit bleedAttacker; // 出血を与えたユニット
+    [Header("--- スタン ---")]
+    [SerializeField] public float stunTime; // スタンの効果時間累積(その間動けないが、防御力2倍)
+    [SerializeField] public bool previousStunCondition = false; // 前の時間の状態を記録
+  
+    [Header("--- 麻痺 ---")]
+    [SerializeField] public float paralysisTime; // 麻痺の効果時間累積(その間DelayとmoveSpeedとattackSpeedを30%低下)
+    [SerializeField] public bool previousParalysisCondition = false; // 前の時間の状態を記録
+
+    [Header("--- 脆弱 ---")]
+    [SerializeField] public float weakeTime; // 脆弱の効果時間累積(攻撃力が30%下がる)
+    [SerializeField] public bool previousWeakeCondition = false; // 前の時間の状態を記録
+    [Header("--- 弱体 ---")]
+    [SerializeField] public float defenceDownTime; // 弱体の効果時間累積(防御が30%下がる)
+    [SerializeField] public bool previousDefenceDownCondition = false; // 前の時間の状態を記録
+    [Header("--- 吸血 ---")]
+    [SerializeField] public float bloodDamage; // 吸血の効果量 ルーンレベルの累積x0.1 x 与えるダメージ
+    [Header("--- リジェネ ---")]
+    [SerializeField] public float regeneTime; // リジェネの効果時間累積
+    [SerializeField] public float regeneDamage; // リジェネの効果量(%) ルーンレベルの累積x1.2 2秒毎に回復 
+    [SerializeField] private Unit regeneAttacker; // リジェネを与えたユニット
+    [Header("///////////////")]
 
     [SerializeField] public int targetJob;
     [SerializeField] public float teleportation;
@@ -91,9 +149,12 @@ public class Unit : MonoBehaviour
 
     [Header("calc Condition")]
     private float lastDamageTime = 0; // 最後にダメージを受けた時間
+    private float lastOneSecondTime = 0f; // 1秒ごとの処理タイマー
 
     void Start()
     {
+        // 初期化
+        condition = new bool[9]; 
         // Animatorコンポーネントを取得
         animator = GetComponent<Animator>();
         // ランダムなオフセットを設定 (0から1の範囲で)
@@ -185,27 +246,163 @@ public class Unit : MonoBehaviour
 
     void Update()
     {
-        // 1秒起きに状態効果の計算
-        if (Time.time - lastDamageTime > 1)
+        // 1秒起きの処理
+        if (Time.time - lastOneSecondTime > 1)
         {
+            // 1秒ごとの処理タイマーを更新(一番上にしないと何度も実行されてしまうため注意)
+            lastOneSecondTime = Time.time;
+            // 処理を追加予定
+            //////////////////////////
+            //////////////////////////
+        }
+        // 2秒起きに状態効果の計算
+        if (Time.time - lastDamageTime > 2)
+        {
+            // lastDamageTimeの更新(一番上にしないと何度も実行されてしまうため注意)
+            lastDamageTime = Time.time;
+
             CalcCondition();
         }
 
     }
 
     /// <summary>
-    /// 
+    /// 2秒起きの状態異常効果の計算
     /// </summary>
     private void CalcCondition()
     {
-        // 状態異常効果の計算
         if (condition[1]) // 毒
         {
-            // 2秒毎LVx0.5のダメージ、重ねがけ3回までダメージを2倍、初回10秒、攻撃を受けるたびに効果時間を10秒延長
+            // 効果時間が0になったら解除
+            if (poisonTime <= 0)
+            {
+                condition[1] = false;
+                // 初期化
+                poisonTime = 0;
+                poisonDamage = 0;
+                poisonCount = 0;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                poisonTime -= 2;
+                // 無属性（防御無視）ダメージを与える
+                TakeDamage(poisonDamage, poisonAttacker, true);
+            }
         }
         if (condition[2]) // 出血
         {
-            // 2秒毎LVx0.8のダメージ、重ねがけ3回までダメージを1.5倍、初回6秒、攻撃を受けるたびに効果時間を6秒延長(1分間で5回の確率でHit)
+            // 効果時間が0になったら解除
+            if (bleedTime <= 0)
+            {
+                condition[2] = false;
+                // 初期化
+                bleedTime = 0;
+                bleedDamage = 0;
+                bleedCount = 0;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                // 2秒毎LVx0.8のダメージ、重ねがけ3回までダメージを1.5倍、初回6秒、攻撃を受けるたびに効果時間を6秒延長(1分間で5回の確率でHit)
+                bleedTime -= 2;
+                // 無属性（防御無視）ダメージを与える
+                TakeDamage(bleedDamage, bleedAttacker, true);
+            }
+        }
+        if (condition[3]) // スタン
+        {
+            // 効果時間が0になったら解除
+            if (stunTime <= 0)
+            {
+                condition[3] = false;
+                // 初期化
+                stunTime = 0;
+                previousStunCondition = false;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                stunTime -= 2;
+            }
+            // 状態記録
+            previousStunCondition = condition[3];
+        }
+        if (condition[4]) // 麻痺
+        {
+            // 効果時間が0になったら解除
+            if (paralysisTime <= 0)
+            {
+                condition[4] = false;
+                // 初期化
+                paralysisTime = 0;
+                previousParalysisCondition = false;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                paralysisTime -= 2;
+            }
+            // 状態記録
+            previousParalysisCondition = condition[4];
+        }
+        if (condition[5]) // 脆弱
+        {
+            // 効果時間が0になったら解除
+            if (weakeTime <= 0)
+            {
+                condition[5] = false;
+                // 初期化
+                weakeTime = 0;
+                previousWeakeCondition = false;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                weakeTime -= 2;
+            }
+        }
+        if (condition[6]) // 弱体
+        {
+            // 効果時間が0になったら解除
+            if (defenceDownTime <= 0)
+            {
+                condition[6] = false;
+                // 初期化
+                defenceDownTime = 0;
+                previousDefenceDownCondition = false;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                defenceDownTime -= 2;
+            }
+        }
+        if (condition[8]) // リジェネ
+        {
+            // 効果時間が0になったら解除
+            if (regeneTime <= 0)
+            {
+                condition[8] = false;
+                // 初期化
+                regeneTime = 0;
+                regeneDamage = 0;
+                //  ステータスを更新
+                updateStatus();
+            }
+            else
+            {
+                regeneTime -= 2;
+                // 2秒毎に最大Hp x regeneAmount%回復
+                float amount = maxHp/100 * regeneDamage;
+                Heal(amount, regeneAttacker, true);
+            }
         }
     }
 
@@ -301,23 +498,22 @@ public class Unit : MonoBehaviour
         float criticalChanceMult = 1.0f;
         float criticalDamageMult = 1.0f;
         float knockBackMultiplier = 1.0f;
+        float poison = 0;
+        float bleed = 0;
+        float stun = 0;
+        float paralysis = 0;
+        float weak = 0;
+        float defenceDown = 0;
+        float bloodSuck = 0;
+        float regene = 0;
 
         // 以下未設定
-        float bloodTime = 1.0f;
-        float poisonTime = 1.0f;
-        float bloodSuck = 0.0f;
         float poisonGuard = 0.0f;
         float bleedGuard = 0.0f;
         float stunGuard = 0.0f;
         float paralysisGuard = 0.0f;
         float wakeGuard = 0.0f;
         float defenceDownGuard = 0.0f;
-        float poison = 0.0f;
-        float bleed = 0.0f;
-        float stun = 0.0f;
-        float paralysis = 0.0f;
-        float wake = 0.0f;
-        float defenceDown = 0.0f;
 
         // その他
         int spreadTotalLv = 0;
@@ -364,23 +560,23 @@ public class Unit : MonoBehaviour
                         if (runeListData.criticalChanceLv1 != 0) criticalChanceMult *= runeListData.criticalChanceLv1;
                         if (runeListData.criticalDamageLv1 != 0) criticalDamageMult *= runeListData.criticalDamageLv1;
                         if (runeListData.knockBackLv1 != 0) knockBackMultiplier *= runeListData.knockBackLv1;
+                        if (runeListData.poisonLv1 != 0) poison += runeListData.poisonLv1;
+                        if (runeListData.bleedLv1 != 0) bleed += runeListData.bleedLv1;
+                        if (runeListData.stunLv1 != 0) stun += runeListData.stunLv1;
+                        if (runeListData.paralysisLv1 != 0) paralysis += runeListData.paralysisLv1;
+                        if (runeListData.wakeLv1 != 0) weak += runeListData.wakeLv1;
+                        if (runeListData.defenceDownLv1 != 0) defenceDown += runeListData.defenceDownLv1;
+                        if (runeListData.bloodSuckLv1 != 0) bloodSuck += runeListData.bloodSuckLv1;
+                        if (runeListData.regeneLv1 != 0) regene += runeListData.regeneLv1;
 
                         // 以下未設定
-                        if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
-                        if (runeListData.poisonTimeLv1 != 0) poisonTime *= runeListData.poisonTimeLv1;
-                        if (runeListData.bloodSuckLv1 != 0) bloodSuck += runeListData.bloodSuckLv1;
+                        //if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
                         if (runeListData.poisonGuardLv1 != 0) poisonGuard += runeListData.poisonGuardLv1;
                         if (runeListData.bleedGuardLv1 != 0) bleedGuard += runeListData.bleedGuardLv1;
                         if (runeListData.stunGuardLv1 != 0) stunGuard += runeListData.stunGuardLv1;
                         if (runeListData.paralysisGuardLv1 != 0) paralysisGuard += runeListData.paralysisGuardLv1;
                         if (runeListData.wakeGuardLv1 != 0) wakeGuard += runeListData.wakeGuardLv1;
                         if (runeListData.defenceDownGuardLv1 != 0) defenceDownGuard += runeListData.defenceDownGuardLv1;
-                        if (runeListData.poisonLv1 != 0) poison += runeListData.poisonLv1;
-                        if (runeListData.bleedLv1 != 0) bleed += runeListData.bleedLv1;
-                        if (runeListData.stunLv1 != 0) stun += runeListData.stunLv1;
-                        if (runeListData.paralysisLv1 != 0) paralysis += runeListData.paralysisLv1;
-                        if (runeListData.wakeLv1 != 0) wake += runeListData.wakeLv1;
-                        if (runeListData.defenceDownLv1 != 0) defenceDown += runeListData.defenceDownLv1;
 
                     }
                     if(runeLevel == 2)
@@ -405,24 +601,27 @@ public class Unit : MonoBehaviour
                         if (runeListData.criticalChanceLv2 != 0) criticalChanceMult *= runeListData.criticalChanceLv2;
                         if (runeListData.criticalDamageLv2 != 0) criticalDamageMult *= runeListData.criticalDamageLv2;
                         if (runeListData.knockBackLv2 != 0) knockBackMultiplier *= runeListData.knockBackLv2;
+                        if (runeListData.poisonLv2 != 0) poison += runeListData.poisonLv2;
+                        if (runeListData.bleedLv2 != 0) bleed += runeListData.bleedLv2;
+                        if (runeListData.stunLv2 != 0) stun += runeListData.stunLv2;
+                        if (runeListData.paralysisLv2 != 0) paralysis += runeListData.paralysisLv2;
+                        if (runeListData.wakeLv2 != 0) weak += runeListData.wakeLv2;
+                        if (runeListData.defenceDownLv2 != 0) defenceDown += runeListData.defenceDownLv2;
+                        if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
+                        if (runeListData.regeneLv2 != 0) regene += runeListData.regeneLv2;
 
                         // 以下未設定
-                        if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
-                        if (runeListData.poisonTimeLv2 != 0) poisonTime *= runeListData.poisonTimeLv2;
-                        if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
+                        //if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
+                        //if (runeListData.poisonTimeLv2 != 0) poisonTime *= runeListData.poisonTimeLv2;
                         if (runeListData.poisonGuardLv2 != 0) poisonGuard += runeListData.poisonGuardLv2;
                         if (runeListData.bleedGuardLv2 != 0) bleedGuard += runeListData.bleedGuardLv2;
                         if (runeListData.stunGuardLv2 != 0) stunGuard += runeListData.stunGuardLv2;
                         if (runeListData.paralysisGuardLv2 != 0) paralysisGuard += runeListData.paralysisGuardLv2;
                         if (runeListData.wakeGuardLv2 != 0) wakeGuard += runeListData.wakeGuardLv2;
                         if (runeListData.defenceDownGuardLv2 != 0) defenceDownGuard += runeListData.defenceDownGuardLv2;
-                        if (runeListData.poisonLv2 != 0) poison += runeListData.poisonLv2;
-                        if (runeListData.bleedLv2 != 0) bleed += runeListData.bleedLv2;
-                        if (runeListData.stunLv2 != 0) stun += runeListData.stunLv2;
-                        if (runeListData.paralysisLv2 != 0) paralysis += runeListData.paralysisLv2;
-                        if (runeListData.wakeLv2 != 0) wake += runeListData.wakeLv2;
-                        if (runeListData.defenceDownLv2 != 0) defenceDown += runeListData.defenceDownLv2;
                     }
+
+
                     if(runeLevel == 3)
                     {
                         if (runeListData.addLevelLv3 != 0) addLevel += runeListData.addLevelLv3;
@@ -445,23 +644,24 @@ public class Unit : MonoBehaviour
                         if (runeListData.criticalChanceLv3 != 0) criticalChanceMult *= runeListData.criticalChanceLv3;
                         if (runeListData.criticalDamageLv3 != 0) criticalDamageMult *= runeListData.criticalDamageLv3;
                         if (runeListData.knockBackLv3 != 0) knockBackMultiplier *= runeListData.knockBackLv3;
+                        if (runeListData.poisonLv3 != 0) poison += runeListData.poisonLv3;
+                        if (runeListData.bleedLv3 != 0) bleed += runeListData.bleedLv3;
+                        if (runeListData.stunLv3 != 0) stun += runeListData.stunLv3;
+                        if (runeListData.paralysisLv3 != 0) paralysis += runeListData.paralysisLv3;
+                        if (runeListData.wakeLv3 != 0) weak += runeListData.wakeLv3;
+                        if (runeListData.defenceDownLv3 != 0) defenceDown += runeListData.defenceDownLv3;
+                        if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
+                        if (runeListData.regeneLv3 != 0) regene += runeListData.regeneLv3;
 
                         // 以下未設定
-                        if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
-                        if (runeListData.poisonTimeLv3 != 0) poisonTime *= runeListData.poisonTimeLv3;
-                        if (runeListData.bloodSuckLv3 != 0) bloodSuck += runeListData.bloodSuckLv3;
+                        //if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
+                        //if (runeListData.poisonTimeLv3 != 0) poisonTime *= runeListData.poisonTimeLv3;
                         if (runeListData.poisonGuardLv3 != 0) poisonGuard += runeListData.poisonGuardLv3;
                         if (runeListData.bleedGuardLv3 != 0) bleedGuard += runeListData.bleedGuardLv3;
                         if (runeListData.stunGuardLv3 != 0) stunGuard += runeListData.stunGuardLv3;
                         if (runeListData.paralysisGuardLv3 != 0) paralysisGuard += runeListData.paralysisGuardLv3;
                         if (runeListData.wakeGuardLv3 != 0) wakeGuard += runeListData.wakeGuardLv3;
                         if (runeListData.defenceDownGuardLv3 != 0) defenceDownGuard += runeListData.defenceDownGuardLv3;
-                        if (runeListData.poisonLv3 != 0) poison += runeListData.poisonLv3;
-                        if (runeListData.bleedLv3 != 0) bleed += runeListData.bleedLv3;
-                        if (runeListData.stunLv3 != 0) stun += runeListData.stunLv3;
-                        if (runeListData.paralysisLv3 != 0) paralysis += runeListData.paralysisLv3;
-                        if (runeListData.wakeLv3 != 0) wake += runeListData.wakeLv3;
-                        if (runeListData.defenceDownLv3 != 0) defenceDown += runeListData.defenceDownLv3;
                     }
                 }
                 // ルーンIDが412015の場合はspreadCountを1増やす
@@ -474,8 +674,6 @@ public class Unit : MonoBehaviour
             }
         }
         
-
-
         // ステータスを計算する
         int baseExperience = 10; // レベルアップに必要な基本経験値
         currentLevel = (int)Math.Sqrt(totalExp / (baseExperience * currentLevelScaleFactor)) + addLevel + 1;
@@ -497,9 +695,6 @@ public class Unit : MonoBehaviour
 
         // 残りの必要経験値
         remainingExp = (int)nextLevelExp - totalExp;
-
-        // ルーンによるLvの上昇
-        currentLevel += addLevel;
 
         // ステータスを計算
         Hp = (currentStr + (currentLevel - 1) * levelStr) * 10 + wpnListData.hp + shieldListData.hp + armorListData.hp + accessoriesListData.hp;
@@ -547,6 +742,89 @@ public class Unit : MonoBehaviour
         comboDamage = (1.0f + comboDamageUp) / 10; // ルーンのコンボダメージを加算
         comboCriticalCount =  20 - comboCriticalCountUp; // ルーンのコンボクリティカルカウントを加算
 
+        // 状態異常の能力値を計算
+        // 初期化
+        poisonAttack = false;
+        bleedAttack = false;
+        stunAttack = false;
+        paralysisAttack = false;
+        weakAttack = false;
+        defenceDownAttack = false;
+        regeneAttack = false;
+        bloodSuckAttack = false;
+        conditionChance = 0;
+        poisonAmount = 0;
+        bleedAmount = 0;
+        stunDealTime = 0;
+        paralysisDealTime = 0;
+        weakDealTime = 0;
+        defenceDownDealTime = 0;
+        bloodSuckAmount = 0;
+        regeneAmount = 0;
+        poisonDealTime = 0;
+        bleedDealTime = 0;
+        regeneDealTime = 0;
+
+        // 適用
+        conditionChance = 0.1f;
+
+        poisonAmount = poison * 10;
+        bleedAmount = bleed * 10;
+        stunDealTime = stun/3;
+        paralysisDealTime = paralysis/3;
+        weakDealTime = weak/3;
+        defenceDownDealTime = defenceDown/3;
+        bloodSuckAmount = bloodSuck;
+        regeneAmount = regene;
+        if(job == 0) 
+        {
+            bloodSuckAmount *= 3;
+        }
+        if(job == 2) 
+        {
+            poisonAmount *= 3;
+            bleedAmount *= 3;
+            stunDealTime *= 3;
+            paralysisDealTime *= 3;
+            weakDealTime *= 3;
+            defenceDownDealTime *= 3;
+        }
+        if(job == 3) 
+        {
+            regeneAmount *= 3;
+        }
+
+        poisonAttack = poisonAmount > 0;
+        if (poisonAttack) poisonDealTime = 10;
+        bleedAttack = bleedAmount > 0;
+        if (bleedAttack) bleedDealTime = 6;
+        stunAttack = stunDealTime > 0;
+        paralysisAttack = paralysisDealTime > 0;
+        weakAttack = weakDealTime > 0;
+        defenceDownAttack = defenceDownDealTime > 0;
+        bloodSuckAttack = bloodSuckAmount > 0;
+        condition[7] = bloodSuckAttack; // 吸血ルーン所持の場合は常時condition[7]をtrueにする
+        regeneAttack = regeneAmount > 0;
+        if (regeneAttack) regeneDealTime = 60;
+
+        // 状態異常によるステータスの変化
+        if (condition[4]) // 麻痺の場合は移動速度、攻撃速度、攻撃間隔を30%減
+        {
+            moveSpeed *= 0.7f;
+            attackSpeed *= 0.7f;
+            attackDelay *= 0.7f;
+        }
+        if (condition[5]) // 脆弱の場合は物理攻撃力を30%減
+        {
+            physicalAttackPower *= 0.7f;
+            magicalAttackPower *= 0.7f;
+        }
+        if (condition[6]) // 弱体の場合は物理防御力を30%減
+        {
+            physicalDefensePower *= 0.7f;
+            magicalDefensePower *= 0.7f;
+        }
+
         // タンクの場合はHP、防御力、を2倍にする代わりに移動速度やDelayを半減
         if (job == 4 || job == 34) Hp *= 2;
         {
@@ -555,6 +833,25 @@ public class Unit : MonoBehaviour
             magicalDefensePower *= 2;
             moveSpeed /= 2;
             attackDelay /= 2;
+        }
+
+        // プレイヤー状態異常パネルの表示
+        if (gameObject.tag == "Ally")
+        {
+            int unitID = this.ID;
+            GameObject conditionPanel = gameManager.ConditionPanelList[unitID - 1];
+            // conditionPanelの子オブジェクトをすべて非表示にする
+            int index = 0;
+            foreach (Transform child in conditionPanel.transform)
+            {
+                child.gameObject.SetActive(false);
+                // 該当の状態異常にかかっている場合は表示する
+                if(index < 8 && condition[index+1])
+                {
+                    child.gameObject.SetActive(true);
+                }
+                index++;
+            }
         }
 
         // Ememytagの場合、
@@ -752,10 +1049,10 @@ public class Unit : MonoBehaviour
     }
 
     // HPを減少させるメソッド
-    public void TakeDamage(float damage, Unit attacker)
+    public void TakeDamage(float damage, Unit attacker, bool defenseless = false)
     {
         // gurdChanceの確率でガード
-        if (guardChance > 0)
+        if (guardChance > 0 && !defenseless)
         {
             float guardRandom = UnityEngine.Random.Range(0.0f, 100.0f);
             if (guardRandom < guardChance*100)
@@ -797,7 +1094,7 @@ public class Unit : MonoBehaviour
 
         // attacjerのknockBack確率でノックバック
         float knockBackRandom = UnityEngine.Random.Range(0.0f, 100.0f);
-        if (knockBackRandom < attacker.knockBack * 100)
+        if (knockBackRandom < attacker.knockBack * 100 && !defenseless)
         {
             // ノックバック音を再生
             //AkSoundEngine.PostEvent("SE_KnockBack", gameObject);
@@ -821,7 +1118,7 @@ public class Unit : MonoBehaviour
         // 又はattakerのcomboCountがcomboCriticalCountの倍数の場合はクリティカルダメージを適用
         float criticalRandom = UnityEngine.Random.Range(0.0f, 100.0f);
         bool isCritical = false;
-        if (criticalRandom < attacker.criticalChance * 100 || (attacker.comboCount > 0 && attacker.comboCount % attacker.comboCriticalCount == 0))
+        if ((criticalRandom < attacker.criticalChance * 100 || (attacker.comboCount > 0 && attacker.comboCount % attacker.comboCriticalCount == 0)) && !defenseless )
         {
             isCritical = true;
             damage *= attacker.criticalDamage;
@@ -835,7 +1132,18 @@ public class Unit : MonoBehaviour
         }
 
         // コンボ回数に応じてダメージを増加
-        damage += attacker.comboDamage * attacker.comboCount;
+        if ( !defenseless) damage += attacker.comboDamage * attacker.comboCount;
+
+        //////// ここまででダメージの計算は終了 ////////
+        
+        // 状態異常効果を確率で与える(くらわせる)
+        if(attacker != this && !defenseless) ConditionAttack(attacker);
+
+        // 攻撃元が吸血状態の場合は攻撃元がダメージのbloodAmount x damage分回復
+        if (attacker.condition[7] && !defenseless)
+        {
+            attacker.Heal(attacker.bloodSuckAmount * damage , attacker);
+        }
 
         // tagがEnemyの場合はダメージを表示する
         if (gameObject.tag == "Enemy")
@@ -997,7 +1305,7 @@ public class Unit : MonoBehaviour
     }
 
     // HPを回復させるメソッド
-    public void Heal(float amount, Unit attacker)
+    public void Heal(float amount, Unit attacker, bool defenseless = false)
     {
         // 回復値を表示する
         // damageTextを複製する
@@ -1018,6 +1326,9 @@ public class Unit : MonoBehaviour
         // ダメージの桁数に応じてフォントサイズを拡大(10の位を基準にする)
         damageTextClone.fontSize = 18 + (int)(Mathf.Log10(amount) * 10);
         damageTextClone.color = Color.green;
+
+        // 状態異常効果を確率で与える(くらわせる)
+        if(attacker != this && !defenseless) ConditionAttack(attacker);
 
         // textアニメーションを開始
         StartCoroutine(AnimateDamageText(damageTextRect, damageTextClone));
@@ -1051,6 +1362,106 @@ public class Unit : MonoBehaviour
         if (gameObject.activeInHierarchy) // ゲームオブジェクトがアクティブな場合のみ実行
         {
             StartCoroutine(FlashSprite(new Color(0.75f, 1.0f, 0.75f, 1.0f)));
+        }
+    }
+
+    /// <summary>
+    /// 状態異常効果を確率で与える(くらわせる)
+    /// </summary>
+    /// <param name="attaker"></param>
+    private void ConditionAttack(Unit attacker)
+    {
+        if (attacker.poisonAttack) 
+        { 
+
+            if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+            {
+                condition[1] = true;
+                poisonDamage =  attacker.poisonAmount; // 毒ダメージを適用
+                poisonTime = attacker.poisonDealTime; // 毒時間を適用
+                poisonAttacker = attacker; // 毒を与えたユニットを記録
+                if(poisonCount < 3) poisonCount++;
+            }
+        }
+        if (attacker.bleedAttack) 
+        {
+            if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+            {
+                condition[2] = true;
+                bleedDamage =  attacker.bleedAmount; // 出血ダメージを適用
+                bleedTime += attacker.bleedDealTime; // 出血時間を適用
+                bleedAttacker = attacker; // 出血を与えたユニットを記録
+                if(bleedCount < 3) bleedCount++;
+                //  かかった直後ステータスを更新する
+                updateStatus();
+            }
+        }
+        if (attacker.stunAttack) 
+        {
+            if (!condition[3])
+            {
+                if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+                {
+                    condition[3] = true;
+                    stunTime = attacker.stunDealTime; // スタン時間を適用
+                    //  かかった直後ステータスを更新する
+                    updateStatus();
+                }
+            }
+        }
+        if (attacker.paralysisAttack) 
+        {
+            if (!condition[4])
+            {
+                if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+                {
+                    condition[4] = true;
+                    paralysisTime = attacker.paralysisDealTime; // 麻痺時間を適用
+                    //  かかった直後ステータスを更新する
+                    updateStatus();
+                }
+            }
+        }
+        if (attacker.weakAttack) 
+        {
+            if (!condition[5])
+            {
+                if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+                {
+                    condition[5] = true;
+                    weakeTime = attacker.weakDealTime; // 脆弱時間を適用
+                    //  かかった直後ステータスを更新する
+                    updateStatus();
+                }
+            }
+        }
+        if (attacker.defenceDownAttack) 
+        {
+            if (!condition[6])
+            {
+                if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+                {
+                    condition[6] = true;
+                    defenceDownTime = attacker.defenceDownDealTime; // 弱体時間を適用
+                    //  かかった直後ステータスを更新する
+                    updateStatus();
+                }
+            }
+        }
+        if (attacker.regeneAttack) 
+        {
+            if (!condition[8])
+            {
+                if (UnityEngine.Random.Range(0, 100) < attacker.conditionChance*100)
+                {
+                    condition[8] = true;
+                    regeneTime = attacker.regeneDealTime; // 回復時間を適用
+                    regeneDamage = attacker.regeneAmount; // 回復ダメージを適用
+                    regeneAttacker = attacker; // 回復を与えたユニットを記録
+                    //  かかった直後ステータスを更新する
+                    updateStatus();
+                }
+            }
         }
     }
 
@@ -1185,6 +1596,7 @@ public class Unit : MonoBehaviour
                 Instantiate(dieEffect, transform.position, Quaternion.identity);
             }
             // プレイヤーが死亡した場合はSetActive(false)にして非表示にする
+            condition = new bool[9] { false, false, false, false, false, false, false, false, false };
             condition[0] = true;
             // ユニットの色を元に戻す(念のため)
             unitSprite.material.SetColor("_HardlightColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));

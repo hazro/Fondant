@@ -26,15 +26,19 @@ public class SettingManager : MonoBehaviour
     [Header("volume")]
     [SerializeField] private Sprite[] playButtonSprite;
     [SerializeField] private Slider masterVolumeSlider;
+    [SerializeField] private TextMeshProUGUI masterVolumeValue;
     [SerializeField] private Button masterPlayButton;
     [SerializeField] private Image masterPlayImage;
     [SerializeField] private Slider bgmVolumeSlider;
+    [SerializeField] private TextMeshProUGUI bgmVolumeValue;
     [SerializeField] private Button bgmPlayButton;
     [SerializeField] private Image bgmPlayImage;
     [SerializeField] private Slider seVolumeSlider;
+    [SerializeField] private TextMeshProUGUI seVolumeValue;
     [SerializeField] private Button sePlayButton;
     [SerializeField] private Image sePlayImage;
     [SerializeField] private Slider systemVolumeSlider;
+    [SerializeField] private TextMeshProUGUI systemVolumeValue;
     [SerializeField] private Button systemPlayButton;
     [SerializeField] private Image systemPlayImage;
 
@@ -71,14 +75,36 @@ public class SettingManager : MonoBehaviour
         // ボタンのメソッド割り当て
         exitButton.onClick.AddListener(() => SettingPanel.SetActive(false));
         saveButton.onClick.AddListener(SaveSettings);
-        masterVolumeSlider.onValueChanged.AddListener((value) => masterVolumeRTPC.SetGlobalValue(value * 80));
-        bgmVolumeSlider.onValueChanged.AddListener((value) => bgmVolumeRTPC.SetGlobalValue(value * 100));
-        seVolumeSlider.onValueChanged.AddListener((value) => seVolumeRTPC.SetGlobalValue(value * 100));
-        systemVolumeSlider.onValueChanged.AddListener((value) => systemVolumeRTPC.SetGlobalValue(value * 100));
+        //masterVolumeSlider.onValueChanged.AddListener((value) => masterVolumeRTPC.SetGlobalValue(value * 80));
+        //bgmVolumeSlider.onValueChanged.AddListener((value) => bgmVolumeRTPC.SetGlobalValue(value * 100));
+        //seVolumeSlider.onValueChanged.AddListener((value) => seVolumeRTPC.SetGlobalValue(value * 100));
+        //systemVolumeSlider.onValueChanged.AddListener((value) => systemVolumeRTPC.SetGlobalValue(value * 100));
         masterPlayButton.onClick.AddListener(() => PlayButton(masterPlayImage, masterVolumeSlider, masterVolumeRTPC));
         bgmPlayButton.onClick.AddListener(() => PlayButton(bgmPlayImage, bgmVolumeSlider, bgmVolumeRTPC));
         sePlayButton.onClick.AddListener(() => PlayButton(sePlayImage, seVolumeSlider, seVolumeRTPC));
         systemPlayButton.onClick.AddListener(() => PlayButton(systemPlayImage, systemVolumeSlider, systemVolumeRTPC));
+        // スライダーの値変更時にVolumeValueテキストを更新
+        masterVolumeSlider.onValueChanged.AddListener((value) => 
+        {
+            masterVolumeRTPC.SetGlobalValue(value * 80);
+            masterVolumeValue.text = Mathf.RoundToInt(value * 100).ToString(); // 0.0～1.0 をパーセントに変換
+        });
+        bgmVolumeSlider.onValueChanged.AddListener((value) => 
+        {
+            bgmVolumeRTPC.SetGlobalValue(value * 100);
+            bgmVolumeValue.text = Mathf.RoundToInt(value * 100).ToString(); // 0.0～1.0 をパーセントに変換
+        });
+        seVolumeSlider.onValueChanged.AddListener((value) => 
+        {
+            seVolumeRTPC.SetGlobalValue(value * 100);
+            seVolumeValue.text = Mathf.RoundToInt(value * 100).ToString(); // 0.0～1.0 をパーセントに変換
+        });
+        systemVolumeSlider.onValueChanged.AddListener((value) => 
+        {
+            systemVolumeRTPC.SetGlobalValue(value * 100);
+            systemVolumeValue.text = Mathf.RoundToInt(value * 100).ToString(); // 0.0～1.0 をパーセントに変換
+        });
+
     }
 
     /// <summary>
@@ -164,5 +190,12 @@ public class SettingManager : MonoBehaviour
         fullScreenToggle.isOn = settings.fullScreen;
         qualityList.value = settings.quality;
         vSyncToggle.isOn = settings.vsync;
+
+        // sliderのvalueをパーセントに変換してVolumeValueに反映
+        masterVolumeValue.text = Mathf.RoundToInt(settings.masterVolume * 100).ToString();
+        bgmVolumeValue.text = Mathf.RoundToInt(settings.bgmVolume * 100).ToString();
+        seVolumeValue.text = Mathf.RoundToInt(settings.seVolume * 100).ToString();
+        systemVolumeValue.text = Mathf.RoundToInt(settings.systemVolume * 100).ToString();
     }
+
 }

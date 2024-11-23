@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> playerUnits = new List<GameObject>(); // プレイヤーユニットのリスト
     public List<GameObject> livingUnits = new List<GameObject>(); // 生存しているユニットのリスト
     public List<GameObject> deadPanelList = new List<GameObject>(); // 死亡したユニットのスキルパネルを塞ぐオブジェクトのリスト
+    public List<GameObject> ConditionPanelList = new List<GameObject>(); // 状態異常を表示するパネルのリスト
     public GameObject enemyGroup; // 敵グループのGameObject
     public int enemyCount = 0; // 敵の数
     private Transform playerGroup; // プレイヤーグループのTransform
@@ -276,7 +277,7 @@ public class GameManager : MonoBehaviour
                 unit.GetComponent<PlayerDraggable>().enabled = true;
                 unit.GetComponent<AttackController>().enabled = false;
                 unit.GetComponent<Unit>().ChangeEqpByJob(); // 初期装備に変更
-                unit.GetComponent<Unit>().condition = new bool[7]; // 状態異常を解除
+                unit.GetComponent<Unit>().condition = new bool[9]{false,false,false,false,false,false,false,false,false}; // 状態異常を解除
                 unit.GetComponent<Unit>().live = true; // 生存状態に変更
                 // subSocketをすべて0にする
                 for (int i = 0; i < unit.GetComponent<Unit>().subSocket.Length; i++)
@@ -805,7 +806,7 @@ public class GameManager : MonoBehaviour
         // ユニットのHPを回復
         unit.GetComponent<Unit>().InitHp();
         // ユニットの状態異常を解除
-        unit.GetComponent<Unit>().condition = new bool[7];
+        unit.GetComponent<Unit>().condition = new bool[9]{false,false,false,false,false,false,false,false,false};
         unit.GetComponent<Unit>().live = true;
         // ユニットのスキルUIを更新
         iventryUI.UpdateUnitSkillUI(unit);

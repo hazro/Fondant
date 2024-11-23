@@ -196,9 +196,6 @@ public class ItemData {
         public float guardChanceLv1;
         public float guardChanceLv2;
         public float guardChanceLv3;
-        public float bloodSuckLv1;
-        public float bloodSuckLv2;
-        public float bloodSuckLv3;
         public float poisonGuardLv1;
         public float poisonGuardLv2;
         public float poisonGuardLv3;
@@ -247,6 +244,12 @@ public class ItemData {
         public float defenceDownLv1;
         public float defenceDownLv2;
         public float defenceDownLv3;
+        public float regeneLv1;
+        public float regeneLv2;
+        public float regeneLv3;
+        public float bloodSuckLv1;
+        public float bloodSuckLv2;
+        public float bloodSuckLv3;
     }
 
     public List<RuneListData> runeList = new List<RuneListData>();

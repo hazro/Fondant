@@ -189,7 +189,7 @@ MonoBehaviour:
   positionID: 0
   IventrySkillList: []
   unitName: Slime
-  condition: 0000000000000000
+  condition: 000000000000000000
   job: 0
   totalExp: 0
   currentLevel: 0
@@ -223,6 +223,43 @@ MonoBehaviour:
   lastHitTime: 0
   spreadCount: 0
   spreadDamage: 0
+  conditionChance: 0
+  poisonAttack: 0
+  poisonAmount: 0
+  poisonDealTime: 0
+  bleedAttack: 0
+  bleedAmount: 0
+  bleedDealTime: 0
+  stunAttack: 0
+  stunDealTime: 0
+  paralysisAttack: 0
+  paralysisDealTime: 0
+  weakAttack: 0
+  weakDealTime: 0
+  defenceDownAttack: 0
+  defenceDownDealTime: 0
+  bloodSuckAttack: 0
+  bloodSuckAmount: 0
+  regeneAttack: 0
+  regeneAmount: 0
+  regeneDealTime: 0
+  poisonTime: 0
+  poisonDamage: 0
+  poisonCount: 0
+  bleedTime: 0
+  bleedDamage: 0
+  bleedCount: 0
+  stunTime: 0
+  previousStunCondition: 0
+  paralysisTime: 0
+  previousParalysisCondition: 0
+  weakeTime: 0
+  previousWeakeCondition: 0
+  defenceDownTime: 0
+  previousDefenceDownCondition: 0
+  bloodDamage: 0
+  regeneTime: 0
+  regeneDamage: 0
   targetJob: 0
   teleportation: 0
   escape: 0
@@ -243,6 +280,7 @@ MonoBehaviour:
   hpColor: {fileID: 8712016752118847016}
   damageText: {fileID: 1959076916984243428}
   comboText: {fileID: 116614197843584740}
+  maxHp: 0
 --- !u!61 &6376528810690273896
 BoxCollider2D:
   m_ObjectHideFlags: 0
