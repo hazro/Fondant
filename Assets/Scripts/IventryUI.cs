@@ -27,6 +27,8 @@ public class IventryUI : MonoBehaviour
     public List<GameObject> IventrySkillList4 = new List<GameObject>();
     public List<GameObject> IventrySkillList5 = new List<GameObject>();
 
+    public List<Image> wpnDelayImage = new List<Image>();
+
     // informationPanel
     public GameObject infoPanel;
     public TextMeshProUGUI infoPanelText;
@@ -296,6 +298,9 @@ public class IventryUI : MonoBehaviour
         // IventrySkillList[1]の子オブジェクトのImageコンポーネントを取得し、スプライトを設定
         Sprite sprite = wpnImage.GetComponent<SpriteRenderer>().sprite;
         IventrySkillList[1].GetComponent<Image>().sprite = sprite;
+        // 武器のdelayImageにもスプライトを設定
+        wpnDelayImage[unitObject.GetComponent<Unit>().ID-1].sprite = sprite;
+
         //sprite = AtkImage.GetComponent<SpriteRenderer>().sprite;
         // 顔グラ設定
         IventrySkillList[2].GetComponent<Image>().sprite = unit.unitSprite.sprite;

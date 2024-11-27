@@ -561,28 +561,39 @@
       "price": 100,
       "maxLevel": 3,
       "ability": "ironWall (Defend without attacking. Tanks effective x 2.)",
-      "moveSpeedLv1": 0.25,
-      "moveSpeedLv2": 0.25,
-      "moveSpeedLv3": 0.25,
-      "physicalDefenseLv1": 0.5,
+      "physicalDefenseLv1": 0.65,
       "physicalDefenseLv2": 0.75,
       "physicalDefenseLv3": 1,
-      "magicalDefenseLv1": 0.5,
+      "magicalDefenseLv1": 0.65,
       "magicalDefenseLv2": 0.75,
       "magicalDefenseLv3": 1,
-      "pysicalPowerLv1": 0,
-      "pysicalPowerLv2": 0,
-      "pysicalPowerLv3": 0,
-      "magicalPowerLv1": 0,
-      "magicalPowerLv2": 0,
-      "magicalPowerLv3": 0,
+      "pysicalPowerLv1": 0.001,
+      "pysicalPowerLv2": 0.001,
+      "pysicalPowerLv3": 0.001,
+      "magicalPowerLv1": 0.001,
+      "magicalPowerLv2": 0.001,
+      "magicalPowerLv3": 0.001,
       "guardChanceLv1": 0.65,
       "guardChanceLv2": 0.75,
       "guardChanceLv3": 1,
+      "poisonGuardLv1": 0.65,
       "poisonGuardLv2": 1,
       "poisonGuardLv3": 1.5,
+      "bleedGuardLv1": 0.65,
       "bleedGuardLv2": 1,
-      "bleedGuardLv3": 1.5
+      "bleedGuardLv3": 1.5,
+      "stunGuardLv1": 0.65,
+      "stunGuardLv2": 1,
+      "stunGuardLv3": 1.5,
+      "paralysisGuardLv1": 0.65,
+      "paralysisGuardLv2": 1,
+      "paralysisGuardLv3": 1.5,
+      "wakeGuardLv1": 0.65,
+      "wakeGuardLv2": 1,
+      "wakeGuardLv3": 1.5,
+      "defenceDownGuardLv1": 0.65,
+      "defenceDownGuardLv2": 1,
+      "defenceDownGuardLv3": 1.5
     },
     {
       "ID": 412001,
@@ -886,19 +897,6 @@
       "ability": "Reflects the opponent's attack by cutting x times its own attack.\nLv1: 0.25, Lv2: 0.375, Lv3: 0.5 (RuneLVx2 for tanks)."
     },
     {
-      "ID": 412025,
-      "name": "rangeAttack",
-      "price": 50,
-      "maxLevel": 3,
-      "ability": "Grants a sustained ranged attack with x times attack power.\n(Range also increases with RuneLv).",
-      "pysicalPowerLv1": 0.025,
-      "pysicalPowerLv2": 0.05,
-      "pysicalPowerLv3": 0.1,
-      "magicalPowerLv1": 0.025,
-      "magicalPowerLv2": 0.05,
-      "magicalPowerLv3": 0.1
-    },
-    {
       "ID": 413001,
       "name": "delayReduction",
       "world": 1,
@@ -1086,10 +1084,26 @@
       "ability": "Targets other than yourself in the enemy's attack range are given priority."
     },
     {
-      "ID": 413018
+      "ID": 413018,
+      "name": "regenerative",
+      "world": 1,
+      "price": 30,
+      "maxLevel": 3,
+      "ability": "Gives the attack a gradual HP recovery  (x% second)",
+      "regeneLv1": 0.2,
+      "regeneLv2": 0.4,
+      "regeneLv3": 0.6
     },
     {
-      "ID": 413019
+      "ID": 413019,
+      "name": "bloodSuck",
+      "world": 1,
+      "price": 30,
+      "maxLevel": 3,
+      "ability": "Recovers HP by x-multiplier of the damage inflicted.",
+      "bloodSuckLv1": 0.03,
+      "bloodSuckLv2": 0.06,
+      "bloodSuckLv3": 0.09
     },
     {
       "ID": 413020,
@@ -1239,8 +1253,8 @@
       "maxLevel": 3,
       "ability": "Raise level x",
       "addLevelLv1": 1,
-      "addLevelLv2": 3,
-      "addLevelLv3": 5
+      "addLevelLv2": 2,
+      "addLevelLv3": 3
     },
     {
       "ID": 413036,
@@ -1255,6 +1269,14 @@
       "price": 30,
       "maxLevel": 1,
       "ability": "If attacked, run away."
+    },
+    {
+      "ID": 413038,
+      "name": "areaAttack",
+      "world": 1,
+      "price": 50,
+      "maxLevel": 3,
+      "ability": "Grants a sustained ranged attack with x times attack power.\n(Range also increases with RuneLv)."
     },
     {
       "ID": 414001,
@@ -1324,25 +1346,11 @@
     },
     {
       "ID": 414007,
-      "name": "regenerative",
+      "name": "areaSlow",
       "world": 1,
-      "price": 30,
+      "price": 50,
       "maxLevel": 3,
-      "ability": "Gives the attack a gradual HP recovery  (x% second)",
-      "regeneLv1": 0.2,
-      "regeneLv2": 0.4,
-      "regeneLv3": 0.6
-    },
-    {
-      "ID": 414008,
-      "name": "bloodSuck",
-      "world": 1,
-      "price": 30,
-      "maxLevel": 3,
-      "ability": "Recovers HP by x-multiplier of the damage inflicted.",
-      "bloodSuckLv1": 0.03,
-      "bloodSuckLv2": 0.06,
-      "bloodSuckLv3": 0.09
+      "ability": "Reduces movement speed and Delay within range. (RuneLv x 1/6)"
     }
   ],
   "enemySpawnSettings": [

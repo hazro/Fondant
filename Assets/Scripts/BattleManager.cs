@@ -210,7 +210,10 @@ public class BattleManager : MonoBehaviour
         // player全員の攻撃を停止
         foreach (GameObject player in gameManager.livingUnits)
         {
-            player.GetComponent<Unit>().StopAttack();
+            Unit unit = player.GetComponent<Unit>();
+            unit.StopAttack();
+            // プレイヤーのDelayImageをリセット
+            gameManager.IventryUI.wpnDelayImage[unit.ID -1].fillAmount = 0;
         }
         // 敵のスポーンコルーチンを停止
         if (spawnCoroutine != null)

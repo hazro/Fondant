@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Unit : MonoBehaviour
 {
@@ -79,6 +80,18 @@ public class Unit : MonoBehaviour
     public bool regeneAttack = false; // リジェネ攻撃を行うか
     public float regeneAmount = 0; // リジェネの効果量
     public float regeneDealTime = 0; // リジェネの効果時間
+    [Header("--- 鉄壁 ---")]
+    [SerializeField] public bool ironWall = false; // 鉄壁状態であるか
+    [Header("--- 範囲持続攻撃 ---")]
+    [SerializeField] public bool areaAttack = false; // 範囲持続攻撃を行うか
+    [SerializeField] public float areaAttackDamage = 0; // 範囲持続攻撃のダメージ
+    [SerializeField] public GameObject areaAttackPrefab=null; // 範囲持続攻撃のプレハブのClone
+    [SerializeField] public float areaDistance = 0.6f; // 範囲持続攻撃の範囲
+    [Header("--- 範囲持続スピードダウン ---")]
+    [SerializeField] public bool areaSlow = false; // 範囲持続スピードダウンを行うか
+    [SerializeField] public float areaSlowAmount = 0; // 範囲持続スピードダウンの効果量
+    [SerializeField] public GameObject areaSlowPrefab=null; // 範囲持続攻撃のプレハブのClone
+    [SerializeField] public float areaSlowDistance = 0.6f; // 範囲持続攻撃の範囲
 
     [Header("///////////////")]
     ///
@@ -115,6 +128,12 @@ public class Unit : MonoBehaviour
     [SerializeField] public float regeneTime; // リジェネの効果時間累積
     [SerializeField] public float regeneDamage; // リジェネの効果量(%) ルーンレベルの累積x1.2 2秒毎に回復 
     [SerializeField] private Unit regeneAttacker; // リジェネを与えたユニット
+    [Header("--- スロー ---")]
+    [SerializeField] public float slowTime; // スローの効果時間累積
+    [SerializeField] public float beforeMoveSpeed=0; // 移動速度を一時的に保存
+    [SerializeField] public float beforeAttackDelay=0; // 攻撃速度を一時的に保存
+
+
     [Header("///////////////")]
 
     [SerializeField] public int targetJob;
@@ -253,6 +272,7 @@ public class Unit : MonoBehaviour
             lastOneSecondTime = Time.time;
             // 処理を追加予定
             //////////////////////////
+            CalcOneSecond();
             //////////////////////////
         }
         // 2秒起きに状態効果の計算
@@ -264,6 +284,77 @@ public class Unit : MonoBehaviour
             CalcCondition();
         }
 
+    }
+
+    /// <summary>
+    /// 1秒ごとの処理
+    /// </summary>
+    private void CalcOneSecond()
+    {
+        // 範囲攻撃持続ダメージ
+        if (areaAttack)
+        {
+            // 現在のシーン名を取得
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName == "BattleScene")
+            {
+                // SpriteRendererを表示する
+                if (areaAttackPrefab != null) areaAttackPrefab.GetComponent<SpriteRenderer>().enabled = true;
+                // 範囲攻撃の範囲内の敵にダメージを与える
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, areaDistance);
+                foreach (Collider2D hitCollider in hitColliders)
+                {
+                    // ダメージが0.5以上で自分と異なるtagで、自分自身は無視
+                    if (areaAttackDamage > 0.5f && (hitCollider.tag == "Enemy" || hitCollider.tag == "Ally") && hitCollider.tag != gameObject.tag && hitCollider.gameObject != gameObject)
+                    {
+                        // ダメージを与える
+                        hitCollider.GetComponent<Unit>().TakeDamage(areaAttackDamage, this, true);
+                    }
+                }
+            }
+            else
+            {
+                // SpriteRendererを非表示にする
+                if (areaAttackPrefab != null) areaAttackPrefab.GetComponent<SpriteRenderer>().enabled = false;
+            }
+        }
+        // 範囲持続スピードダウン
+        if (areaSlow)
+        {
+            // 現在のシーン名を取得
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName == "BattleScene")
+            {
+                // SpriteRendererを表示する
+                if (areaSlowPrefab != null) areaSlowPrefab.GetComponent<SpriteRenderer>().enabled = true;
+                // 範囲内の敵に効果を与える
+                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, areaSlowDistance);
+                foreach (Collider2D hitCollider in hitColliders)
+                {
+                    // 自分と異なるtagで、自分自身は無視
+                    if ((hitCollider.tag == "Enemy" || hitCollider.tag == "Ally") && hitCollider.tag != gameObject.tag && hitCollider.gameObject != gameObject)
+                    {
+                        // スピードを減少させる
+                        hitCollider.GetComponent<Unit>().attackDelay = beforeAttackDelay - (beforeAttackDelay * areaSlowAmount);
+                        hitCollider.GetComponent<Unit>().moveSpeed = beforeMoveSpeed - (beforeMoveSpeed * areaSlowAmount);
+                        hitCollider.GetComponent<Unit>().slowTime = 1.5f; // 1.5秒持続
+                    }
+                }
+            }
+            else
+            {
+                // SpriteRendererを非表示にする
+                if (areaSlowPrefab != null) areaSlowPrefab.GetComponent<SpriteRenderer>().enabled = false;
+            }
+        }
+        slowTime -= 1; // スローの効果時間を1秒減少
+        // スローの効果時間が0になったら速度を元に戻す
+        if (slowTime < 0)
+        {
+            slowTime = 0;
+            attackDelay = beforeAttackDelay;
+            moveSpeed = beforeMoveSpeed;
+        }
     }
 
     /// <summary>
@@ -506,6 +597,21 @@ public class Unit : MonoBehaviour
         float defenceDown = 0;
         float bloodSuck = 0;
         float regene = 0;
+        ironWall = false; // 鉄壁状態であるかを初期化
+        areaAttack = false; // 範囲持続攻撃を行うかを初期化
+        int areaAttackLv = 0; // 範囲持続攻撃のレベルを初期化
+        if(areaAttackPrefab != null)
+        {
+            Destroy(areaAttackPrefab);
+            areaAttackPrefab = null;
+        } // 範囲持続攻撃のプレハブを削除
+        areaSlow = false; // 範囲持続スピードダウンを行うかを初期化
+        int areaSlowLv = 0; // 範囲持続スピードダウンのレベルを初期化
+        if (areaSlowPrefab != null)
+        {
+            Destroy(areaSlowPrefab);
+            areaSlowPrefab = null;
+        } // 範囲持続スピードダウンのプレハブを削除
 
         // 以下未設定
         float poisonGuard = 0.0f;
@@ -536,6 +642,8 @@ public class Unit : MonoBehaviour
                 int runeLevel = IventrySkillList[i].GetComponent<ItemDandDHandler>().runeLevel;
                 
                 ItemData.RuneListData runeListData = gameManager.itemData.runeList.Find(x => x.ID == runeId);
+                string runeName = runeListData.name;
+
                 if (runeListData != null)
                 {
                     if(runeLevel == 1)
@@ -664,13 +772,45 @@ public class Unit : MonoBehaviour
                         if (runeListData.defenceDownGuardLv3 != 0) defenceDownGuard += runeListData.defenceDownGuardLv3;
                     }
                 }
-                // ルーンIDが412015の場合はspreadCountを1増やす
-                if(runeId == 412015)
+                // ルーン名がspreadの場合はspreadCountを1増やす
+                if(runeName == "spread")
                 {
                     spreadCount++;
                     spreadTotalLv += runeLevel;
                 }
                 spreadDamage = spreadTotalLv * 0.25f;
+
+                // --- 鉄壁 --- ルーン名がironWallならironWallをtrueにし、job=4(タンク)の場合「鉄壁」の効果を2倍にする。
+                if(runeName == "ironWall")
+                {
+                    ironWall = true;
+                    if (job == 4)
+                    {                        
+                        physicalDefenseMultiplier *= 2;
+                        magicalDefenseMultiplier *= 2;
+                        guardChanceMultiplier *= 2;
+                        poisonGuard *= 2;
+                        bleedGuard *= 2;
+                        stunGuard *= 2;
+                        paralysisGuard *= 2;
+                        wakeGuard *= 2;
+                        defenceDownGuard *= 2;
+                    }
+                }
+                // --- 範囲持続攻撃 --- ルーンID名がareaAttackならareaAttackをtrueにする
+                if(runeName == "areaAttack")
+                {
+                    areaAttack = true; // １つでも装備していたら範囲持続攻撃を行う
+                    // ルーンのトータルLvを取得
+                    areaAttackLv += runeLevel;
+                }
+                // --- 範囲持続スピードダウン --- ルーンID名がareaSlowならareaSlowをtrueにする
+                if(runeName == "areaSlow")
+                {
+                    areaSlow = true; // １つでも装備していたら範囲持続スピードダウンを行う
+                    // ルーンのトータルLvを取得
+                    areaSlowLv += runeLevel;
+                }
             }
         }
         
@@ -873,6 +1013,51 @@ public class Unit : MonoBehaviour
             }
             // HpTextにUnitNameとレベルを表示
             hpText.text = unitName + "  Lv." + currentLevel;
+        }
+
+        // 持続効果の計算の為、装備結果を保存
+        beforeAttackDelay = attackDelay; // 攻撃間隔を保存
+        beforeMoveSpeed = moveSpeed; // 攻撃速度を保存
+
+        // 範囲持続攻撃がtrueの場合の処理
+        if (areaAttack)
+        {
+            if (areaAttackPrefab == null)
+            {
+                areaAttackPrefab = Resources.Load<GameObject>("Prefabs/AttackEffects/Aef_areaAttack");
+                areaAttackPrefab = Instantiate(areaAttackPrefab, transform.position, Quaternion.identity);
+                // 名前からCloneを削除
+                areaAttackPrefab.name = areaAttackPrefab.name.Replace("(Clone)", "");
+                // this.gameObjectの子オブジェクトにする
+                areaAttackPrefab.transform.parent = transform;
+                areaAttackPrefab.transform.localPosition = new Vector3(0, -0.27f, 0);
+                // 初期は非表示にする
+                areaAttackPrefab.GetComponent<SpriteRenderer>().enabled = false;
+            } 
+            areaAttackDamage = 0.25f * physicalAttackPower;
+            areaDistance = 0.6f + ((areaAttackLv-1) * 0.2f);
+            // ルーンレベルによって範囲攻撃の大きさを変更
+            areaAttackPrefab.transform.localScale = new Vector3(4.0f + (4.0f * (areaAttackLv-1)/3.0f), 0.8f + (0.8f * (areaAttackLv-1)/3.0f), 4.0f + (4.0f * (areaAttackLv-1)/3.0f));
+        }
+        // 範囲持続スピードダウンがtrueの場合の処理
+        if (areaSlow)
+        {
+            if (areaSlowPrefab == null)
+            {
+                areaSlowPrefab = Resources.Load<GameObject>("Prefabs/AttackEffects/Aef_areaSlow");
+                areaSlowPrefab = Instantiate(areaSlowPrefab, transform.position, Quaternion.identity);
+                // 名前からCloneを削除
+                areaSlowPrefab.name = areaSlowPrefab.name.Replace("(Clone)", "");
+                // this.gameObjectの子オブジェクトにする
+                areaSlowPrefab.transform.parent = transform;
+                areaSlowPrefab.transform.localPosition = new Vector3(0, -0.27f, 0);
+                // 初期は非表示にする
+                areaSlowPrefab.GetComponent<SpriteRenderer>().enabled = false;
+            } 
+            areaSlowAmount = 0.17f * areaSlowLv; // LVが上がるにつれてスローの効果が大きくなる(Lv x 現状速度の1/6づつ減少)
+            areaSlowDistance = 0.6f + ((areaSlowLv-1) * 0.2f);
+            // ルーンレベルによって範囲攻撃の大きさを変更
+            areaSlowPrefab.transform.localScale = new Vector3(4.0f + (4.0f * (areaSlowLv-1)/3.0f), 0.8f + (0.8f * (areaSlowLv-1)/3.0f), 4.0f + (4.0f * (areaSlowLv-1)/3.0f));
         }
 
         // HPの初期化

@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using static ItemData;
+using UnityEngine.UI;
 
 /// <summary>
 /// 発射物を管理し、発射を制御するクラス
@@ -50,7 +51,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] private Vector2 direction; // 発射方向
 
     [SerializeField] private float lastAttackStopTime = 0; // 最後に攻撃を停止した時刻
-    private float adjustedDelay; // 攻撃再開までのディレイ時間
+    [SerializeField] private float adjustedDelay; // 攻撃再開までのディレイ時間
     private Coroutine shootingCoroutine; // 攻撃を繰り返すコルーチン
     private bool isShooting; // 攻撃中かどうかのフラグ
     private GameObject attackObjectGroup; // 発射物をまとめるグループオブジェクト
@@ -63,6 +64,10 @@ public class AttackController : MonoBehaviour
     private const float attackStartCooldown = 0.1f; // 攻撃開始のクールダウン時間
     private Vector2 firingPosition; // 発射位置
     private BattleManager battleManager; // BattleManagerの参照
+
+    // Delay待ちの視覚表示関連
+    private float attackElapsedTime; // 経過時間を記録
+
 
     /// <summary>
     /// 初期化処理。発射物のグループオブジェクトを確認し、必要に応じて作成します。
@@ -107,6 +112,13 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void Update()
     {
+        if (unit != null)
+        {
+            if (unit.ironWall) {
+                isShootingEnabled = false;
+                return; // 鉄壁の場合は攻撃しない
+            }
+        }
         if (unitController != null)
         {
             // 武器によってメンバーをターゲット指定していなければ、自分のグループをターゲットにするかどうかを設定
@@ -203,6 +215,13 @@ public class AttackController : MonoBehaviour
             weaponPrefab.transform.rotation = Quaternion.Euler(0, 0, 0); // 武器の角度を元に戻す
             weaponPrefab.SetActive(false); // weaponPrefabを非アクティブにする
         }
+        if (gameObject.tag == "Ally")
+        {
+            // クールダウン表示をリセット
+            Image attackCooldownImage = gameManager.IventryUI.wpnDelayImage[unit.ID -1];
+            attackCooldownImage.fillAmount = 0f; // リセット
+        }
+
         isShooting = false;
         StopCoroutine(shootingCoroutine);
         shootingCoroutine = null;
@@ -311,6 +330,37 @@ public class AttackController : MonoBehaviour
             float delayRandomRange = delayRandom ? 3.0f : 0.0f; // delayRandomの場合は3.0f、それ以外は0.0f
             adjustedDelay = delayShots + Random.Range(-delayRandomRange / 2f, delayRandomRange / 2f); // ディレイを設定攻撃再開までのディレイ時間にも使用
 
+            // プレイヤーの場合はクールダウン表示をリセット
+            if (gameObject.tag == "Ally")
+            {
+                Image attackCooldownImage = gameManager.IventryUI.wpnDelayImage[unit.ID -1];
+
+                // クールダウン表示用の初期化
+                if (attackCooldownImage != null)
+                {
+                    attackElapsedTime = 0f;
+                    attackCooldownImage.fillAmount = 0f; // リセット
+                }
+
+                // 待機時間の経過をFillAmountで表示
+                while (attackElapsedTime < adjustedDelay)
+                {
+                    attackElapsedTime += Time.deltaTime;
+
+                    // FillAmountを更新
+                    if (attackCooldownImage != null)
+                    {
+                        attackCooldownImage.fillAmount = Mathf.Clamp01(attackElapsedTime / adjustedDelay);
+                    }
+
+                    yield return null; // 次のフレームまで待機
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(adjustedDelay); // ディレイ時間を待機
+            }
+
             /////////////////////////////////////////////////////////////////////////
             //// 1, 発射開始位置を決める /////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////
@@ -408,7 +458,7 @@ public class AttackController : MonoBehaviour
             }
 
             // ディレイ時間を待つ
-            yield return new WaitForSeconds(adjustedDelay);
+            yield return new WaitForSeconds(shotInterval); // ショット間隔を待機
         }
     }
 
