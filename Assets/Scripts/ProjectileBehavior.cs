@@ -30,6 +30,10 @@ public class ProjectileBehavior : MonoBehaviour
     private float timeSinceLaunch; // 発射後の経過時間
     private float damageInterval = 0.5f; // ダメージを与える間隔（秒）
     private GameObject skipObject; // 衝突判定をスキップするオブジェクト
+    private bool counter = false; // カウンター攻撃の有効化
+    private int counterLv = 0; // カウンター攻撃のレベル
+    private bool reflection = false; // 反射攻撃の有効化
+    private int reflectionLv = 0; // 反射攻撃のレベル
 
     [Header("Attributes")]
     [SerializeField] public List<Attribute> attributes = new List<Attribute>(); // Attributesをpublicに変更
@@ -152,6 +156,10 @@ public class ProjectileBehavior : MonoBehaviour
         bool chainAttack = false,
         bool spreadAttack = false,
         bool throughEnforce = false,
+        bool counter = false,
+        int counterLv = 1,
+        bool reflection = false,
+        int reflectionLv = 1,
         List<Attribute> attributes = null, 
         StatusAilment? statusAilment = null, 
         StatusEffect? statusEffect = null
@@ -177,6 +185,10 @@ public class ProjectileBehavior : MonoBehaviour
         this.transform.localScale *= attackSize;
         this.spreadAttackEnabled = spreadAttack;
         this.throughOff = throughEnforce;
+        this.counter = counter;
+        this.reflectionLv = reflectionLv;
+        this.reflection = reflection;
+        this.counterLv = counterLv;
 
         if (attributes != null)
         {
@@ -362,16 +374,8 @@ public class ProjectileBehavior : MonoBehaviour
     private IEnumerator DestroyAfterLifetime()
     {
         yield return new WaitForSeconds(lifetime);
-            // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
-            if (trailRenderer != null && trailRenderer.time > 0)
-            {
-                StartCoroutine(WaitForTrailToDisappear());
-            }
-            else
-            {
-                // トレイルがない場合は即座に消滅
-                Destroy(gameObject);
-            }
+        // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+        DestroyProjectile();
     }
 
     /// <summary>
@@ -385,16 +389,8 @@ public class ProjectileBehavior : MonoBehaviour
         {
             yield return null;
         }
-            // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
-            if (trailRenderer != null && trailRenderer.time > 0)
-            {
-                StartCoroutine(WaitForTrailToDisappear());
-            }
-            else
-            {
-                // トレイルがない場合は即座に消滅
-                Destroy(gameObject);
-            }
+        // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+        DestroyProjectile();
     }
 
     /// <summary>
@@ -463,9 +459,96 @@ public class ProjectileBehavior : MonoBehaviour
             return;
         }
 
-        // 衝突したオブジェクトが発射物の場合は無視する
-        if (collision.CompareTag("Aef"))
+        // 衝突したオブジェクトが発射物の場合
+        if (collision.CompareTag("Aef") && collision != this.gameObject && collision != shooterUnit.gameObject)
         {
+            // 反射攻撃が有効で、AttributeがHealingでない場合は反射する
+            if (reflection && !attributes.Contains(Attribute.Healing))
+            {
+                ProjectileBehavior shooterCol = collision.GetComponent<ProjectileBehavior>();
+                Debug.Log("collisionName: " + collision.name);
+                Debug.Log("ccollisionShooterName: " + shooterCol.shooterUnit.name);
+                float shooterPower = shooterCol.magicalPower + shooterCol.pysicalPower;
+                // タンクの場合相殺対象の攻撃力を半減
+                int jobInfluence = 1;
+                if(shooterUnit != null)
+                {
+                    if(shooterUnit.job == 4)
+                    {
+                        jobInfluence = 2;
+                    }
+                }
+                shooterPower = Mathf.Max(0, shooterPower - (shooterPower * 0.17f * reflectionLv * jobInfluence));
+
+                float myPower = magicalPower + pysicalPower;
+                if (myPower >= shooterPower)
+                {
+                    // 反射する分  自身の攻撃力を減らす
+                    pysicalPower = Mathf.Max(0, (pysicalPower - shooterPower));
+                    magicalPower = Mathf.Max(0, (magicalPower - shooterPower));
+
+                    // 自分の位置
+                    Vector2 currentPosition = this.gameObject.transform.position;
+                    // 方向ベクトルを計算 相手のcollision.moveVeベクトルを反対方向にする
+                    Vector2 direction = shooterCol.moveDirection * -1;
+                    // 相手のベクトルを-5~5の範囲でランダムに変更
+                    direction = new Vector2(direction.x + Random.Range(-0.5f, 0.5f), direction.y + Random.Range(-0.5f, 0.5f));
+                    
+                    // 反射した発射物の移動方向を変更
+                    shooterCol.followTarget = null;
+                    shooterCol.moveDirection = direction.normalized;
+
+                    // 反射物のタグや発射元unitを自身に変更
+                    shooterCol.shooterTag = shooterTag;
+                    shooterCol.shooterUnit = shooterUnit;
+
+                    // 自身の攻撃力が0.1以下になったら消滅
+                    if(pysicalPower + magicalPower < 0.1f)
+                    {
+                        DestroyProjectile();
+                    }
+                    Debug.Log("Reflected");
+                }
+            }
+            // 迎撃攻撃が有効で、AttributeがHealingでない場合は迎撃する
+            if (counter && !attributes.Contains(Attribute.Healing))
+            {
+                ProjectileBehavior shooterCol = collision.GetComponent<ProjectileBehavior>();
+                float shooterPower = shooterCol.magicalPower + shooterCol.pysicalPower;
+                // タンクの場合相殺対象の攻撃力を半減
+                int jobInfluence = 1;
+                if(shooterUnit != null)
+                {
+                    if(shooterUnit.job == 4)
+                    {
+                        jobInfluence = 2;
+                    }
+                }
+                shooterPower = Mathf.Max(0, shooterPower - (shooterPower * 0.33f * counterLv * jobInfluence));
+
+                float myPower = magicalPower + pysicalPower;
+                Debug.Log("軽減値: "  + shooterPower + " / " + shooterPower * 0.33f * counterLv * jobInfluence);
+                Debug.Log("ShooterPower: " + shooterPower + " MyPower: " + myPower);
+                if (myPower >= shooterPower)
+                {
+                    // 迎撃する分  自身の攻撃力を減らす
+                    pysicalPower = Mathf.Max(0, (pysicalPower - shooterPower));
+                    magicalPower = Mathf.Max(0, (magicalPower - shooterPower));
+
+                    // 相手を消滅させる
+                    shooterCol.DestroyProjectile();
+
+                    // 自身の攻撃力が0.1以下になったら消滅
+                    if(pysicalPower + magicalPower < 0.1f)
+                    {
+                        DestroyProjectile();
+                    }
+
+                    Debug.Log("Counter");
+                }
+            }
+
+            // 反射や迎撃以外はスキップ
             return;
         }
 
@@ -478,15 +561,7 @@ public class ProjectileBehavior : MonoBehaviour
             if (remainingObjectThrough <= 0)
             {
                 // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
-                if (trailRenderer != null && trailRenderer.time > 0)
-                {
-                    StartCoroutine(WaitForTrailToDisappear());
-                }
-                else
-                {
-                    // トレイルがない場合は即座に消滅
-                    Destroy(gameObject);
-                }
+                DestroyProjectile();
             }
             // 障害物通過回数を減らす
             remainingObjectThrough--;
@@ -519,15 +594,7 @@ public class ProjectileBehavior : MonoBehaviour
             if (remainingCharThrough <= 0)
             {
                 // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
-                if (trailRenderer != null && trailRenderer.time > 0)
-                {
-                    StartCoroutine(WaitForTrailToDisappear());
-                }
-                else
-                {
-                    // トレイルがない場合は即座に消滅
-                    Destroy(gameObject);
-                }
+                DestroyProjectile();
             }
             // 衝突後消滅しない場合は現在のターゲット以外の一番近い位置にいるターゲットに変更する
             else
@@ -704,6 +771,23 @@ public class ProjectileBehavior : MonoBehaviour
         if (totalHealing > 0)
         {
             target.Heal(totalHealing, shooterUnit);
+        }
+    }
+
+    /// <summary>
+    /// 発射物の消滅処理
+    /// </summary>
+    public void DestroyProjectile()
+    {
+        // トレイルが有効なら発射物を非アクティブ化し、待機モードに移行
+        if (trailRenderer != null && trailRenderer.time > 0)
+        {
+            StartCoroutine(WaitForTrailToDisappear());
+        }
+        else
+        {
+            // トレイルがない場合は即座に消滅
+            Destroy(gameObject);
         }
     }
 }

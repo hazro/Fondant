@@ -16,6 +16,8 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool enableEqpSkill = true; // 装備によるskillの発動を有効にするかどうか
     [SerializeField] private bool autoUpdateDirection = true; // ターゲットの方向を自動的に設定するかどうか
     [SerializeField] private bool damageZero = false; // ダメージを0にする
+    
+    public List<GameObject> iventrySkillList; // IventrySkillListの参照
 
     [Header("direction Skill (select one)")]
     [SerializeField] private bool shoot2Directions = false; // ターゲット前方2方向に同時に発射
@@ -43,6 +45,10 @@ public class AttackController : MonoBehaviour
     [SerializeField] private bool scaleUpBlow = false; // 時間経過に応じてスケール
     [SerializeField] private bool chainAttack = false; // 貫通したら近い別の対手をターゲットにする
     [SerializeField] private bool spread = false; // 発射物がぶつかったら2つに拡散する
+    [SerializeField] private bool counter = false; // カウンター攻撃
+    [SerializeField] private int counterLv = 0; // カウンター攻撃のレベル
+    [SerializeField] private bool reflection = false; // 反射攻撃
+    [SerializeField] private int reflectionLv = 0; // 反射攻撃のレベル
 
     [Header("Projectile Settings")]
     public GameObject weaponPrefab; // 武器のPrefab
@@ -74,6 +80,11 @@ public class AttackController : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        // UnitControllerの参照を取得
+        unitController = GetComponent<UnitController>();
+        // Unitの参照を取得
+        unit = GetComponent<Unit>();
+
         // BattleManagerの参照を取得
         BattleManager battleManager = BattleManager.Instance;
         if (battleManager != null)
@@ -87,11 +98,25 @@ public class AttackController : MonoBehaviour
         // IventryUIの参照を取得
         if (gameManager != null){
             iventryUI = gameManager.GetComponent<IventryUI>();
+            //iventrySkillList = iventryUI.iventrySkillList;
+            switch (unit.ID){
+                case 1:
+                    iventrySkillList = iventryUI.IventrySkillList1;
+                    break;
+                case 2:
+                    iventrySkillList = iventryUI.IventrySkillList2;
+                    break;
+                case 3:
+                    iventrySkillList = iventryUI.IventrySkillList3;
+                    break;
+                case 4:
+                    iventrySkillList = iventryUI.IventrySkillList4;
+                    break;
+                case 5:
+                    iventrySkillList = iventryUI.IventrySkillList5;
+                    break;
+            }
         }
-        // UnitControllerの参照を取得
-        unitController = GetComponent<UnitController>();
-        // Unitの参照を取得
-        unit = GetComponent<Unit>();
 
         isShooting = false;
         wasShootingEnabled = false; // 初期化
@@ -280,21 +305,46 @@ public class AttackController : MonoBehaviour
 
         while (isShooting)
         {
+            counterLv = reflectionLv = 1; // カウンター、反射攻撃のレベルを初期化
+
             // 装備によるskillの発動が有効の場合は、装備しているルーンのスキルをすべて取得し有効無効を判定
             if (enableEqpSkill)
             {
+                counterLv = reflectionLv = 0;
                 // UnitのmainSocketとsubSocketに装備しているルーンのIDをすべて取得し配列に格納
                 List<int> eqpRuneIDs = new List<int>();
-                eqpRuneIDs.Add(unit.mainSocket);
+                // mainSocketに装備しているルーンのレベルを取得
+                int rlv = 0;
+                if(gameObject.CompareTag("Ally"))
+                {
+                    rlv = iventrySkillList[6].GetComponent<ItemDandDHandler>().runeLevel;
+                }
+                eqpRuneIDs.Add(unit.mainSocket * 10 + rlv);
                 for (int i = 0; i < unit.subSocket.Length; i++)
                 {
-                    eqpRuneIDs.Add(unit.subSocket[i]);
+                    if(gameObject.CompareTag("Ally"))
+                    {
+                        rlv = iventrySkillList[7 + i].GetComponent<ItemDandDHandler>().runeLevel;
+                    }
+                    else
+                    {
+                        rlv = 0;
+                    }
+                    eqpRuneIDs.Add(unit.subSocket[i] * 10 + rlv);
                 }
                 // IDに該当するルーンのnameを取得
                 List<string> eqpRuneNames = new List<string>();
                 for (int i = 0; i < eqpRuneIDs.Count; i++)
                 {
-                    eqpRuneNames.Add(gameManager.itemData.runeList.Find(x => x.ID == eqpRuneIDs[i]).name);
+                    int runeID = eqpRuneIDs[i] / 10;
+                    int runeLv = eqpRuneIDs[i] % 10;
+
+                    RuneListData RuneItem = gameManager.itemData.runeList.Find(x => x.ID == runeID);
+                    string runeName = RuneItem.name;
+                    eqpRuneNames.Add(runeName);
+                    // 装備中のルーンのレベルを取得
+                    if (runeName == "counter") counterLv += runeLv;
+                    if (runeName == "reflection") reflectionLv += runeLv;
                 }
                 // skill関連のboolメソッドのメソッド名がeqpRuneNamesに含まれるかどうかで有効無効を切り替える
                 shoot2Directions = eqpRuneNames.Contains(nameof(shoot2Directions));
@@ -317,6 +367,9 @@ public class AttackController : MonoBehaviour
                 scaleUpBlow = eqpRuneNames.Contains(nameof(scaleUpBlow));
                 chainAttack = eqpRuneNames.Contains(nameof(chainAttack));
                 spread = eqpRuneNames.Contains(nameof(spread));
+                counter = eqpRuneNames.Contains(nameof(counter));
+                
+                reflection = eqpRuneNames.Contains(nameof(reflection));
                 // 以下同様に設定予定
             }
 
@@ -593,7 +646,11 @@ public class AttackController : MonoBehaviour
             scaleUpBlow,
             chainAttack,
             spread,
-            throughEnforce
+            throughEnforce,
+            counter,
+            counterLv,
+            reflection,
+            reflectionLv
             );
     }
 
