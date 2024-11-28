@@ -31,6 +31,7 @@ public class UnitController : MonoBehaviour
     [Header("ターゲット設定")]
     public bool targetSameTag = false; // 自分と同じタグを持つオブジェクトをターゲットにするかどうか
     [HideInInspector] public bool targetSameTagWpn = false; // 武器によるターゲットの同一タグ設定
+    [HideInInspector] public bool targetAnomalyFirst = false; // 異常状態のターゲットを優先するかどうか
     [HideInInspector] public bool targetLowHpFirst = false; // 低HPのターゲットを優先するかどうか
 
     [Header("通常移動設定")]
@@ -466,8 +467,43 @@ public class UnitController : MonoBehaviour
         float closestDistance = Mathf.Infinity;
         Transform selectedTarget = null;
 
+        // 異常状態のターゲット優先の処理(低HPターゲット優先よりも優先度が高い)
+        if (targetAnomalyFirst)
+        {
+            // 異常状態のターゲットを優先して選択
+            List<Unit> potentialTargets = new List<Unit>();
+
+            Debug.Log("異常状態のターゲットを優先して選択します。");
+            Debug.Log("targetTag: " + targetTag);
+
+            foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+            {
+                if (potentialTarget == gameObject) continue; // 自分自身は除外
+                Debug.Log("potentialTarget: " + potentialTarget.name);
+
+                Unit targetUnit = potentialTarget.GetComponent<Unit>();
+
+                if (targetUnit != null && Vector2.Distance(transform.position, potentialTarget.transform.position) <= followRange)
+                {
+                    // targetUnit.condition[1~8]のいずれかがtrueの場合は異常状態と判定
+                    if (targetUnit.condition[1] || targetUnit.condition[2] || targetUnit.condition[3] || targetUnit.condition[4] || targetUnit.condition[5] || targetUnit.condition[6] || targetUnit.condition[7] || targetUnit.condition[8])
+                    {
+                        potentialTargets.Add(targetUnit); // 異常状態のユニットをリストに追加
+                    }
+                }
+            }
+
+            if (potentialTargets.Count > 0)
+            {
+                // 異常状態のユニットを自分自身との距離が近い順にソート
+                potentialTargets.Sort((a, b) => Vector2.Distance(transform.position, a.transform.position).CompareTo(Vector2.Distance(transform.position, b.transform.position)));
+                selectedTarget = potentialTargets[0].transform; // 異常状態のユニットを選択
+                Debug.Log("異常状態のユニットを選択しました。" + selectedTarget.name);
+            }
+        }
+
         // 低HPターゲット優先の処理
-        if (targetLowHpFirst)
+        if (targetLowHpFirst && selectedTarget == null)
         {
             // HPの低い順にターゲットを選択
             List<Unit> potentialTargets = new List<Unit>();

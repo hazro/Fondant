@@ -49,6 +49,7 @@ public class AttackController : MonoBehaviour
     [SerializeField] private int counterLv = 0; // カウンター攻撃のレベル
     [SerializeField] private bool reflection = false; // 反射攻撃
     [SerializeField] private int reflectionLv = 0; // 反射攻撃のレベル
+    [SerializeField] private bool targetAnomaly = false; // 異常状態のターゲットを優先
 
     [Header("Projectile Settings")]
     public GameObject weaponPrefab; // 武器のPrefab
@@ -151,6 +152,8 @@ public class AttackController : MonoBehaviour
             {
                 unitController.targetSameTag = targetYourGroup;
             }
+            // ターゲットが異常状態のものを優先する場合はUnitControllerのフラグを変更する
+            unitController.targetAnomalyFirst = targetAnomaly;
             // ターゲットが低HPのものを優先する場合はUnitControllerのフラグを変更する
             unitController.targetLowHpFirst = targetLowHp;
         }
@@ -368,8 +371,8 @@ public class AttackController : MonoBehaviour
                 chainAttack = eqpRuneNames.Contains(nameof(chainAttack));
                 spread = eqpRuneNames.Contains(nameof(spread));
                 counter = eqpRuneNames.Contains(nameof(counter));
-                
                 reflection = eqpRuneNames.Contains(nameof(reflection));
+                targetAnomaly = eqpRuneNames.Contains(nameof(targetAnomaly));
                 // 以下同様に設定予定
             }
 

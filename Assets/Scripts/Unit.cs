@@ -57,6 +57,9 @@ public class Unit : MonoBehaviour
     public float lastHitTime = 0; // 最後にダメージを与えた時間
     public int spreadCount = 0; // スプレッドカウント
     public float spreadDamage = 0; // スプレッドダメージ倍率
+    public bool conditionRecavery = false; // 状態異常回復を行うか
+    public int conditionRecaveryChance = 0; // 状態異常回復の確率(%)
+
     [Header("///////////////")]
 
     [Header("------ 状態異常の能力値-------")]
@@ -600,6 +603,8 @@ public class Unit : MonoBehaviour
         ironWall = false; // 鉄壁状態であるかを初期化
         areaAttack = false; // 範囲持続攻撃を行うかを初期化
         int areaAttackLv = 0; // 範囲持続攻撃のレベルを初期化
+        conditionRecavery = false; // 状態異常回復を行うかを初期化
+        conditionRecaveryChance = 0; // 状態異常回復の確率を初期化
         if(areaAttackPrefab != null)
         {
             Destroy(areaAttackPrefab);
@@ -810,6 +815,14 @@ public class Unit : MonoBehaviour
                     areaSlow = true; // １つでも装備していたら範囲持続スピードダウンを行う
                     // ルーンのトータルLvを取得
                     areaSlowLv += runeLevel;
+                }
+                // --- 状態異常回復 --- ルーンID名がconditionRecaveryならconditionRecaveryをtrueにする
+                if(runeName == "conditionRecavery")
+                {
+                    conditionRecavery = true; // １つでも装備していたら状態異常回復を行う
+                    // ルーンのトータルLvを取得
+                    conditionRecaveryChance += runeLevel * 15;
+                    if (runeLevel == 3) conditionRecaveryChance += 5;
                 }
             }
         }
@@ -1518,12 +1531,31 @@ public class Unit : MonoBehaviour
         // textアニメーションを開始
         StartCoroutine(AnimateDamageText(damageTextRect, damageTextClone));
 
+        // HPを回復
         currentHp += amount;
         if (currentHp > maxHp)
         {
             currentHp = maxHp;
         }
+        // HPバーを更新
         UpdateHpBar();
+
+        // attackerの状態異常回復フラグがtrueで、自身のcondition[1~8]のいずれかがtrueの場合は状態異常を回復
+        if (attacker.conditionRecavery && (condition[1] || condition[2] || condition[3] || condition[4] || condition[5] || condition[6] || condition[8]))
+        {
+            // attacker.conditionRecaveryChanceの確率で状態異常を回復
+            if (UnityEngine.Random.Range(0, 100) < attacker.conditionRecaveryChance)
+            {
+                for (int i = 1; i < 9; i++)
+                {
+                    condition[i] = false;
+                }
+                // 状態異常回復音を再生
+                AkSoundEngine.PostEvent("SE_Cure", gameObject);
+
+                Debug.Log("状態異常を回復しました");
+            }
+        }
 
         // 攻撃元にコンボ回数の更新通知を送る.
         if (attacker.gameObject.tag == "Ally")
