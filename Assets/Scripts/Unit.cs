@@ -38,6 +38,7 @@ public class Unit : MonoBehaviour
     [SerializeField] public float Speed;
     [SerializeField] public int attackUnitThrough;
     [SerializeField] public int attackObjectThrough;
+    [SerializeField] public int easilyTargeted = 50; //50%を平均値として低いほど狙われやすい
     [SerializeField] public float attackRange;
     [SerializeField] public float attackSize;
     [SerializeField] public float knockBack;
@@ -605,6 +606,9 @@ public class Unit : MonoBehaviour
         int areaAttackLv = 0; // 範囲持続攻撃のレベルを初期化
         conditionRecavery = false; // 状態異常回復を行うかを初期化
         conditionRecaveryChance = 0; // 状態異常回復の確率を初期化
+        int easyTargetLv = 0; // 狙われやすさのレベルを初期化
+        int targetOthersLv = 0; // 他を狙う確率のレベルを初期化
+
         if(areaAttackPrefab != null)
         {
             Destroy(areaAttackPrefab);
@@ -823,6 +827,16 @@ public class Unit : MonoBehaviour
                     // ルーンのトータルLvを取得
                     conditionRecaveryChance += runeLevel * 15;
                     if (runeLevel == 3) conditionRecaveryChance += 5;
+                }
+                // --- 狙われやすい --- ルーンID名がeasyTargetならeasyTargetLvを加算
+                if(runeName == "easyTarget")
+                {
+                    easyTargetLv += runeLevel;
+                }
+                // --- 狙われにくい --- ルーンID名がtargetOthersならtargetOthersLvを加算
+                if(runeName == "targetOthers")
+                {
+                    targetOthersLv += runeLevel;
                 }
             }
         }
@@ -1072,6 +1086,9 @@ public class Unit : MonoBehaviour
             // ルーンレベルによって範囲攻撃の大きさを変更
             areaSlowPrefab.transform.localScale = new Vector3(4.0f + (4.0f * (areaSlowLv-1)/3.0f), 0.8f + (0.8f * (areaSlowLv-1)/3.0f), 4.0f + (4.0f * (areaSlowLv-1)/3.0f));
         }
+
+        // 狙われやすさの計算
+        easilyTargeted = 50 - (easyTargetLv * 15) + (targetOthersLv * 15);
 
         // HPの初期化
         maxHp = Hp;

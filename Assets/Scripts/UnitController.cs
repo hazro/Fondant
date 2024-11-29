@@ -495,9 +495,23 @@ public class UnitController : MonoBehaviour
 
             if (potentialTargets.Count > 0)
             {
-                // 異常状態のユニットを自分自身との距離が近い順にソート
-                potentialTargets.Sort((a, b) => Vector2.Distance(transform.position, a.transform.position).CompareTo(Vector2.Distance(transform.position, b.transform.position)));
-                selectedTarget = potentialTargets[0].transform; // 異常状態のユニットを選択
+                // potentialTargetsをGameObjectの配列に変換
+                List<GameObject> potentialTargetsGameObjects = new List<GameObject>();
+                foreach (Unit unit in potentialTargets)
+                {
+                    potentialTargetsGameObjects.Add(unit.gameObject);
+                }
+                // 仲間の場合は最も近いターゲットを選択
+                if (targetSameTag)
+                {
+                    selectedTarget = GetClosestObject(potentialTargetsGameObjects.ToArray());
+                }
+                // 敵の場合
+                else
+                {
+                    // 距離と狙われやすさの両方を考慮したスコアを計算し、そのスコアが最も低いターゲットを選択
+                    selectedTarget = DistanceEasilyTargeted(potentialTargetsGameObjects.ToArray());
+                }
                 Debug.Log("異常状態のユニットを選択しました。" + selectedTarget.name);
             }
         }
@@ -587,16 +601,16 @@ public class UnitController : MonoBehaviour
         // それ以外の場合、最も近いターゲットを選ぶ
         if (selectedTarget == null)
         {
-            foreach (GameObject potentialTarget in GameObject.FindGameObjectsWithTag(targetTag))
+            // 仲間の場合は最も近いターゲットを選択
+            if (targetSameTag)
             {
-                if (potentialTarget == gameObject) continue;
-
-                float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    selectedTarget = potentialTarget.transform;
-                }
+                selectedTarget = GetClosestObject(GameObject.FindGameObjectsWithTag(targetTag));
+            }
+            // 敵の場合
+            else
+            {
+                // 距離と狙われやすさの両方を考慮したスコアを計算し、そのスコアが最も低いターゲットを選択
+                selectedTarget = DistanceEasilyTargeted(GameObject.FindGameObjectsWithTag(targetTag));
             }
         }
 
@@ -618,6 +632,58 @@ public class UnitController : MonoBehaviour
                 Debug.Log("ターゲットが見つかりませんでした。");
             }
         }
+    }
+
+    /// <summary>
+    /// 距離と狙われやすさの両方を考慮したスコアを計算し、そのスコアが最も低いターゲットを返す
+    /// easilyTargetedが高いほど狙われやすい
+    /// </summary>
+    private Transform DistanceEasilyTargeted(GameObject[] potentialTargets)
+    {
+        Transform selectedTarget = null;
+         float closestScore = Mathf.Infinity;
+        foreach (GameObject potentialTarget in potentialTargets)
+        {
+            if (potentialTarget == gameObject) continue;
+
+            Unit targetUnit = potentialTarget.GetComponent<Unit>();
+            if (targetUnit != null)
+            {
+                float distance = Vector2.Distance(transform.position, potentialTarget.transform.position);
+                float easilyTargetedFactor = targetUnit.easilyTargeted / 50.0f; // 平均値50を基準にしてスコアを調整
+                float score = distance * (1.0f + easilyTargetedFactor); // 距離と狙われやすさを組み合わせたスコアを計算
+
+                if (score < closestScore)
+                {
+                    closestScore = score;
+                    selectedTarget = potentialTarget.transform;
+                }
+            }
+        }
+        return selectedTarget;
+    }
+
+    /// <summary>
+    /// 配列を引数として受け取り、自身との距離が最も近いオブジェクトを返します。
+    /// </summary>
+    private Transform GetClosestObject(GameObject[] potentialTargets)
+    {
+        Transform selectedTarget = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (GameObject obj in potentialTargets)
+        {
+            if (obj == transform) continue; // 自分自身は除外
+
+            float distance = Vector2.Distance(transform.position, obj.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                selectedTarget = obj.transform;
+            }
+        }
+
+        return selectedTarget;
     }
 
     /// <summary>

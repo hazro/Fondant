@@ -664,6 +664,7 @@
     {
       "ID": 412007,
       "name": "targetAnomaly",
+      "world": 1,
       "price": 50,
       "maxLevel": 1,
       "ability": "Target those with abnormalities (priority over low HP)"
@@ -885,16 +886,18 @@
     {
       "ID": 412023,
       "name": "counter",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Offset your opponent's attack by cutting x times your own attack.\nLv1: 0.25, Lv2: 2.0, Lv3: 3.0 (RuneLVx2 for tanks)."
+      "ability": "Reflects an opponent's attack by shaving off the attack power of the reflective object - y from the attack power of his projectile.\ny = Total RuneLv x 0.17 (tanks have double RuneLv effect)"
     },
     {
       "ID": 412024,
       "name": "reflection",
+      "world": 1,
       "price": 50,
       "maxLevel": 3,
-      "ability": "Reflects the opponent's attack by cutting x times its own attack.\nLv1: 0.25, Lv2: 0.375, Lv3: 0.5 (RuneLVx2 for tanks)."
+      "ability": "Extinguishes an opponent's attack by shaving off the attack power of his projectiles minus the attack power of his reflections - y.\ny = Total RuneLv x 0.33 (tanks have double RuneLv effect)"
     },
     {
       "ID": 413001,
@@ -1078,10 +1081,11 @@
     },
     {
       "ID": 413017,
-      "name": "priorityOthers",
+      "name": "targetOthers",
+      "world": 1,
       "price": 30,
-      "maxLevel": 1,
-      "ability": "Targets other than yourself in the enemy's attack range are given priority."
+      "maxLevel": 3,
+      "ability": "Less likely to be targeted.\n(15% increase per rune lvl)"
     },
     {
       "ID": 413018,
@@ -1231,19 +1235,21 @@
     {
       "ID": 413032,
       "name": "conditionRecavery",
+      "world": 1,
       "price": 30,
-      "maxLevel": 1,
-      "ability": "Recovery Attacks with Condition Recovery"
+      "maxLevel": 3,
+      "ability": "Healing grants condition recovery.\n(Chance of success RuneLv1:15% , Lv2:30 , Lv3:50%)"
     },
     {
       "ID": 413033
     },
     {
       "ID": 413034,
-      "name": "priorityTarget",
+      "name": "easyTarget",
+      "world": 1,
       "price": 30,
-      "maxLevel": 1,
-      "ability": "Easier to be selected as a target and harder to be released once selected"
+      "maxLevel": 3,
+      "ability": "Becomes an easier target.\n(15% increase per rune lvl)"
     },
     {
       "ID": 413035,
