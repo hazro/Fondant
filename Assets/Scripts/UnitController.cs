@@ -47,6 +47,10 @@ public class UnitController : MonoBehaviour
     private bool isAvoiding = false; // 回避中かどうかのフラグ
     private Vector2 avoidanceDirection; // 回避方向を記憶する
 
+    // 障害物回避のための設定
+    [Header("障害物回避中情報")]
+    [SerializeField] private Vector2 previousAvoidanceDir = Vector2.zero; // 前回の障害物回避角度を保持するフィールド　初期値は未設定（無効値）
+
     [Header("攻撃モード設定")]
     public bool enableAttackStance = false; // 攻撃モードの有効化
     public float attackStanceDuration = 10.0f; // 攻撃モードでその場にとどまる時間（秒）
@@ -155,11 +159,31 @@ public class UnitController : MonoBehaviour
         // テレポート機能が有効の場合、テレポート処理を実行する
         if (enableTeleport)
         {
+            // 一番近い位置にいるターゲットを選択
+            SetClosestTarget();
+            // ターゲットの方向を向く
+            Vector2 targetDirection = (targetTransform.position - transform.position).normalized;
+            UpdateSpriteBasedOnDirection(targetDirection, unitSprite);
+
             if (Time.time - lastTeleportTime >= teleportInterval)
             {
                 PerformTeleport(transform.position); // テレポート処理を実行
                 lastTeleportTime = Time.time; // テレポートの実行時間を更新
             }
+            // テレポート後、またはテレポートが必要ない場合は通常の攻撃ロジックを継続
+            else
+            {
+                // 通常攻撃のためにアタックコントローラーへターゲットを設定
+                if (targetTransform != null && Vector2.Distance(transform.position, targetTransform.position) <= approachRange)
+                {
+                    if (attackController != null)
+                    {
+                        attackController.SetTargetObject(targetTransform);
+                    }
+                }
+            }
+            // 位置の記録を更新
+            previousPosition = transform.position;
             return; // テレポート実行中は通常の移動処理をスキップ
         }
         
@@ -216,6 +240,7 @@ public class UnitController : MonoBehaviour
             {
                 isAvoiding = false;
             }
+            previousPosition = transform.position;
             return; // 回避中は通常の追従処理をスキップ
         }
 
@@ -375,55 +400,77 @@ public class UnitController : MonoBehaviour
 
         if (targetTransform == null) return;
 
+        // 現在のテレポート間隔を計算
+        float currentTeleportInterval = teleportInterval;
+
+        // 脅威がapproachRange内にいるかどうかを確認
+        string oppositeTag = gameObject.CompareTag("Enemy") ? "Ally" : "Enemy";
+        Collider2D[] threatsInRange = Physics2D.OverlapCircleAll(currentPosition, approachRange, LayerMask.GetMask(oppositeTag));
+        if (threatsInRange.Length > 0)
+        {
+            currentTeleportInterval = teleportInterval * 3; // テレポート間隔を3倍にする
+            if (showDebugInfo) Debug.Log("脅威がapproachRange内にいるため、テレポート間隔を3倍に設定しました。");
+        }
+
+        // テレポートの実行条件
+        if (Time.time - lastTeleportTime < currentTeleportInterval)
+        {
+            return; // テレポート待ち時間中は実行しない
+        }
+
         Vector2 targetPosition = targetTransform.position;
         Vector2 directionToTarget = (targetPosition - currentPosition).normalized;
         float distanceToTarget = Vector2.Distance(currentPosition, targetPosition);
+        float teleportDistanceLimited = Mathf.Min(teleportDistance, distanceToTarget - approachRange);
+        Vector2 teleportPosition = new Vector2(); // テレポート先の位置
 
-        float teleportDistanceLimited = Mathf.Min(teleportDistance, distanceToTarget - approachRange - 0.1f);
-
+        // ターゲットがapproachRangeの範囲内にいる場合
         if (teleportDistanceLimited <= 0)
         {
-            // idleアニメーションを再生 (できたらテレポートアニメーションを再生したいところ)
-            animator.speed = 1.0f;
-            animator.Play(unit.job.ToString("D2") + "_idle");
-            // ターゲットの方向を向く
-            UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
+            // targetPositionからapproachRangeの範囲内のランダムな場所にテレポートする
+            Vector2 randomTeleportPosition = targetPosition + Random.insideUnitCircle.normalized * approachRange / 2;
+            teleportPosition = randomTeleportPosition;
+        }
+        else
+        {
+            // テレポート先の位置を計算
+            Vector2 calcPosition = currentPosition + directionToTarget * teleportDistanceLimited;
 
-            if (showDebugInfo)
+            // 今いる位置と同じでない場合は通常の位置にテレポート
+            if (calcPosition != (Vector2)transform.position)
             {
-                Debug.Log("テレポートが必要ないか、ターゲットに近すぎるため、テレポートを実行しません。");
+                teleportPosition = calcPosition;
             }
-            return;
+            else
+            {
+                // targetPositionからapproachRangeの範囲内のランダムな場所にテレポートする
+                Vector2 randomTeleportPosition = targetPosition + Random.insideUnitCircle.normalized * approachRange;
+                teleportPosition = randomTeleportPosition;
+            }
         }
 
-        Vector2 teleportPosition = currentPosition + directionToTarget * teleportDistanceLimited;
-
-        if (teleportPosition != (Vector2)transform.position)
+        // テレポート実行
+        if (teleportPosition != Vector2.zero)
         {
+            // teleportPositionをカメラ範囲内に制限
+            teleportPosition = KeepWithinCameraBounds(teleportPosition);
             transform.position = teleportPosition;
-            // idleアニメーションを再生 (できたらテレポートアニメーションを再生したいところ)
-            animator.speed = 1.0f;
-            animator.Play(unit.job.ToString("D2") + "_idle");
-            // ターゲットの方向を向く
-            UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
+            randomWalker.SetNewTargetPosition(); // ランダム移動の新しい目標地点を設定
             if (showDebugInfo)
             {
                 Debug.Log($"テレポート実行: 新しい位置：{teleportPosition} = 自分の位置：{transform.position}");
             }
         }
-        else
-        {
-            if (showDebugInfo)
-            {
-                // idleアニメーションを再生 (できたらテレポートアニメーションを再生したいところ)
-                animator.speed = 1.0f;
-                animator.Play(unit.job.ToString("D2") + "_idle");
-                // ターゲットの方向を向く
-                UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
-                Debug.Log("テレポート位置が現在位置と同じため、移動を実行しません。");
-            }
-        }
+
+        // targetの方向を向く
+        directionToTarget = (targetTransform.position - transform.position).normalized;
+        UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
+
+        // テレポート実行時間を記録
+        lastTeleportTime = Time.time;
     }
+
+
 
     /// <summary>
     /// 攻撃モードを処理します。
@@ -723,7 +770,7 @@ public class UnitController : MonoBehaviour
 
         foreach (GameObject obj in potentialTargets)
         {
-            if (obj == transform) continue; // 自分自身は除外
+            if (obj == gameObject) continue; // 自分自身は除外
 
             float distance = Vector2.Distance(transform.position, obj.transform.position);
             if (distance < closestDistance)
@@ -746,62 +793,132 @@ public class UnitController : MonoBehaviour
         {
             mainCamera = Camera.main;
         }
+
+        // カメラのビュー範囲を取得
         Vector3 minScreenBounds = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, mainCamera.transform.position.z));
         Vector3 maxScreenBounds = mainCamera.ViewportToWorldPoint(new Vector3(1, 1, mainCamera.transform.position.z));
 
-        float clampedX = Mathf.Clamp(position.x, minScreenBounds.x, maxScreenBounds.x);
-        float clampedY = Mathf.Clamp(position.y, minScreenBounds.y, maxScreenBounds.y);
+        // "ArenaLimit" レイヤーのコライダーを取得
+        LayerMask arenaLimitLayerMask = LayerMask.GetMask("ArenaLimit");
+        Collider2D arenaLimitCollider = Physics2D.OverlapCircle(position, Mathf.Infinity, arenaLimitLayerMask);
 
-        Vector2 clampedPosition = new Vector2(clampedX, clampedY);
-        
-        // Unitの回避チェックの間隔が経過していない場合は早期リターン
-        if (Time.time - lastAvoidanceCheckTime < avoidanceCheckInterval)
+        if (arenaLimitCollider != null)
         {
-            return clampedPosition; // 前回チェックしてから十分な時間が経過していない場合は回避処理を行わない
+            // "ArenaLimit" の外縁を取得
+            Bounds arenaBounds = arenaLimitCollider.bounds;
+
+            // ポジションを "ArenaLimit" 内部にクランプ
+            float clampedX = Mathf.Clamp(position.x, arenaBounds.min.x, arenaBounds.max.x);
+            float clampedY = Mathf.Clamp(position.y, arenaBounds.min.y, arenaBounds.max.y);
+
+            position = new Vector2(clampedX, clampedY);
         }
 
-        // 回避チェックを行った時間を更新
-        lastAvoidanceCheckTime = Time.time;
+        // 最終的にカメラ範囲でさらに制限をかける
+        float clampedCameraX = Mathf.Clamp(position.x, minScreenBounds.x, maxScreenBounds.x);
+        float clampedCameraY = Mathf.Clamp(position.y, minScreenBounds.y, maxScreenBounds.y);
 
-        // **障害物チェック（最優先）**
-        float checkRadius = 0.1f; // 進入不可のチェックに使用する半径
-        LayerMask obstacleLayerMask = LayerMask.GetMask("Obstacle", "ArenaLimit");
+        Vector2 clampedPosition = new Vector2(clampedCameraX, clampedCameraY);
 
-        if (Physics2D.OverlapCircle(clampedPosition, checkRadius, obstacleLayerMask))
+        // Unitの回避チェックの間隔が経過している場合はUnit回避を行う
+        if (Time.time - lastAvoidanceCheckTime >= avoidanceCheckInterval)
         {
-            // 障害物がある場合はその位置に進入を防止
-            if (showDebugInfo)
-            {
-                Debug.Log("Obstacle or ArenaLimit detected, cannot move to position: " + clampedPosition);
-            }
-            return (Vector2)transform.position; // 障害物がある場合は現在の位置を維持
-        }
+            // 回避チェックを行った時間を更新
+            lastAvoidanceCheckTime = Time.time;
 
-        // **EnemyやAllyタグを持つオブジェクトの回避**
-        float avoidRadius = 0.1f;
-        string[] tagsToAvoid = { "Enemy", "Ally" };
+            // EnemyやAllyタグを持つオブジェクトの回避**
+            float avoidRadius = 0.1f;
+            string[] tagsToAvoid = { "Enemy", "Ally" };
 
-        foreach (string tag in tagsToAvoid)
-        {
-            Collider2D[] nearbyObjects = Physics2D.OverlapCircleAll(clampedPosition, avoidRadius);
-            foreach (Collider2D col in nearbyObjects)
+            foreach (string tag in tagsToAvoid)
             {
-                if (col.gameObject != this.gameObject && col.CompareTag(tag))
+                Collider2D[] nearbyObjects = Physics2D.OverlapCircleAll(clampedPosition, avoidRadius);
+                foreach (Collider2D col in nearbyObjects)
                 {
-                    avoidanceDirection = (clampedPosition - (Vector2)col.bounds.center).normalized;
-                    isAvoiding = true; // 回避フラグを立てる
-                    if (showDebugInfo)
+                    if (col.gameObject != this.gameObject && col.CompareTag(tag))
                     {
-                        Debug.Log($"{tag}タグのオブジェクトを回避: {col.name}, 回避先: {clampedPosition + avoidanceDirection * avoidRadius}");
+                        avoidanceDirection = (clampedPosition - (Vector2)col.bounds.center).normalized;
+                        isAvoiding = true; // 回避フラグを立てる
+                        if (showDebugInfo)
+                        {
+                            Debug.Log($"{tag}タグのオブジェクトを回避: {col.name}, 回避先: {clampedPosition + avoidanceDirection * avoidRadius}");
+                        }
+                        clampedPosition = (Vector2)transform.position; // 回避のため現在の位置を維持
                     }
-                    return (Vector2)transform.position; // 回避のため現在の位置を維持
                 }
             }
         }
 
+        // 障害物と接触する場合は手前で回避を実行 (優先度が高いため最後に行う)
+        clampedPosition = AvoidObstacles(clampedPosition);
+
         return clampedPosition;
     }
 
+    /// <summary>
+    /// 障害物を回避するためのメソッドです。
+    /// </summary>
+    private Vector2 AvoidObstacles(Vector2 targetPosition)
+    {
+        float avoidDistance = movementSpeed * Time.deltaTime; // 回避する距離
+        float scanAngleStep = 10f;  // スキャンする角度のステップ (度)
+        int maxScanAngle = 90;      // スキャンする角度範囲の最大値 (±90度)
+        LayerMask obstacleLayerMask = LayerMask.GetMask("Obstacle");
+
+        // 移動先（targetPosition）が障害物にぶつかるか確認
+        Collider2D colliderAtPosition = Physics2D.OverlapCircle(targetPosition, 0.1f, obstacleLayerMask);
+
+        if (colliderAtPosition != null)
+        {
+            if (showDebugInfo) Debug.LogWarning("移動先に障害物があります。回避処理を実行します。");
+
+            // 障害物がある場合のみ回避処理を実行
+            Vector2 bestDirection = Vector2.zero;
+            float smallestAngle = float.MaxValue;
+
+            // スキャン範囲を設定（-maxScanAngleから+maxScanAngleまで）
+            for (float angle = -maxScanAngle; angle <= maxScanAngle; angle += scanAngleStep)
+            {
+                // previousDirectionを基準に角度を回転させた方向を計算
+                Vector2 calcDirection = (targetPosition - previousPosition).normalized;
+                if (previousAvoidanceDir != Vector2.zero) calcDirection = previousAvoidanceDir; // 前回の回避方向を使用
+                Vector2 scanDirection = Quaternion.Euler(0, 0, angle) * calcDirection;
+
+                // スキャン方向に障害物があるかを確認
+                Collider2D scanHit = Physics2D.OverlapPoint(previousPosition + scanDirection * avoidDistance, obstacleLayerMask);
+                if (scanHit == null)
+                {
+                    // 障害物がない場合、方向を候補として記録
+                    float angleDifference = Mathf.Abs(angle); // 中心方向との差を計算
+                    if (angleDifference < smallestAngle)
+                    {
+                        smallestAngle = angleDifference;
+                        bestDirection = scanDirection;
+                    }
+                }
+            }
+
+            // 障害物を回避する方向が見つかった場合
+            if (bestDirection != Vector2.zero)
+            {
+                previousAvoidanceDir = bestDirection; // 回避方向を記憶
+                return previousPosition + bestDirection.normalized * avoidDistance; // 最適な方向に移動
+            }
+
+            // すべての方向に障害物がある場合（例外的なケース）
+            if (showDebugInfo) Debug.LogWarning("障害物を回避できる方向が見つかりません。現在位置を維持します。");
+            return previousPosition; // 現在の位置を維持
+        }
+
+        // 障害物がない場合でも安全確認後に回避方向をリセット
+        if (previousAvoidanceDir != Vector2.zero && Physics2D.OverlapCircle(targetPosition, 0.2f, obstacleLayerMask) == null)
+        {
+            if (showDebugInfo) Debug.Log("障害物を回避しました。回避方向をリセットします。");
+            previousAvoidanceDir = Vector2.zero; // 安全を確認してからリセット
+        }
+
+        return targetPosition;
+    }
 
 
     /// <summary>

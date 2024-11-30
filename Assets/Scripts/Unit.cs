@@ -1196,7 +1196,7 @@ public class Unit : MonoBehaviour
             enableTeleport = true;
             unitController.enableTeleport = true;
             unitController.teleportDistance = Speed / 2;
-            unitController.teleportInterval = 1.5f;
+            unitController.teleportInterval = 3.0f;
         }
         else 
         {
