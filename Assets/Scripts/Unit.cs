@@ -84,6 +84,7 @@ public class Unit : MonoBehaviour
     public bool regeneAttack = false; // リジェネ攻撃を行うか
     public float regeneAmount = 0; // リジェネの効果量
     public float regeneDealTime = 0; // リジェネの効果時間
+
     [Header("--- 鉄壁 ---")]
     [SerializeField] public bool ironWall = false; // 鉄壁状態であるか
     [Header("--- 範囲持続攻撃 ---")]
@@ -141,6 +142,8 @@ public class Unit : MonoBehaviour
     [Header("///////////////")]
 
     [SerializeField] public int targetJob;
+    public bool enableEscape = false; // 逃走を行うか
+    public bool enableTeleport = false; // テレポートを行うか
     [SerializeField] public float teleportation;
     [SerializeField] public float escape;
     [SerializeField] public float attackStanceDuration;
@@ -517,6 +520,8 @@ public class Unit : MonoBehaviour
     // ステータスの更新
     public void updateStatus()
     {
+        // ユニットコントローラーを参照
+        UnitController unitController = GetComponent<UnitController>();
         // jobListからjobに対応するステータスを取得
         ItemData.JobListData jobListData = gameManager.itemData.jobList.Find(x => x.ID == job);
         if (jobListData == null)
@@ -608,6 +613,8 @@ public class Unit : MonoBehaviour
         conditionRecaveryChance = 0; // 状態異常回復の確率を初期化
         int easyTargetLv = 0; // 狙われやすさのレベルを初期化
         int targetOthersLv = 0; // 他を狙う確率のレベルを初期化
+        enableEscape = false; // 逃走を行うかを初期化
+        enableTeleport = false; // テレポートを行うかを初期化
 
         if(areaAttackPrefab != null)
         {
@@ -837,6 +844,16 @@ public class Unit : MonoBehaviour
                 if(runeName == "targetOthers")
                 {
                     targetOthersLv += runeLevel;
+                }
+                // --- 逃走 --- ルーンID名がescape又はescapeが1以上ならenableEscapeをtrue
+                if(runeName == "escape")
+                {
+                    enableEscape = true;
+                }
+                // --- テレポ --- ルーンID名がteleportation又はteleportationが1以上ならenableTeleportをtrue
+                if(runeName == "teleportation")
+                {
+                    enableTeleport = true;
                 }
             }
         }
@@ -1174,10 +1191,16 @@ public class Unit : MonoBehaviour
         ProjectileBehavior projectileBehavior = attackController.projectilePrefab.GetComponent<ProjectileBehavior>();
 
         // テレポート設定
-        if(teleportation  >= 1) 
+        if(teleportation  >= 1 || enableTeleport) 
         {
+            enableTeleport = true;
             unitController.enableTeleport = true;
-            unitController.teleportDistance = Speed;
+            unitController.teleportDistance = Speed / 2;
+            unitController.teleportInterval = 1.5f;
+        }
+        else 
+        {
+            unitController.enableTeleport = false;
         }
         // 逃走機能設定
         if(escape >= 1)
@@ -1319,6 +1342,11 @@ public class Unit : MonoBehaviour
             // attackerの逆方向にattacker.knockBack分移動する(knockBack距離分移動)
             gameObject.transform.position += new Vector3(direction.x, direction.y, 0) * attacker.knockBack;
             
+        }
+        // --- 逃走が有効の場合攻撃を受けたら逃走を開始 --- 
+        else if (enableEscape)             
+        {
+            gameObject.GetComponent<UnitController>().enableEscape = true;
         }
 
 

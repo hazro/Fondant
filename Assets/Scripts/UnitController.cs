@@ -20,13 +20,13 @@ public class UnitController : MonoBehaviour
 
     [Header("テレポート機能設定")]
     public bool enableTeleport = false; // テレポート機能の有効化（デフォルトでオフ）
-    public float teleportInterval = 10.0f; // テレポートの実行間隔（秒）
-    public float teleportDistance = 2.0f; // テレポートで移動する最大距離
+    public float teleportInterval = 1.0f; // テレポートの実行間隔（秒）
+    public float teleportDistance = 1.0f; // テレポートで移動する最大距離
 
     [Header("逃走機能設定")]
     public bool enableEscape = false; // 逃走機能の有効化（デフォルトでオフ）
     public float escapeSpeedMultiplier = 1.5f; // 逃走時の速度倍率
-    public float escapeDistanceMultiplier = 1.5f; // 逃走距離の倍率
+    public float escapeDistanceMultiplier = 2.0f; // 逃走距離の倍率
 
     [Header("ターゲット設定")]
     public bool targetSameTag = false; // 自分と同じタグを持つオブジェクトをターゲットにするかどうか
@@ -139,6 +139,29 @@ public class UnitController : MonoBehaviour
     void Update()
     {
         if (!isMoving) return; // 移動フラグが無効の場合は早期リターン
+
+        // 逃走機能が有効の場合、逃走チェックを行う
+        if (enableEscape && !isEscaping)
+        {
+            CheckAndPerformEscape(transform.position);
+        }
+        // 逃走中の場合、逃走処理を行う
+        else if (isEscaping)
+        {
+            PerformEscape(transform.position);
+            return;
+        }
+
+        // テレポート機能が有効の場合、テレポート処理を実行する
+        if (enableTeleport)
+        {
+            if (Time.time - lastTeleportTime >= teleportInterval)
+            {
+                PerformTeleport(transform.position); // テレポート処理を実行
+                lastTeleportTime = Time.time; // テレポートの実行時間を更新
+            }
+            return; // テレポート実行中は通常の移動処理をスキップ
+        }
         
         Vector2 currentPosition = transform.position;
         Vector2 newPosition;
@@ -316,6 +339,15 @@ public class UnitController : MonoBehaviour
     /// </summary>
     private void PerformEscape(Vector2 currentPosition)
     {
+        // 逃走でも歩行アニメーションを再生
+        string stateName = unit.job.ToString("D2") + "_walk";
+        if (PlayAnimatorStateIfExists(stateName))
+        {
+            animator.Play(stateName);
+        }
+        // アニメーション速度を更新
+        animator.speed = movementSpeed * escapeSpeedMultiplier;
+
         Vector2 newEscapePosition = Vector2.MoveTowards(currentPosition, escapePosition, movementSpeed * escapeSpeedMultiplier * Time.deltaTime);
 
         newEscapePosition = KeepWithinCameraBounds(newEscapePosition);
@@ -329,6 +361,8 @@ public class UnitController : MonoBehaviour
         {
             randomWalker.SetNewTargetPosition();
             isEscaping = false;
+            // 逃走が終わったら再び攻撃を受けるまで逃げないようにする
+            enableEscape = false;
         }
     }
 
@@ -345,10 +379,16 @@ public class UnitController : MonoBehaviour
         Vector2 directionToTarget = (targetPosition - currentPosition).normalized;
         float distanceToTarget = Vector2.Distance(currentPosition, targetPosition);
 
-        float teleportDistanceLimited = Mathf.Min(teleportDistance, distanceToTarget - approachRange);
+        float teleportDistanceLimited = Mathf.Min(teleportDistance, distanceToTarget - approachRange - 0.1f);
 
         if (teleportDistanceLimited <= 0)
         {
+            // idleアニメーションを再生 (できたらテレポートアニメーションを再生したいところ)
+            animator.speed = 1.0f;
+            animator.Play(unit.job.ToString("D2") + "_idle");
+            // ターゲットの方向を向く
+            UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
+
             if (showDebugInfo)
             {
                 Debug.Log("テレポートが必要ないか、ターゲットに近すぎるため、テレポートを実行しません。");
@@ -361,6 +401,11 @@ public class UnitController : MonoBehaviour
         if (teleportPosition != (Vector2)transform.position)
         {
             transform.position = teleportPosition;
+            // idleアニメーションを再生 (できたらテレポートアニメーションを再生したいところ)
+            animator.speed = 1.0f;
+            animator.Play(unit.job.ToString("D2") + "_idle");
+            // ターゲットの方向を向く
+            UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
             if (showDebugInfo)
             {
                 Debug.Log($"テレポート実行: 新しい位置：{teleportPosition} = 自分の位置：{transform.position}");
@@ -370,6 +415,11 @@ public class UnitController : MonoBehaviour
         {
             if (showDebugInfo)
             {
+                // idleアニメーションを再生 (できたらテレポートアニメーションを再生したいところ)
+                animator.speed = 1.0f;
+                animator.Play(unit.job.ToString("D2") + "_idle");
+                // ターゲットの方向を向く
+                UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
                 Debug.Log("テレポート位置が現在位置と同じため、移動を実行しません。");
             }
         }
@@ -763,6 +813,7 @@ public class UnitController : MonoBehaviour
         float smoothingFactor = 0.1f; // スムージングの度合いを調整する係数
         Vector2 smoothedDirection = Vector2.Lerp(previousDirection, direction, smoothingFactor).normalized;
         previousDirection = smoothedDirection; // 次のフレームのために現在の方向を記憶
+        if(isEscaping || enableTeleport) smoothedDirection = direction; // 逃走中はスムージングを無効にする
 
         // 左向きかどうかを判定してFlipXを設定
         unitSprite.flipX = smoothedDirection.x < 0;
