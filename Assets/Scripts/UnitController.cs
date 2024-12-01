@@ -23,6 +23,8 @@ public class UnitController : MonoBehaviour
     public bool enableTeleport = false; // テレポート機能の有効化（デフォルトでオフ）
     public float teleportInterval = 1.0f; // テレポートの実行間隔（秒）
     public float teleportDistance = 1.0f; // テレポートで移動する最大距離
+    [SerializeField] private float currentTeleportInterval; // 現在のテレポート間隔
+    [SerializeField] private float nexTimeToTeleport; // 次にテレポートする時間
 
     [Header("逃走機能設定")]
     public bool enableEscape = false; // 逃走機能の有効化（デフォルトでオフ）
@@ -168,7 +170,20 @@ public class UnitController : MonoBehaviour
                 Vector2 targetDirection = (targetTransform.position - transform.position).normalized;
                 UpdateSpriteBasedOnDirection(targetDirection, unitSprite);
 
-                if (Time.time - lastTeleportTime >= teleportInterval)
+                // 脅威がapproachRange内+0.1fにいるかどうかを確認し、いる場合は待ち時間を3倍にする
+                float distanceToTarget = Vector2.Distance(transform.position, targetTransform.position);
+                if (distanceToTarget <= approachRange + 0.1f )
+                {
+                    currentTeleportInterval = teleportInterval * 4; // テレポート間隔を4倍にする
+                }
+                else
+                {
+                    currentTeleportInterval = teleportInterval; // テレポート間隔を元に戻す
+                }
+
+                // 待ち時間が経過している場合、テレポート処理を実行
+                nexTimeToTeleport = Time.time - lastTeleportTime;
+                if (nexTimeToTeleport >= currentTeleportInterval)
                 {
                     StartCoroutine(PerformTeleport(transform.position)); // テレポート処理を実行
                     lastTeleportTime = Time.time; // テレポートの実行時間を更新
@@ -404,44 +419,33 @@ public class UnitController : MonoBehaviour
 
         if (targetTransform == null) yield break;
 
-        // 現在のテレポート間隔を計算
-        float currentTeleportInterval = teleportInterval;
-
-        // 脅威がapproachRange内にいるかどうかを確認
-        string oppositeTag = gameObject.CompareTag("Enemy") ? "Ally" : "Enemy";
-        Collider2D[] threatsInRange = Physics2D.OverlapCircleAll(currentPosition, approachRange, LayerMask.GetMask(oppositeTag));
-        if (threatsInRange.Length > 0)
-        {
-            currentTeleportInterval = teleportInterval * 3; // テレポート間隔を3倍にする
-            if (showDebugInfo) Debug.Log("脅威がapproachRange内にいるため、テレポート間隔を3倍に設定しました。");
-        }
-
-        // テレポートの実行条件
-        if (Time.time - lastTeleportTime < currentTeleportInterval)
-        {
-            yield break; // テレポート待ち時間中は実行しない
-        }
-
         Vector2 targetPosition = targetTransform.position;
         Vector2 directionToTarget = (targetPosition - currentPosition).normalized;
         float distanceToTarget = Vector2.Distance(currentPosition, targetPosition);
         float teleportDistanceLimited = Mathf.Min(teleportDistance, distanceToTarget - approachRange);
+
         Vector2 teleportPosition = new Vector2(); // テレポート先の位置
 
         // ターゲットがapproachRangeの範囲内にいる場合
         if (teleportDistanceLimited <= 0)
         {
             // targetPositionからapproachRangeの範囲内のランダムな場所にテレポートする
-            Vector2 randomTeleportPosition = targetPosition + Random.insideUnitCircle.normalized * approachRange / 2;
+            Vector2 randomTeleportPosition = targetPosition + Random.insideUnitCircle.normalized * approachRange / 1.5f;
             teleportPosition = randomTeleportPosition;
+            teleportPosition = KeepWithinCameraBounds(teleportPosition);
         }
         else
         {
             // テレポート先の位置を計算
             Vector2 calcPosition = currentPosition + directionToTarget * teleportDistanceLimited;
+            calcPosition = KeepWithinCameraBounds(calcPosition);
+            // 小数点2桁以下を切り捨てる
+            calcPosition = new Vector2(Mathf.Floor(calcPosition.x * 100) / 100, Mathf.Floor(calcPosition.y * 100) / 100);
+            currentPosition = new Vector2(Mathf.Floor(currentPosition.x * 100) / 100, Mathf.Floor(currentPosition.y * 100) / 100);
 
-            // 今いる位置と同じでない場合は通常の位置にテレポート
-            if (calcPosition != (Vector2)transform.position)
+
+            // 今いる位置と同じでない場合は通常の位置にテレポート(小数点2桁以下の誤差は同じ位置とみなす)
+            if (calcPosition != currentPosition)
             {
                 teleportPosition = calcPosition;
             }
@@ -450,17 +454,17 @@ public class UnitController : MonoBehaviour
                 // targetPositionからapproachRangeの範囲内のランダムな場所にテレポートする
                 Vector2 randomTeleportPosition = targetPosition + Random.insideUnitCircle.normalized * approachRange;
                 teleportPosition = randomTeleportPosition;
+                teleportPosition = KeepWithinCameraBounds(teleportPosition);
             }
         }
 
         float effectTime = 0.5f; // テレポートエフェクトの再生時間
         // テレポート実行
+
         if (teleportPosition != Vector2.zero)
         {
             // テレポート開始エフェクトを再生し完了まで待つ
             yield return StartCoroutine(TeleportEffect(effectTime, 1));
-            // teleportPositionをカメラ範囲内に制限
-            teleportPosition = KeepWithinCameraBounds(teleportPosition);
             transform.position = teleportPosition;
             randomWalker.SetNewTargetPosition(); // ランダム移動の新しい目標地点を設定
             if (showDebugInfo)
@@ -474,9 +478,6 @@ public class UnitController : MonoBehaviour
         UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
 
         yield return TeleportEffect(effectTime, 2); // テレポート出現エフェクトを再生
-
-        // テレポート実行時間を記録(エフェクトにかかる時間を削る)
-        lastTeleportTime = Time.time - effectTime * 2;
     }
 
     /// <summary>
