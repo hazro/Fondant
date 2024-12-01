@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 /// <summary>
 /// ユニットをランダムな目標地点に向かって移動させ、目標地点に到達したら新しい目標地点を設定します。
@@ -162,28 +163,31 @@ public class UnitController : MonoBehaviour
             // 一番近い位置にいるターゲットを選択
             SetClosestTarget();
             // ターゲットの方向を向く
-            Vector2 targetDirection = (targetTransform.position - transform.position).normalized;
-            UpdateSpriteBasedOnDirection(targetDirection, unitSprite);
+            if (targetTransform != null)
+            {
+                Vector2 targetDirection = (targetTransform.position - transform.position).normalized;
+                UpdateSpriteBasedOnDirection(targetDirection, unitSprite);
 
-            if (Time.time - lastTeleportTime >= teleportInterval)
-            {
-                PerformTeleport(transform.position); // テレポート処理を実行
-                lastTeleportTime = Time.time; // テレポートの実行時間を更新
-            }
-            // テレポート後、またはテレポートが必要ない場合は通常の攻撃ロジックを継続
-            else
-            {
-                // 通常攻撃のためにアタックコントローラーへターゲットを設定
-                if (targetTransform != null && Vector2.Distance(transform.position, targetTransform.position) <= approachRange)
+                if (Time.time - lastTeleportTime >= teleportInterval)
                 {
-                    if (attackController != null)
+                    StartCoroutine(PerformTeleport(transform.position)); // テレポート処理を実行
+                    lastTeleportTime = Time.time; // テレポートの実行時間を更新
+                }
+                // テレポート後、またはテレポートが必要ない場合は通常の攻撃ロジックを継続
+                else
+                {
+                    // 通常攻撃のためにアタックコントローラーへターゲットを設定
+                    if (targetTransform != null && Vector2.Distance(transform.position, targetTransform.position) <= approachRange)
                     {
-                        attackController.SetTargetObject(targetTransform);
+                        if (attackController != null)
+                        {
+                            attackController.SetTargetObject(targetTransform);
+                        }
                     }
                 }
+                // 位置の記録を更新
+                previousPosition = transform.position;
             }
-            // 位置の記録を更新
-            previousPosition = transform.position;
             return; // テレポート実行中は通常の移動処理をスキップ
         }
         
@@ -394,11 +398,11 @@ public class UnitController : MonoBehaviour
     /// <summary>
     /// テレポート機能を実行します。
     /// </summary>
-    private void PerformTeleport(Vector2 currentPosition)
+    private IEnumerator PerformTeleport(Vector2 currentPosition)
     {
-        if (inAttackStance) return;
+        if (inAttackStance) yield break;
 
-        if (targetTransform == null) return;
+        if (targetTransform == null) yield break;
 
         // 現在のテレポート間隔を計算
         float currentTeleportInterval = teleportInterval;
@@ -415,7 +419,7 @@ public class UnitController : MonoBehaviour
         // テレポートの実行条件
         if (Time.time - lastTeleportTime < currentTeleportInterval)
         {
-            return; // テレポート待ち時間中は実行しない
+            yield break; // テレポート待ち時間中は実行しない
         }
 
         Vector2 targetPosition = targetTransform.position;
@@ -449,9 +453,12 @@ public class UnitController : MonoBehaviour
             }
         }
 
+        float effectTime = 0.5f; // テレポートエフェクトの再生時間
         // テレポート実行
         if (teleportPosition != Vector2.zero)
         {
+            // テレポート開始エフェクトを再生し完了まで待つ
+            yield return StartCoroutine(TeleportEffect(effectTime, 1));
             // teleportPositionをカメラ範囲内に制限
             teleportPosition = KeepWithinCameraBounds(teleportPosition);
             transform.position = teleportPosition;
@@ -466,11 +473,68 @@ public class UnitController : MonoBehaviour
         directionToTarget = (targetTransform.position - transform.position).normalized;
         UpdateSpriteBasedOnDirection(directionToTarget, unitSprite);
 
-        // テレポート実行時間を記録
-        lastTeleportTime = Time.time;
+        yield return TeleportEffect(effectTime, 2); // テレポート出現エフェクトを再生
+
+        // テレポート実行時間を記録(エフェクトにかかる時間を削る)
+        lastTeleportTime = Time.time - effectTime * 2;
     }
 
+    /// <summary>
+    /// テレポートエフェクトを再生します。
+    /// </summary>
+    private IEnumerator TeleportEffect(float duration, int effectType)
+    {
+        // テレポートエフェクトを再生 コールーチンでマテリアルのパラメータを変更する 引数(変更にかかる秒数, テレポートエフェクトの種類)
+        yield return StartCoroutine(TeleportEffectCoroutine(duration, effectType));
+    }
 
+    /// <summary>
+    /// テレポートエフェクトを再生するコルーチンです。
+    /// </summary>
+    private IEnumerator TeleportEffectCoroutine(float duration, int effectType)
+    {
+        unitSprite.material.SetFloat("_isTeleport", 1.0f);
+
+        // 経過時間を管理する変数
+        float elapsedTime = 0.0f;
+
+        while (elapsedTime < duration)
+        {
+            // 経過時間に基づいて進行度を計算
+            float t = elapsedTime / duration;
+
+            // マテリアルのパラメータを更新
+            switch (effectType)
+            {
+                case 1:
+                    // テレポート開始の処理
+                    unitSprite.material.SetFloat("_tOut", t);
+                    unitSprite.material.SetColor("_HardlightColor", new Color(0.5f - t * 2, 0.5f + t * 1.5f, 1.0f + t * 2, 1.0f));
+                    break;
+
+                case 2:
+                    // テレポート出現の処理
+                    float reversedT = 1.0f - t; // tを反転
+                    unitSprite.material.SetFloat("_tOut", reversedT);
+                    unitSprite.material.SetColor("_HardlightColor", new Color(0.5f - reversedT * 2, 0.5f + reversedT * 1.5f, 1.0f + reversedT * 2, 1.0f));
+                    break;
+
+                default:
+                    unitSprite.material.SetFloat("_tOut", t);
+                    break;
+            }
+
+            // 次のフレームまで待機
+            yield return null;
+
+            // 経過時間を更新
+            elapsedTime += Time.deltaTime;
+        }
+
+        // 最終状態を設定
+        unitSprite.material.SetFloat("_isTeleport", 0.0f);
+        unitSprite.material.SetColor("_HardlightColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));
+    }
 
     /// <summary>
     /// 攻撃モードを処理します。

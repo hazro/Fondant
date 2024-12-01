@@ -194,6 +194,7 @@ MonoBehaviour:
   Speed: 3.5
   attackUnitThrough: 0
   attackObjectThrough: 0
+  easilyTargeted: 50
   attackRange: 0
   attackSize: 1
   knockBack: 0
@@ -210,6 +211,8 @@ MonoBehaviour:
   lastHitTime: 0
   spreadCount: 0
   spreadDamage: 0
+  conditionRecavery: 0
+  conditionRecaveryChance: 0
   conditionChance: 0
   poisonAttack: 0
   poisonAmount: 0
@@ -230,12 +233,23 @@ MonoBehaviour:
   regeneAttack: 0
   regeneAmount: 0
   regeneDealTime: 0
+  ironWall: 0
+  areaAttack: 0
+  areaAttackDamage: 0
+  areaAttackPrefab: {fileID: 0}
+  areaDistance: 0.6
+  areaSlow: 0
+  areaSlowAmount: 0
+  areaSlowPrefab: {fileID: 0}
+  areaSlowDistance: 0.6
   poisonTime: 0
   poisonDamage: 0
   poisonCount: 0
+  poisonAttacker: {fileID: 0}
   bleedTime: 0
   bleedDamage: 0
   bleedCount: 0
+  bleedAttacker: {fileID: 0}
   stunTime: 0
   previousStunCondition: 0
   paralysisTime: 0
@@ -247,7 +261,13 @@ MonoBehaviour:
   bloodDamage: 0
   regeneTime: 0
   regeneDamage: 0
+  regeneAttacker: {fileID: 0}
+  slowTime: 0
+  beforeMoveSpeed: 0
+  beforeAttackDelay: 0
   targetJob: 0
+  enableEscape: 0
+  enableTeleport: 0
   teleportation: 0
   escape: 0
   attackStanceDuration: 0
@@ -352,11 +372,13 @@ MonoBehaviour:
   escapeDistanceMultiplier: 1.5
   targetSameTag: 0
   targetSameTagWpn: 0
+  targetAnomalyFirst: 0
   targetLowHpFirst: 0
   movementSpeed: 1
   followRange: 7
   approachRange: 0.75
   followWeight: 100
+  previousAvoidanceDir: {x: 0, y: 0}
   enableAttackStance: 0
   attackStanceDuration: 10
   attackDelay: 5
@@ -381,6 +403,7 @@ MonoBehaviour:
   enableEqpSkill: 1
   autoUpdateDirection: 1
   damageZero: 0
+  iventrySkillList: []
   shoot2Directions: 0
   shoot3Directions: 0
   shoot4Directions: 0
@@ -402,11 +425,17 @@ MonoBehaviour:
   scaleUpBlow: 0
   chainAttack: 0
   spread: 0
+  counter: 0
+  counterLv: 0
+  reflection: 0
+  reflectionLv: 0
+  targetAnomaly: 0
   weaponPrefab: {fileID: 0}
   projectilePrefab: {fileID: 161314978451838978, guid: 9fcf9475d63983f488dfd7207bd95490, type: 3}
   targetObject: {fileID: 0}
   direction: {x: 0, y: 0}
   lastAttackStopTime: 0
+  adjustedDelay: 0
   wasShootingEnabled: 0
 --- !u!114 &-5463274648488806919
 MonoBehaviour:
