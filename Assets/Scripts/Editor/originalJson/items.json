@@ -342,7 +342,8 @@
       "ability": "Release magical energy to attack.",
       "world": 1,
       "price": 50,
-      "socketCount": 3,
+      "socketCount": 4,
+      "fixSubRune": 4130321,
       "magicalAttackPower": 5,
       "attackRange": 2.5
     },
@@ -363,7 +364,9 @@
       "ability": "Release the magical energy of recovery.",
       "world": 1,
       "price": 50,
-      "socketCount": 3,
+      "socketCount": 5,
+      "fixMainRune": 4110032,
+      "fixSubRune": 4120061,
       "magicalAttackPower": 3,
       "attackRange": 2,
       "equipable": 100
@@ -1265,6 +1268,7 @@
     {
       "ID": 413036,
       "name": "teleportation",
+      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "Granted teleportation movement"
@@ -1272,6 +1276,7 @@
     {
       "ID": 413037,
       "name": "escape",
+      "world": 1,
       "price": 30,
       "maxLevel": 1,
       "ability": "If attacked, run away."
