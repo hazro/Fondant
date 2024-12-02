@@ -301,6 +301,8 @@ public class AttackController : MonoBehaviour
     /// <returns>コルーチン</returns>
     private IEnumerator ShootProjectile(int weapomAmplitude)
     {
+        bool isFirstShot = true; // 初回攻撃フラグ
+
         float maxDelay = 10.0f;  // 最大ディレイ
         float minDelay = 0.1f;   // 最小ディレイ
         float offset = 3.0f;     // オフセット値
@@ -386,35 +388,32 @@ public class AttackController : MonoBehaviour
             float delayRandomRange = delayRandom ? 3.0f : 0.0f; // delayRandomの場合は3.0f、それ以外は0.0f
             adjustedDelay = delayShots + Random.Range(-delayRandomRange / 2f, delayRandomRange / 2f); // ディレイを設定攻撃再開までのディレイ時間にも使用
 
-            // プレイヤーの場合はクールダウン表示をリセット
-            if (gameObject.tag == "Ally")
+            // 初回ではない場合にのみディレイを適用
+            if (!isFirstShot)
             {
-                Image attackCooldownImage = gameManager.IventryUI.wpnDelayImage[unit.ID -1];
-
-                // クールダウン表示用の初期化
-                if (attackCooldownImage != null)
+                // プレイヤーの場合はクールダウン表示をリセット
+                if (gameObject.tag == "Ally")
                 {
+                    Image attackCooldownImage = gameManager.IventryUI.wpnDelayImage[unit.ID - 1];
                     attackElapsedTime = 0f;
                     attackCooldownImage.fillAmount = 0f; // リセット
-                }
 
-                // 待機時間の経過をFillAmountで表示
-                while (attackElapsedTime < adjustedDelay)
-                {
-                    attackElapsedTime += Time.deltaTime;
-
-                    // FillAmountを更新
-                    if (attackCooldownImage != null)
+                    // 待機時間の経過をFillAmountで表示
+                    while (attackElapsedTime < adjustedDelay)
                     {
+                        attackElapsedTime += Time.deltaTime;
                         attackCooldownImage.fillAmount = Mathf.Clamp01(attackElapsedTime / adjustedDelay);
+                        yield return null; // 次のフレームまで待機
                     }
-
-                    yield return null; // 次のフレームまで待機
+                }
+                else
+                {
+                    yield return new WaitForSeconds(adjustedDelay); // ディレイ時間を待機
                 }
             }
             else
             {
-                yield return new WaitForSeconds(adjustedDelay); // ディレイ時間を待機
+                isFirstShot = false; // 初回攻撃を終了
             }
 
             /////////////////////////////////////////////////////////////////////////
