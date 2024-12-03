@@ -249,40 +249,40 @@ public class IventryUI : MonoBehaviour
         GameObject accsseImage = Resources.Load<GameObject>("Prefabs/Equipment/" + unit.currentAccessories.ToString("D6"));
         
         string mainSoketId = "411000";
-        if(unit.mainSocket != 0) mainSoketId = unit.mainSocket.ToString("D6");
+        if(unit.mainSocket != 0) mainSoketId = (unit.mainSocket / 10).ToString("D6");
         GameObject mainSockettImage = Resources.Load<GameObject>("Prefabs/Runes/" + mainSoketId);
         string subSocketId = "412000";
-        if (unit.subSocket[0] != 0) subSocketId = unit.subSocket[0].ToString("D6");
+        if (unit.subSocket[0] != 0) subSocketId = (unit.subSocket[0] / 10).ToString("D6");
         GameObject socket01Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[1] != 0) subSocketId = unit.subSocket[1].ToString("D6");
+        if (unit.subSocket[1] != 0) subSocketId = (unit.subSocket[1] / 10).ToString("D6");
         GameObject socket02Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[2] != 0) subSocketId = unit.subSocket[2].ToString("D6");
+        if (unit.subSocket[2] != 0) subSocketId = (unit.subSocket[2] / 10).ToString("D6");
         GameObject socket03Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[3] != 0) subSocketId = unit.subSocket[3].ToString("D6");
+        if (unit.subSocket[3] != 0) subSocketId = (unit.subSocket[3] / 10).ToString("D6");
         GameObject socket04Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[4] != 0) subSocketId = unit.subSocket[4].ToString("D6");
+        if (unit.subSocket[4] != 0) subSocketId = (unit.subSocket[4] / 10).ToString("D6");
         GameObject socket05Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[5] != 0) subSocketId = unit.subSocket[5].ToString("D6");
+        if (unit.subSocket[5] != 0) subSocketId = (unit.subSocket[5] / 10).ToString("D6");
         GameObject socket06Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[6] != 0) subSocketId = unit.subSocket[6].ToString("D6");
+        if (unit.subSocket[6] != 0) subSocketId = (unit.subSocket[6] / 10).ToString("D6");
         GameObject socket07Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[7] != 0) subSocketId = unit.subSocket[7].ToString("D6");
+        if (unit.subSocket[7] != 0) subSocketId = (unit.subSocket[7] / 10).ToString("D6");
         GameObject socket08Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[8] != 0) subSocketId = unit.subSocket[8].ToString("D6");
+        if (unit.subSocket[8] != 0) subSocketId = (unit.subSocket[8] / 10).ToString("D6");
         GameObject socket09Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[9] != 0) subSocketId = unit.subSocket[9].ToString("D6");
+        if (unit.subSocket[9] != 0) subSocketId = (unit.subSocket[9] / 10).ToString("D6");
         GameObject socket10Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
         subSocketId = "412000";
-        if (unit.subSocket[10] != 0) subSocketId = unit.subSocket[10].ToString("D6");
+        if (unit.subSocket[10] != 0) subSocketId = (unit.subSocket[10] / 10).ToString("D6");
         GameObject socket11Image = Resources.Load<GameObject>("Prefabs/Runes/" + subSocketId);
 
         // IventrySkillList[0]の子オブジェクトのTextMeshProコンポーネントを取得
@@ -502,7 +502,7 @@ public class IventryUI : MonoBehaviour
                                     int runeLevel = item.runeLevel;
                                     Debug.Log("subSocket = " + unit.subSocket[i] + " itemName = " + item.gameObject.GetComponent<Image>().sprite + " runeLevel = " + runeLevel);
                                     // IDを10倍してruneLevelを足してdiffRuneListに追加
-                                    diffRuneList.Add(unit.subSocket[i] * 10 + runeLevel);
+                                    diffRuneList.Add(unit.subSocket[i] / 10 + runeLevel);
                                 }
                             }
                             // イベントリにdiffRuneList.Count以上空きがあるか確認し、空きがなければエラーログを出力して終了
@@ -571,7 +571,7 @@ public class IventryUI : MonoBehaviour
                     else if(iventryItemID[0] == '4' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '4' && skillItemID[1] == '1' && skillItemID[2] == '1')
                     {
                         print("メインルーンを入れ替えます");
-                        unit.mainSocket = int.Parse(skillItemID);
+                        unit.mainSocket = int.Parse(skillItemID) * 10 + skillItemLv;
                         
                     }
                     // 名前の0番目が4かつ1番目が1で2番目が1でなければサブルーン、image.nameがsubSocket0~11ならばサブルーン
@@ -586,7 +586,7 @@ public class IventryUI : MonoBehaviour
                         print ("socketName = " + socketName);
                         // どのサブルーンを入れ替えるかを取得
                         int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
-                        unit.subSocket[socketId] = int.Parse(skillItemID);
+                        unit.subSocket[socketId] = int.Parse(skillItemID) * 10 + skillItemLv;
                     }
                     // SkillからIventryに移動した場合、移動元のアイテムIDが0(空)なら装備を外す
                     else if(skillItemID[0] == '0')
