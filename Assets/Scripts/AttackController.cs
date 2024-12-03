@@ -319,28 +319,9 @@ public class AttackController : MonoBehaviour
                 // UnitのmainSocketとsubSocketに装備しているルーンのIDをすべて取得し配列に格納
                 List<int> eqpRuneIDs = new List<int>();
                 // mainSocketに装備しているルーンのレベルを取得
-                /*
-                int rlv = 0;
-                if(gameObject.CompareTag("Ally"))
-                {
-                    rlv = iventrySkillList[6].GetComponent<ItemDandDHandler>().runeLevel;
-                }
-                eqpRuneIDs.Add(unit.mainSocket / 10 + rlv);
-                */
                 eqpRuneIDs.Add(unit.mainSocket);
                 for (int i = 0; i < unit.subSocket.Length; i++)
                 {
-                    /*
-                    if(gameObject.CompareTag("Ally"))
-                    {
-                        rlv = iventrySkillList[7 + i].GetComponent<ItemDandDHandler>().runeLevel;
-                    }
-                    else
-                    {
-                        rlv = 0;
-                    }
-                    eqpRuneIDs.Add(unit.subSocket[i] / 10  + rlv);
-                    */
                     eqpRuneIDs.Add(unit.subSocket[i]);
                 }
                 // IDに該当するルーンのnameを取得
