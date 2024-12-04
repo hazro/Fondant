@@ -341,9 +341,9 @@
       "name": "fairy staff",
       "ability": "Release magical energy to attack.",
       "world": 1,
-      "price": 50,
+      "price": 80,
       "socketCount": 4,
-      "fixSubRune": 4130321,
+      "fixSubRune1": 4130321,
       "magicalAttackPower": 5,
       "attackRange": 2.5
     },
@@ -363,10 +363,10 @@
       "name": "spirit wand",
       "ability": "Release the magical energy of recovery.",
       "world": 1,
-      "price": 50,
+      "price": 80,
       "socketCount": 5,
       "fixMainRune": 4110032,
-      "fixSubRune": 4120061,
+      "fixSubRune1": 4120061,
       "magicalAttackPower": 3,
       "attackRange": 2,
       "equipable": 100
@@ -379,6 +379,16 @@
       "price": 50,
       "socketCount": 3,
       "physicalAttackPower": 1,
+      "attackRange": 2.5
+    },
+    {
+      "ID": 116002,
+      "name": "elven bow",
+      "ability": "Shooting bows and arrows from a distance",
+      "world": 1,
+      "price": 80,
+      "socketCount": 5,
+      "physicalAttackPower": 2,
       "attackRange": 2.5
     }
   ],

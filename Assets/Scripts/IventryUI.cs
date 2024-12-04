@@ -121,6 +121,7 @@ public class IventryUI : MonoBehaviour
             runeLevel = itemID % 10;
             itemID /= 10;
         }
+        //Debug.Log("AddItemメソッド内、イベントリに入る itemID = " + itemID + " runeLevel = " + runeLevel);
         for (int i = 0; i < IventryItem.Length; i++)
         {
             if (IventryItem[i] == 0)
@@ -411,300 +412,369 @@ public class IventryUI : MonoBehaviour
     }
 
     // 装備を変更するメソッド(ItemDandDHandlerから呼び出される)
-    public void changeEquipment(Transform[] targetSkillList, string iventryItemID, string skillItemID ,string socketName, GameObject originalObj, GameObject targetObj, int skillItemLv, int iventryItemLv)
+    public void changeEquipment(GameObject targetCharNameObj, string iventryItemID, string skillItemID ,string socketName, GameObject originalObj, GameObject targetObj, int skillItemLv, int iventryItemLv)
     {
-        // unit名を取得  
-        string unitName = targetSkillList[0].gameObject.GetComponentInChildren<TextMeshProUGUI>().text;
-        // unit名の0番目が1ならPlayer01、2ならPlayer02、3ならPlayer03、4ならPlayer04、5ならPlayer05
-        unitName = "P" + unitName[1];
+        // GameManagerがアクティブでない場合は処理を終了
+        if (gameManager == null)
+        {
+            Debug.LogError("gameManager is null");
+            return;
+        }
+
+        // IventrySkillListいくつに該当するかを取得
+        List<GameObject> iventrySkillList = new List<GameObject>();
+        Unit unit = null;
+        // 事前にリストを用意
+        List<List<GameObject>> IventrySkillLists = new List<List<GameObject>>{IventrySkillList1,IventrySkillList2,IventrySkillList3,IventrySkillList4,IventrySkillList5};
+        // 該当unitと該当skillListを取得
+        for(int i = 0; i < IventrySkillLists.Count; i++)
+        {
+            if (IventrySkillLists[i][0] == targetCharNameObj)
+            {
+                iventrySkillList = IventrySkillLists[i];
+                unit = gameManager.livingUnits[i].GetComponent<Unit>();
+                break;
+            }
+        }
+        Debug.Log(" unitName = " + unit.unitName);
         Debug.Log("iventryItemID = " + iventryItemID + " skillItemID = " + skillItemID);
-        Debug.Log("originalObj = " + originalObj.name + " targetObj = " + targetObj.name);
+        Debug.Log("originalObj = " + originalObj.name);
         Debug.Log("skillItemLv = " + skillItemLv + " iventryItemLv = " + iventryItemLv);
 
-        // GameManagerがアクティブでない場合は処理を終了
-        if (gameManager != null && gameManager.livingUnits != null)
+        if(iventryItemID[0] == '1' && skillItemID[0] == '1')
         {
-            foreach (GameObject unitObj in gameManager.livingUnits)
-            {
-                Unit unit = unitObj.GetComponent<Unit>();
-                if (unit.unitName == unitName)
+            bool isShildTakeOff = false; // 両手持ちの為に盾を外すか
+            bool isFixSubRuneTakeOff = false; // 固定ルーンによるソケット差分の固定サブルーンを外すか
+            int removeSubRuneCount = 0; // 外れるサブルーンの数
+            bool isFixMainRuneTakeOff = false; // 固定ルーンによるソケット差分の固定メインルーンを外すか
+            int removeMainRuneCount = 0; // 外れるメインルーンの数
+            bool isSubRuneTakeOff = false; // ソケット差分のサブルーンを外すか
+            List<int> diffRuneList = new List<int>();
+            int removeItemCount = 0; // 外れる装備の総数
+            int eqpWpnMainCount = 0; // 装備中の武器の固定メインルーンの数
+            int eqpWpnSubCount = 0; // 装備中の武器の固定サブルーンの数
+
+            print("武器を入れ替えます");
+            // skillItemID[2]が1又は3又は4又は6ならば両手持ち武器なので、盾を装備していたら外してイベントリに追加する
+            if (skillItemID[2] == '1' || skillItemID[2] == '3' || skillItemID[2] == '4' || skillItemID[2] == '6')
+            {   
+                // 盾を装備している場合
+                if (unit.currentShields != 0)
                 {
-                    if(iventryItemID[0] == '1' && skillItemID[0] == '1')
-                    {
-                        bool isShildTakeOff = false; // 両手持ちの為に盾を外すか
-                        bool isSubRuneTakeOff = false; // ソケット差分のサブルーンを外すか
-                        List<int> diffRuneList = new List<int>();
-
-                        print("武器を入れ替えます");
-                        // skillItemID[2]が1又は3又は4又は6ならば両手持ち武器なので、盾を装備していたら外してイベントリに追加する
-                        if (skillItemID[2] == '1' || skillItemID[2] == '3' || skillItemID[2] == '4' || skillItemID[2] == '6')
-                        {   
-                            // 盾を装備している場合
-                            if (unit.currentShields != 0)
-                            {
-                                // イベントリに空きがあるか確認し、空きがなければエラーログを出力して終了
-                                if (Array.IndexOf(IventryItem, 0) == -1)
-                                {
-                                    // エラーSEを再生
-                                    AkSoundEngine.PostEvent("ST_Error", gameObject);
-
-                                    infoPanelText.text = "Tried to remove the shield because it was a two-handed weapon \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
-                                    infoPanel.SetActive(true);
-                                    OKButton.gameObject.SetActive(true);
-                                    cancelButton.gameObject.SetActive(false);
-                                    // OKボタンを押したらinfoPanel.SetActive(false)にする;
-                                    OKButton.onClick.AddListener(() => infoPanel.SetActive(false));
-                                    return;
-                                }
-
-                                // イベントリに空きがあれば盾をイベントリに追加フラグを立てる
-                                isShildTakeOff = true;
-                            }
-                        }
-                        // 元の武器のソケット数を取得 gameManager.itemData.wpnListのIDがunit.currentWeaponsのものからsocketCountを取得
-                        int originalSocketCount = gameManager.itemData.wpnList.Find(x => x.ID == unit.currentWeapons).socketCount;
-                        // 新しい武器のソケット数を取得 gameManager.itemData.wpnListのIDがint.Parse(skillItemID)のものからsocketCountを取得
-                        int newSocketCount = gameManager.itemData.wpnList.Find(x => x.ID == int.Parse(skillItemID)).socketCount;
-
-                        List<GameObject> IventrySkillList = null;
-                        // unit.IDから該当するiventrySkillListを取得
-                        switch (unit.ID)
-                        {
-                            case 1:
-                                IventrySkillList = IventrySkillList1;
-                                break;
-                            case 2:
-                                IventrySkillList = IventrySkillList2;
-                                break;
-                            case 3:
-                                IventrySkillList = IventrySkillList3;
-                                break;
-                            case 4:
-                                IventrySkillList = IventrySkillList4;
-                                break;
-                            case 5:
-                                IventrySkillList = IventrySkillList5;
-                                break;
-                            default:
-                                Debug.LogError("unitID is invalid");
-                                return;
-                        }
-
-                        // 元ソケットの方が多かった場合、ソケット数が減る分差分のサブルーンを外す
-                        if (originalSocketCount > newSocketCount)
-                        {
-                            // 差分のソケットに入っているサブルーンを取得(idが0なら空)
-                            for (int i = newSocketCount - 1; i < originalSocketCount - 1; i++)
-                            {
-                                if(unit.subSocket[i] != 0)
-                                {
-                                    ItemDandDHandler item = IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>();
-                                    int runeLevel = item.runeLevel;
-                                    Debug.Log("subSocket = " + unit.subSocket[i] + " itemName = " + item.gameObject.GetComponent<Image>().sprite + " runeLevel = " + runeLevel);
-                                    // IDを10倍してruneLevelを足してdiffRuneListに追加
-                                    diffRuneList.Add(unit.subSocket[i] / 10 + runeLevel);
-                                }
-                            }
-                            // イベントリにdiffRuneList.Count以上空きがあるか確認し、空きがなければエラーログを出力して終了
-                            if (CountEmptySlots() < diffRuneList.Count)
-                            {
-                                // エラーSEを再生
-                                AkSoundEngine.PostEvent("ST_Error", gameObject);
-
-                                infoPanelText.text = "Tried to remove the subrune because the number of sockets decreased \n <color=red> <b> Canceled </b> </color> because there was <color=yellow> no room in the eventry.</color>";
-                                infoPanel.SetActive(true);
-                                OKButton.gameObject.SetActive(true);
-                                cancelButton.gameObject.SetActive(false);
-                                // OKボタンを押したらinfoPanel.SetActive(false)にする;
-                                OKButton.onClick.AddListener(() => infoPanel.SetActive(false));
-                                return;
-                            }
-                            else if (diffRuneList.Count > 0)
-                            {
-                                isSubRuneTakeOff = true;
-                            }
-                        }
-
-                        // シールドを装備から外してイベントリに追加する
-                        if (isShildTakeOff)
-                        {
-                            AddItem(unit.currentShields);
-                            unit.currentShields = 0;
-                        }
-                        // サブルーンの差分ソケット分を外してイベントリに追加する
-                        if (isSubRuneTakeOff)
-                        {
-                            foreach (int runeID in diffRuneList)
-                            {
-                                AddItem(runeID);
-                            }
-                            for (int i = newSocketCount - 1; i < originalSocketCount - 1; i++)
-                            {
-                                unit.subSocket[i] = 0;
-                                IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
-                            }
-                        }
-                        
-                        
-                        // アイテムIDをunitのcurrentWeaponsに設定
-                        unit.currentWeapons = int.Parse(skillItemID);
-                    }
-                    // 名前の0番目が2で1番目が1で2番目が1ならばシールド
-                    else if(iventryItemID[0] == '2' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '2' && skillItemID[1] == '1' && skillItemID[2] == '1')
-                    {
-                        print(" 盾を入れ替えます ");
-                        unit.currentShields = int.Parse(skillItemID);
-                    }
-                    // 名前の0番目が2で1番目が1で2番目が2~4のいずれかならば防具
-                    else if (iventryItemID[0] == '2' && iventryItemID[1] == '1' && (iventryItemID[2] >= '2' && iventryItemID[2] <= '4') && skillItemID[0] == '2' && skillItemID[1] == '1' && (skillItemID[2] >= '2' && skillItemID[2] <= '4'))
-                    {
-                        print("防具を入れ替えます");
-                        unit.currentArmor = int.Parse(skillItemID);
-                    }
-                    // 名前の0番目が2で1番目が1で2番目が5ならばアクセサリ
-                    else if(iventryItemID[0] == '2' && iventryItemID[1] == '1' && iventryItemID[2] == '5' && skillItemID[0] == '2' && skillItemID[1] == '1' && skillItemID[2] == '5')
-                    {
-                        print("アクセサリを入れ替えます");
-                        unit.currentAccessories = int.Parse(skillItemID);
-                    }
-                    // 名前の0番目が4で1番目が1で2番目が1ならばメインルーン
-                    else if(iventryItemID[0] == '4' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '4' && skillItemID[1] == '1' && skillItemID[2] == '1')
-                    {
-                        print("メインルーンを入れ替えます");
-                        unit.mainSocket = int.Parse(skillItemID) * 10 + skillItemLv;
-                        
-                    }
-                    // 名前の0番目が4かつ1番目が1で2番目が1でなければサブルーン、image.nameがsubSocket0~11ならばサブルーン
-                    else if(iventryItemID[0] == '4'
-                        && iventryItemID[1] == '1'
-                        && iventryItemID[2] != '1'
-                        && skillItemID[0] == '4'
-                        && skillItemID[1] == '1'
-                        && skillItemID[2] != '1')
-                    {
-                        print("サブルーンを入れ替えます");
-                        print ("socketName = " + socketName);
-                        // どのサブルーンを入れ替えるかを取得
-                        int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
-                        unit.subSocket[socketId] = int.Parse(skillItemID) * 10 + skillItemLv;
-                    }
-                    // SkillからIventryに移動した場合、移動元のアイテムIDが0(空)なら装備を外す
-                    else if(skillItemID[0] == '0')
-                    {
-                        print("スキルスロットの装備を外します");
-                        // originalObjのオブジェクト名を変数に代入
-                        if(originalObj.name == "charWpn")
-                        {
-                            // エラーSEを再生
-                            AkSoundEngine.PostEvent("ST_Error", gameObject);
-                            
-                            //unit.currentWeapons = 0;
-                            // 武器は外せない
-                            Debug.Log("武器は交換のみで外せません");
-                            // originalObjを移動前の位置に戻す
-                            //originalObj.transform.position = targetObj.transform.position;
-                            // 武器を振るわせる
-                            ShakeObject(originalObj);
-                            return;
-                        }
-                        else if(originalObj.name == "charShild")
-                        {
-                            unit.currentShields = 0;
-                        }
-                        else if(originalObj.name == "charArmor")
-                        {
-                            unit.currentArmor = 0;
-                        }
-                        else if(originalObj.name == "charAccsse")
-                        {
-                            unit.currentAccessories = 0;
-                        }
-                        else if(originalObj.name == "mainSocket")
-                        {
-                            unit.mainSocket = 0;
-                        }
-                        //socketという文字列が含まれている場合はサブルーン
-                        else if(originalObj.name.Contains("socket"))
-                        {
-                            // どのサブルーンを外すかを取得
-                            int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
-                            unit.subSocket[socketId] = 0;
-                        }
-                    }
-                    // IventryからSkillに移動した場合、ターゲットのskillPanelが空の場合は装備を移す
-                    else if(iventryItemID[0] == '0')
-                    {
-                        Debug.Log("スキルスロットに装備します");
-                        // originalObjのオブジェクト名を変数に代入
-                        if(targetObj.transform.parent.name == "charWpn")
-                        {
-                            unit.currentWeapons = int.Parse(skillItemID);
-                        }
-                        else if(targetObj.transform.parent.name == "charShild")
-                        {
-                            unit.currentShields = int.Parse(skillItemID);
-                        }
-                        else if(targetObj.transform.parent.name == "charArmor")
-                        {
-                            unit.currentArmor = int.Parse(skillItemID);
-                        }
-                        else if(targetObj.transform.parent.name == "charAccsse")
-                        {
-                            unit.currentAccessories = int.Parse(skillItemID);
-                        }
-                        // mainSocketとsubSocketは空の時がないためスキップ
-                        /*
-                        else if(originalObj.name == "mainSocket")
-                        {
-                            unit.mainSocket = int.Parse(skillItemID);
-                        }
-                        //socketという文字列が含まれている場合はサブルーン
-                        else if(originalObj.name.Contains("socket"))
-                        {
-                            // どのサブルーンを入れ替えるかを取得
-                            int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
-                            unit.subSocket[socketId] = int.Parse(skillItemID);
-                        }
-                        */
-                    }
-                    else
-                    {
-                        Debug.Log("アイテムIDが不正です");
-                        return;
-                    }
-                    // IventryからSkillに移動した場合、ターゲットのskillPanelに対してIventryのルーンレベルを移す
-                    if(targetObj.transform.parent.GetComponent<ItemDandDHandler>())
-                    {
-                        ItemDandDHandler item = targetObj.transform.parent.GetComponent<ItemDandDHandler>();
-                        item.runeLevel = skillItemLv;
-                    }
-                    // SkillからIventryに移動して交換した場合、移動元のSkillに対してIventryのルーンレベルを移す
-                    else
-                    {
-                        ItemDandDHandler item = originalObj.GetComponent<ItemDandDHandler>();
-                        item.runeLevel = skillItemLv;
-
-                    }
-                    
-                    // オブジェクトを移動し、イベントリとスキルパネルを更新する
-                    MoveAndUpdate(originalObj, targetObj, iventryItemID, unitObj, iventryItemLv);
-
-                    // 装備変更SEを再生
-                    AkSoundEngine.PostEvent("ST_ChangeEqp", gameObject);
-                    
-                    // unitのステータスを更新
-                    unit.updateStatus();
-                    // ステータス画面UIの表示を更新
-                    if (statusAdjustmentManager != null)
-                    {
-                        statusAdjustmentManager.UpdateUI();
-                    }
+                    removeItemCount++;
+                    // イベントリに空きがあれば盾をイベントリに追加フラグを立てる
+                    isShildTakeOff = true;
                 }
             }
+            // 固定のルーンを持つ武器の場合
+            ItemData.WpnListData wpnListData = gameManager.itemData.wpnList.Find(x => x.ID == int.Parse(skillItemID));
+            ItemData.WpnListData originalWpnListData = gameManager.itemData.wpnList.Find(x => x.ID == int.Parse(iventryItemID));
+            if (wpnListData != null)
+            {
+                int mainSocketCount = 0; // 変更する武器の固定メインルーンの数
+                int subSocketCount = 0; // 変更する武器の固定サブルーンの数
+                int eqpMainCount = 0; // 装備中のメインルーンの
+                int eqpSubCount = 0; // 装備中のサブルーン[1~3]スロットにセットされている数
+
+                // 固定のルーンの数を取得
+                if (wpnListData.fixMainRune != 0) mainSocketCount++;
+                if (originalWpnListData.fixMainRune != 0) eqpWpnMainCount++;
+                for (int i = 0; i < 3; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            if (wpnListData.fixSubRune1 != 0) subSocketCount++; // 変更する武器の固定サブルーンの数を加算
+                            if (originalWpnListData.fixSubRune1 != 0) eqpWpnSubCount++; // 装備中の武器の固定サブルーンの数を加算
+                            break;
+                        case 1:
+                            if (wpnListData.fixSubRune2 != 0) subSocketCount++;
+                            if (originalWpnListData.fixSubRune2 != 0) eqpWpnSubCount++;
+                            break;
+                        case 2:
+                            if (wpnListData.fixSubRune3 != 0) subSocketCount++;
+                            if (originalWpnListData.fixSubRune3 != 0) eqpWpnSubCount++;
+                            break;
+                    }
+                }
+
+                // 装備中のルーンの数を取得
+                if (unit.mainSocket != 0) eqpMainCount++;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (unit.subSocket[i] != 0) eqpSubCount++;
+                }
+
+                // 外れるルーンの数を計算
+                removeMainRuneCount = (mainSocketCount + eqpMainCount == 2) ? 1 : 0;
+                removeSubRuneCount = Math.Max(0, (subSocketCount + eqpSubCount - 3));
+                removeItemCount += removeMainRuneCount + removeSubRuneCount;
+                if (removeSubRuneCount > 0) isFixSubRuneTakeOff = true;
+                if (removeMainRuneCount > 0) isFixMainRuneTakeOff = true;
+                
+                Debug.Log("wpnName: " + wpnListData.name);
+                Debug.Log("mainSocketCount = " + mainSocketCount + " subSocketCount = " + subSocketCount + " eqpMainCount = " + eqpMainCount + " eqpSubCount = " + eqpSubCount + " removeRuneCount = " + (removeMainRuneCount + removeSubRuneCount));
+            }
+
+            // 元の武器のソケット数を取得 gameManager.itemData.wpnListのIDがunit.currentWeaponsのものからsocketCountを取得
+            int originalSocketCount = gameManager.itemData.wpnList.Find(x => x.ID == unit.currentWeapons).socketCount;
+            // 新しい武器のソケット数を取得 gameManager.itemData.wpnListのIDがint.Parse(skillItemID)のものからsocketCountを取得
+            int newSocketCount = gameManager.itemData.wpnList.Find(x => x.ID == int.Parse(skillItemID)).socketCount;
+
+            List<GameObject> IventrySkillList = null;
+            // unit.IDから該当するiventrySkillListを取得
+            switch (unit.ID)
+            {
+                case 1:
+                    IventrySkillList = IventrySkillList1;
+                    break;
+                case 2:
+                    IventrySkillList = IventrySkillList2;
+                    break;
+                case 3:
+                    IventrySkillList = IventrySkillList3;
+                    break;
+                case 4:
+                    IventrySkillList = IventrySkillList4;
+                    break;
+                case 5:
+                    IventrySkillList = IventrySkillList5;
+                    break;
+                default:
+                    Debug.LogError("unitID is invalid");
+                    return;
+            }
+
+            // 武器の元ソケットの方が多かった場合、外すソケット数を計算
+            if (originalSocketCount > newSocketCount)
+            {
+                // 差分のソケットに入っているサブルーンを取得(idが0なら空)
+                for (int i = newSocketCount - 1; i < originalSocketCount - 1; i++)
+                {
+                    if(unit.subSocket[i] != 0)
+                    {
+                        diffRuneList.Add(unit.subSocket[i]);
+                        //Debug.Log("このルーンを外します subSoketからそのまま出力した場合" + unit.subSocket[i] + "diffListの最後に追加されたID" + diffRuneList[diffRuneList.Count-1] + "\n\n");
+                    }
+                }
+                if (diffRuneList.Count > 0) isSubRuneTakeOff = true;
+                removeItemCount += diffRuneList.Count;
+            }
+
+            // イベントリに空きがあるか確認し、空きがなければエラーログを出力して終了
+            if (CountEmptySlots() < removeItemCount)
+            {
+                // エラーSEを再生
+                AkSoundEngine.PostEvent("ST_Error", gameObject);
+
+                infoPanelText.text = "The change of weapon is <color=red><b> cancelled </b></color> due to lack of space in iventry. \n (Need to have <color=yellow>" + removeItemCount + " slots</color> available)";
+                infoPanel.SetActive(true);
+                OKButton.gameObject.SetActive(true);
+                cancelButton.gameObject.SetActive(false);
+                // OKボタンを押したらinfoPanel.SetActive(false)にする;
+                OKButton.onClick.AddListener(() => infoPanel.SetActive(false));
+                return;
+            }
+
+            // シールドを装備から外してイベントリに追加する
+            if (isShildTakeOff)
+            {
+                AddItem(unit.currentShields);
+                unit.currentShields = 0;
+            }
+            // サブルーンの差分ソケット分を外してイベントリに追加する
+            if (isSubRuneTakeOff)
+            {
+                foreach (int runeID in diffRuneList)
+                {
+                    //Debug.Log("AddItemメソッドでイベントリに入れるruneID = " + runeID + "これで違うルーンになればAddItemメソッドがおかしい");
+                    AddItem(runeID);
+                }
+                for (int i = newSocketCount - 1; i < originalSocketCount - 1; i++)
+                {
+                    unit.subSocket[i] = 0;
+                    IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
+                }
+            }
+            // 固定ルーンのメインルーンを外してイベントリに追加する
+            if (isFixMainRuneTakeOff)
+            {
+                // 元装備が固定メインルーンでない場合は外す(イベントリに移動)
+                if (eqpWpnMainCount == 0)
+                {
+                    AddItem(unit.mainSocket);
+                }
+                unit.mainSocket = 0;
+                IventrySkillList[6].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
+
+            }
+            // 固定ルーンのサブルーンを外してイベントリに追加する
+            if (isFixSubRuneTakeOff)
+            {
+                for(int i = 0; i < removeSubRuneCount; i++)
+                {
+                    // 元装備が固定サブルーンでない場合は外す(イベントリに移動)
+                    if(eqpWpnSubCount-1 < i)
+                    {
+                        AddItem(unit.subSocket[i]);
+                    }
+                    unit.subSocket[i] = 0;
+                    IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
+                }
+            }
+            
+            // アイテムIDをunitのcurrentWeaponsに設定
+            unit.currentWeapons = int.Parse(skillItemID);
+        }
+        // 名前の0番目が2で1番目が1で2番目が1ならばシールド
+        else if(iventryItemID[0] == '2' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '2' && skillItemID[1] == '1' && skillItemID[2] == '1')
+        {
+            print(" 盾を入れ替えます ");
+            unit.currentShields = int.Parse(skillItemID);
+        }
+        // 名前の0番目が2で1番目が1で2番目が2~4のいずれかならば防具
+        else if (iventryItemID[0] == '2' && iventryItemID[1] == '1' && (iventryItemID[2] >= '2' && iventryItemID[2] <= '4') && skillItemID[0] == '2' && skillItemID[1] == '1' && (skillItemID[2] >= '2' && skillItemID[2] <= '4'))
+        {
+            print("防具を入れ替えます");
+            unit.currentArmor = int.Parse(skillItemID);
+        }
+        // 名前の0番目が2で1番目が1で2番目が5ならばアクセサリ
+        else if(iventryItemID[0] == '2' && iventryItemID[1] == '1' && iventryItemID[2] == '5' && skillItemID[0] == '2' && skillItemID[1] == '1' && skillItemID[2] == '5')
+        {
+            print("アクセサリを入れ替えます");
+            unit.currentAccessories = int.Parse(skillItemID);
+        }
+        // 名前の0番目が4で1番目が1で2番目が1ならばメインルーン
+        else if(iventryItemID[0] == '4' && iventryItemID[1] == '1' && iventryItemID[2] == '1' && skillItemID[0] == '4' && skillItemID[1] == '1' && skillItemID[2] == '1')
+        {
+            print("メインルーンを入れ替えます");
+            unit.mainSocket = int.Parse(skillItemID) * 10 + skillItemLv;
+            
+        }
+        // 名前の0番目が4かつ1番目が1で2番目が1でなければサブルーン、image.nameがsubSocket0~11ならばサブルーン
+        else if(iventryItemID[0] == '4'
+            && iventryItemID[1] == '1'
+            && iventryItemID[2] != '1'
+            && skillItemID[0] == '4'
+            && skillItemID[1] == '1'
+            && skillItemID[2] != '1')
+        {
+            print("サブルーンを入れ替えます");
+            print ("socketName = " + socketName);
+            // どのサブルーンを入れ替えるかを取得
+            int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
+            unit.subSocket[socketId] = int.Parse(skillItemID) * 10 + skillItemLv;
+        }
+        // SkillからIventryに移動した場合、移動元のアイテムIDが0(空)なら装備を外す
+        else if(skillItemID[0] == '0')
+        {
+            print("スキルスロットの装備を外します");
+            // originalObjのオブジェクト名を変数に代入
+            if(originalObj.name == "charWpn")
+            {
+                // エラーSEを再生
+                AkSoundEngine.PostEvent("ST_Error", gameObject);
+                
+                //unit.currentWeapons = 0;
+                // 武器は外せない
+                Debug.Log("武器は交換のみで外せません");
+                // originalObjを移動前の位置に戻す
+                //originalObj.transform.position = targetObj.transform.position;
+                // 武器を振るわせる
+                ShakeObject(originalObj);
+                return;
+            }
+            else if(originalObj.name == "charShild")
+            {
+                unit.currentShields = 0;
+            }
+            else if(originalObj.name == "charArmor")
+            {
+                unit.currentArmor = 0;
+            }
+            else if(originalObj.name == "charAccsse")
+            {
+                unit.currentAccessories = 0;
+            }
+            else if(originalObj.name == "mainSocket")
+            {
+                unit.mainSocket = 0;
+            }
+            //socketという文字列が含まれている場合はサブルーン
+            else if(originalObj.name.Contains("socket"))
+            {
+                // どのサブルーンを外すかを取得
+                int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
+                unit.subSocket[socketId] = 0;
+            }
+        }
+        // IventryからSkillに移動した場合、ターゲットのskillPanelが空の場合は装備を移す
+        else if(iventryItemID[0] == '0')
+        {
+            Debug.Log("スキルスロットに装備します");
+            // originalObjのオブジェクト名を変数に代入
+            if(targetObj.transform.parent.name == "charWpn")
+            {
+                unit.currentWeapons = int.Parse(skillItemID);
+            }
+            else if(targetObj.transform.parent.name == "charShild")
+            {
+                unit.currentShields = int.Parse(skillItemID);
+            }
+            else if(targetObj.transform.parent.name == "charArmor")
+            {
+                unit.currentArmor = int.Parse(skillItemID);
+            }
+            else if(targetObj.transform.parent.name == "charAccsse")
+            {
+                unit.currentAccessories = int.Parse(skillItemID);
+            }
+            // mainSocketとsubSocketは空の時がないためスキップ
+            /*
+            else if(originalObj.name == "mainSocket")
+            {
+                unit.mainSocket = int.Parse(skillItemID);
+            }
+            //socketという文字列が含まれている場合はサブルーン
+            else if(originalObj.name.Contains("socket"))
+            {
+                // どのサブルーンを入れ替えるかを取得
+                int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
+                unit.subSocket[socketId] = int.Parse(skillItemID);
+            }
+            */
         }
         else
         {
-            Debug.LogError("gameManager.playerUnits is null");
+            Debug.Log("アイテムIDが不正です");
+            return;
+        }
+        // IventryからSkillに移動した場合、ターゲットのskillPanelに対してIventryのルーンレベルを移す
+        if(targetObj.transform.parent.GetComponent<ItemDandDHandler>())
+        {
+            ItemDandDHandler item = targetObj.transform.parent.GetComponent<ItemDandDHandler>();
+            item.runeLevel = skillItemLv;
+        }
+        // SkillからIventryに移動して交換した場合、移動元のSkillに対してIventryのルーンレベルを移す
+        else
+        {
+            ItemDandDHandler item = originalObj.GetComponent<ItemDandDHandler>();
+            item.runeLevel = skillItemLv;
+
+        }
+        
+        // オブジェクトを移動し、イベントリとスキルパネルを更新する
+        MoveAndUpdate(originalObj, targetObj, iventryItemID, unit.gameObject, iventryItemLv);
+
+        // 装備変更SEを再生
+        AkSoundEngine.PostEvent("ST_ChangeEqp", gameObject);
+        
+        // unitのステータスを更新
+        unit.updateStatus();
+        // ステータス画面UIの表示を更新
+        if (statusAdjustmentManager != null)
+        {
+            statusAdjustmentManager.UpdateUI();
         }
     }
 

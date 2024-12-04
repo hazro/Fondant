@@ -278,11 +278,11 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     return;
                 }
 
-                //親の親のゲームオブジェクトの子オブジェクトのリストを取得
-                Transform[] targetSkillList = skillListTransform.parent.parent.GetComponentsInChildren<Transform>();
+                // 該当SkillPnaelのtxNameオブジェクトを取得
+                GameObject targetCharNameObj = skillListTransform.parent.parent.GetComponentsInChildren<Transform>()[1].GetComponentsInChildren<Transform>()[2].gameObject;
 
                 // Iventryで装備の入れ替え処理を行う
-                iventryUI.changeEquipment(targetSkillList, iventryItemID, skillItemID, socketName, this.gameObject, targetObject, skillItemLv, iventryItemLv);
+                iventryUI.changeEquipment(targetCharNameObj, iventryItemID, skillItemID, socketName, this.gameObject, targetObject, skillItemLv, iventryItemLv);
             }
             // それ以外の場合は何もせずに元の位置に戻す
             else
