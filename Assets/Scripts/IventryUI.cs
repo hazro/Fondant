@@ -506,14 +506,20 @@ public class IventryUI : MonoBehaviour
                 }
 
                 // 外れるルーンの数を計算
-                removeMainRuneCount = (mainSocketCount + eqpMainCount == 2) ? 1 : 0;
-                removeSubRuneCount = Math.Max(0, (subSocketCount + eqpSubCount - 3));
+                removeMainRuneCount = (mainSocketCount + eqpMainCount >= 2) ? 1 : 0; // 外れる固定メインルーンの数を計算
+                removeSubRuneCount =  (subSocketCount + eqpSubCount >= 2) ? Math.Min(subSocketCount, eqpSubCount) : 0; // 外れる固定サブルーンの数を計算
                 removeItemCount += removeMainRuneCount + removeSubRuneCount;
                 if (removeSubRuneCount > 0) isFixSubRuneTakeOff = true;
                 if (removeMainRuneCount > 0) isFixMainRuneTakeOff = true;
                 
                 Debug.Log("wpnName: " + wpnListData.name);
-                Debug.Log("mainSocketCount = " + mainSocketCount + " subSocketCount = " + subSocketCount + " eqpMainCount = " + eqpMainCount + " eqpSubCount = " + eqpSubCount + " removeRuneCount = " + (removeMainRuneCount + removeSubRuneCount));
+                Debug.Log("mainSocketCount(変更する武器の固定メインルーンの数) = " + mainSocketCount + " subSocketCount(変更する武器の固定サブルーンの数) = " + subSocketCount +
+                 "\n eqpWpnMainCount(装備中の武器の固定メインルーンの数) = " + eqpWpnMainCount + " eqpWpnSubCount(装備中の武器の固定サブルーンの数) = " + eqpWpnSubCount +
+                 "\n 装備中の武器が固定ルーンだったら消す。 固定ルーンじゃなかったら消してイベントリに移す" +
+                 "\n eqpMainCount(装備中のメインルーンの数) = " + eqpMainCount + " eqpSubCount(装備中のサブルーン[1~3]スロットにセットされている数) = " + eqpSubCount +
+                 "\n removeMainRuneCount(外す固定メインルーンの数) = " + removeMainRuneCount + " removeSubRuneCount(外す固定サブルーンの数) = " + removeSubRuneCount +
+                 "\n " + (isFixSubRuneTakeOff ? "固定サブルーンを外します" : "固定サブルーンは外しません") + 
+                 (isFixMainRuneTakeOff ? " 固定メインルーンを外します" : " 固定メインルーンは外しません"));
             }
 
             // 元の武器のソケット数を取得 gameManager.itemData.wpnListのIDがunit.currentWeaponsのものからsocketCountを取得
@@ -567,7 +573,7 @@ public class IventryUI : MonoBehaviour
                 // エラーSEを再生
                 AkSoundEngine.PostEvent("ST_Error", gameObject);
 
-                infoPanelText.text = "The change of weapon is <color=red><b> cancelled </b></color> due to lack of space in iventry. \n (Need to have <color=yellow>" + removeItemCount + " slots</color> available)";
+                infoPanelText.text = "The change of weapon is <color=red><b> cancelled </b></color> \nNot enough iventry space. \n (Need to have <color=yellow>" + removeItemCount + " slots</color> available)";
                 infoPanel.SetActive(true);
                 OKButton.gameObject.SetActive(true);
                 cancelButton.gameObject.SetActive(false);
@@ -606,7 +612,8 @@ public class IventryUI : MonoBehaviour
                 }
                 unit.mainSocket = 0;
                 IventrySkillList[6].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
-
+                
+                Debug.Log("固定メインルーンを外しました" + (eqpWpnMainCount == 0 ? "元装備が固定メインルーンでないのでイベントリに移動" : "元装備が固定メインルーンなので削除"));
             }
             // 固定ルーンのサブルーンを外してイベントリに追加する
             if (isFixSubRuneTakeOff)
@@ -620,6 +627,7 @@ public class IventryUI : MonoBehaviour
                     }
                     unit.subSocket[i] = 0;
                     IventrySkillList[7 + i].gameObject.GetComponent<ItemDandDHandler>().runeLevel = 0;
+                    Debug.Log(i+1 + "/" + removeSubRuneCount + "つ目の固定サブルーンを外しました" + (eqpWpnSubCount-1 < i ? "元装備が固定サブルーンでないのでイベントリに移動" : "元装備が固定サブルーンなので削除"));
                 }
             }
             
