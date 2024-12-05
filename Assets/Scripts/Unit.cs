@@ -660,222 +660,220 @@ public class Unit : MonoBehaviour
 
         // その他
         int spreadTotalLv = 0;
-:::::::::::::::::::::::::::::::::::::::::: ここをモンスターにも適用するように修正 ::
-        // tagがAllyでiventrySkillListがnullでなければルーンのステータスを取得
-        if (gameObject.tag == "Ally" && IventrySkillList != null)
+
+        // ルーンのステータスを取得
+        spreadCount = 0; // スプレッドカウントの初期化
+
+        // mainSocketとsubSocketに装備されているルーンのIDが0でなければリストに追加
+        List<int> eqpRuneIDList = new List<int>{};
+        if(mainSocket != 0) eqpRuneIDList.Add(mainSocket);
+        for(int i = 0; i < subSocket.Length; i++)
         {
-            spreadCount = 0; // スプレッドカウントの初期化
+            if(subSocket[i] != 0) eqpRuneIDList.Add(subSocket[i]);
+        }
 
-            for (int i = 6; i < IventrySkillList.Count; i++)
+        foreach(int eqpRuneId in eqpRuneIDList)
+        {
+            int runeId = eqpRuneId / 10;
+            int runeLevel = eqpRuneId % 10;
+            
+            ItemData.RuneListData runeListData = gameManager.itemData.runeList.Find(x => x.ID == runeId);
+            string runeName = runeListData.name;
+
+            if (runeListData != null)
             {
-                // もしi=6でmainSocketまたはi=7以上でsubSocket[i-7]が0ならばスキップ
-                if ((i == 6 && mainSocket == 0) || (i >= 7 && subSocket[i - 7] == 0))
+                if(runeLevel == 1)
                 {
-                    continue;
+                    if (runeListData.addLevelLv1 != 0) addLevel += runeListData.addLevelLv1;
+                    if (runeListData.pysicalPowerLv1 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv1;
+                    if (runeListData.magicalPowerLv1 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv1;
+                    if (runeListData.physicalDefenseLv1 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv1;
+                    if (runeListData.magicalDefenseLv1 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv1;
+                    if (runeListData.delayLv1 != 0) delayMultiplier *= runeListData.delayLv1;
+                    if (runeListData.speedLv1 != 0) aefSpeedMultiplier *= runeListData.speedLv1;
+                    if (runeListData.moveSpeedLv1 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv1;
+                    if (runeListData.distanceLv1 != 0) maxDistanceMultiplier *= runeListData.distanceLv1;
+                    if (runeListData.scaleLv1 != 0) weaponScaleMultiplier *= runeListData.scaleLv1;
+                    if (runeListData.attackUnitThroughLv1 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv1;
+                    if (runeListData.attackObjectThroughLv1 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv1;
+                    if (runeListData.timeLv1 != 0) projectileLifetime *= runeListData.timeLv1;
+                    if (runeListData.conditionGuardLv1 != 0) conditionGuard += runeListData.conditionGuardLv1;
+                    if (runeListData.guardChanceLv1 != 0) guardChanceMultiplier *= runeListData.guardChanceLv1;
+                    if (runeListData.comboDamageLv1 != 0) comboDamageUp += runeListData.comboDamageLv1;
+                    if (runeListData.comboCriticalLv1 != 0) comboCriticalCountUp += runeListData.comboCriticalLv1;
+                    if (runeListData.criticalChanceLv1 != 0) criticalChanceMult *= runeListData.criticalChanceLv1;
+                    if (runeListData.criticalDamageLv1 != 0) criticalDamageMult *= runeListData.criticalDamageLv1;
+                    if (runeListData.knockBackLv1 != 0) knockBackMultiplier *= runeListData.knockBackLv1;
+                    if (runeListData.poisonLv1 != 0) poison += runeListData.poisonLv1;
+                    if (runeListData.bleedLv1 != 0) bleed += runeListData.bleedLv1;
+                    if (runeListData.stunLv1 != 0) stun += runeListData.stunLv1;
+                    if (runeListData.paralysisLv1 != 0) paralysis += runeListData.paralysisLv1;
+                    if (runeListData.wakeLv1 != 0) weak += runeListData.wakeLv1;
+                    if (runeListData.defenceDownLv1 != 0) defenceDown += runeListData.defenceDownLv1;
+                    if (runeListData.bloodSuckLv1 != 0) bloodSuck += runeListData.bloodSuckLv1;
+                    if (runeListData.regeneLv1 != 0) regene += runeListData.regeneLv1;
+
+                    // 以下未設定
+                    //if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
+                    if (runeListData.poisonGuardLv1 != 0) poisonGuard += runeListData.poisonGuardLv1;
+                    if (runeListData.bleedGuardLv1 != 0) bleedGuard += runeListData.bleedGuardLv1;
+                    if (runeListData.stunGuardLv1 != 0) stunGuard += runeListData.stunGuardLv1;
+                    if (runeListData.paralysisGuardLv1 != 0) paralysisGuard += runeListData.paralysisGuardLv1;
+                    if (runeListData.wakeGuardLv1 != 0) wakeGuard += runeListData.wakeGuardLv1;
+                    if (runeListData.defenceDownGuardLv1 != 0) defenceDownGuard += runeListData.defenceDownGuardLv1;
+
                 }
-                // IventrySkillList[i]のImageコンポーネントを取得して、そのsprite名の_1つ目と_2つ目の間の文字列をintで取得
-                int runeId = int.Parse(IventrySkillList[i].GetComponent<Image>().sprite.name.Split('_')[1]);
-                // IventrySkillList[i].GetComponent<ItemDandDHandler>().runeLevelを取得
-                int runeLevel = IventrySkillList[i].GetComponent<ItemDandDHandler>().runeLevel;
-                
-                ItemData.RuneListData runeListData = gameManager.itemData.runeList.Find(x => x.ID == runeId);
-                string runeName = runeListData.name;
-
-                if (runeListData != null)
+                if(runeLevel == 2)
                 {
-                    if(runeLevel == 1)
-                    {
-                        if (runeListData.addLevelLv1 != 0) addLevel += runeListData.addLevelLv1;
-                        if (runeListData.pysicalPowerLv1 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv1;
-                        if (runeListData.magicalPowerLv1 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv1;
-                        if (runeListData.physicalDefenseLv1 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv1;
-                        if (runeListData.magicalDefenseLv1 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv1;
-                        if (runeListData.delayLv1 != 0) delayMultiplier *= runeListData.delayLv1;
-                        if (runeListData.speedLv1 != 0) aefSpeedMultiplier *= runeListData.speedLv1;
-                        if (runeListData.moveSpeedLv1 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv1;
-                        if (runeListData.distanceLv1 != 0) maxDistanceMultiplier *= runeListData.distanceLv1;
-                        if (runeListData.scaleLv1 != 0) weaponScaleMultiplier *= runeListData.scaleLv1;
-                        if (runeListData.attackUnitThroughLv1 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv1;
-                        if (runeListData.attackObjectThroughLv1 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv1;
-                        if (runeListData.timeLv1 != 0) projectileLifetime *= runeListData.timeLv1;
-                        if (runeListData.conditionGuardLv1 != 0) conditionGuard += runeListData.conditionGuardLv1;
-                        if (runeListData.guardChanceLv1 != 0) guardChanceMultiplier *= runeListData.guardChanceLv1;
-                        if (runeListData.comboDamageLv1 != 0) comboDamageUp += runeListData.comboDamageLv1;
-                        if (runeListData.comboCriticalLv1 != 0) comboCriticalCountUp += runeListData.comboCriticalLv1;
-                        if (runeListData.criticalChanceLv1 != 0) criticalChanceMult *= runeListData.criticalChanceLv1;
-                        if (runeListData.criticalDamageLv1 != 0) criticalDamageMult *= runeListData.criticalDamageLv1;
-                        if (runeListData.knockBackLv1 != 0) knockBackMultiplier *= runeListData.knockBackLv1;
-                        if (runeListData.poisonLv1 != 0) poison += runeListData.poisonLv1;
-                        if (runeListData.bleedLv1 != 0) bleed += runeListData.bleedLv1;
-                        if (runeListData.stunLv1 != 0) stun += runeListData.stunLv1;
-                        if (runeListData.paralysisLv1 != 0) paralysis += runeListData.paralysisLv1;
-                        if (runeListData.wakeLv1 != 0) weak += runeListData.wakeLv1;
-                        if (runeListData.defenceDownLv1 != 0) defenceDown += runeListData.defenceDownLv1;
-                        if (runeListData.bloodSuckLv1 != 0) bloodSuck += runeListData.bloodSuckLv1;
-                        if (runeListData.regeneLv1 != 0) regene += runeListData.regeneLv1;
+                    if (runeListData.addLevelLv2 != 0) addLevel += runeListData.addLevelLv2;
+                    if (runeListData.pysicalPowerLv2 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv2;
+                    if (runeListData.magicalPowerLv2 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv2;
+                    if (runeListData.physicalDefenseLv2 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv2;
+                    if (runeListData.magicalDefenseLv2 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv2;
+                    if (runeListData.delayLv2 != 0) delayMultiplier *= runeListData.delayLv2;
+                    if (runeListData.speedLv2 != 0) aefSpeedMultiplier *= runeListData.speedLv2;
+                    if (runeListData.moveSpeedLv2 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv2;
+                    if (runeListData.distanceLv2 != 0) maxDistanceMultiplier *= runeListData.distanceLv2;
+                    if (runeListData.scaleLv2 != 0) weaponScaleMultiplier *= runeListData.scaleLv2;
+                    if (runeListData.attackUnitThroughLv2 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv2;
+                    if (runeListData.attackObjectThroughLv2 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv2;
+                    if (runeListData.timeLv2 != 0) projectileLifetime *= runeListData.timeLv2;
+                    if (runeListData.conditionGuardLv2 != 0) conditionGuard += runeListData.conditionGuardLv2;
+                    if (runeListData.guardChanceLv2 != 0) guardChanceMultiplier *= runeListData.guardChanceLv2;
+                    if (runeListData.comboDamageLv2 != 0) comboDamageUp += runeListData.comboDamageLv2;
+                    if (runeListData.comboCriticalLv2 != 0) comboCriticalCountUp += runeListData.comboCriticalLv2;
+                    if (runeListData.criticalChanceLv2 != 0) criticalChanceMult *= runeListData.criticalChanceLv2;
+                    if (runeListData.criticalDamageLv2 != 0) criticalDamageMult *= runeListData.criticalDamageLv2;
+                    if (runeListData.knockBackLv2 != 0) knockBackMultiplier *= runeListData.knockBackLv2;
+                    if (runeListData.poisonLv2 != 0) poison += runeListData.poisonLv2;
+                    if (runeListData.bleedLv2 != 0) bleed += runeListData.bleedLv2;
+                    if (runeListData.stunLv2 != 0) stun += runeListData.stunLv2;
+                    if (runeListData.paralysisLv2 != 0) paralysis += runeListData.paralysisLv2;
+                    if (runeListData.wakeLv2 != 0) weak += runeListData.wakeLv2;
+                    if (runeListData.defenceDownLv2 != 0) defenceDown += runeListData.defenceDownLv2;
+                    if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
+                    if (runeListData.regeneLv2 != 0) regene += runeListData.regeneLv2;
 
-                        // 以下未設定
-                        //if (runeListData.bloodTimeLv1 != 0) bloodTime *= runeListData.bloodTimeLv1;
-                        if (runeListData.poisonGuardLv1 != 0) poisonGuard += runeListData.poisonGuardLv1;
-                        if (runeListData.bleedGuardLv1 != 0) bleedGuard += runeListData.bleedGuardLv1;
-                        if (runeListData.stunGuardLv1 != 0) stunGuard += runeListData.stunGuardLv1;
-                        if (runeListData.paralysisGuardLv1 != 0) paralysisGuard += runeListData.paralysisGuardLv1;
-                        if (runeListData.wakeGuardLv1 != 0) wakeGuard += runeListData.wakeGuardLv1;
-                        if (runeListData.defenceDownGuardLv1 != 0) defenceDownGuard += runeListData.defenceDownGuardLv1;
-
-                    }
-                    if(runeLevel == 2)
-                    {
-                        if (runeListData.addLevelLv2 != 0) addLevel += runeListData.addLevelLv2;
-                        if (runeListData.pysicalPowerLv2 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv2;
-                        if (runeListData.magicalPowerLv2 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv2;
-                        if (runeListData.physicalDefenseLv2 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv2;
-                        if (runeListData.magicalDefenseLv2 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv2;
-                        if (runeListData.delayLv2 != 0) delayMultiplier *= runeListData.delayLv2;
-                        if (runeListData.speedLv2 != 0) aefSpeedMultiplier *= runeListData.speedLv2;
-                        if (runeListData.moveSpeedLv2 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv2;
-                        if (runeListData.distanceLv2 != 0) maxDistanceMultiplier *= runeListData.distanceLv2;
-                        if (runeListData.scaleLv2 != 0) weaponScaleMultiplier *= runeListData.scaleLv2;
-                        if (runeListData.attackUnitThroughLv2 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv2;
-                        if (runeListData.attackObjectThroughLv2 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv2;
-                        if (runeListData.timeLv2 != 0) projectileLifetime *= runeListData.timeLv2;
-                        if (runeListData.conditionGuardLv2 != 0) conditionGuard += runeListData.conditionGuardLv2;
-                        if (runeListData.guardChanceLv2 != 0) guardChanceMultiplier *= runeListData.guardChanceLv2;
-                        if (runeListData.comboDamageLv2 != 0) comboDamageUp += runeListData.comboDamageLv2;
-                        if (runeListData.comboCriticalLv2 != 0) comboCriticalCountUp += runeListData.comboCriticalLv2;
-                        if (runeListData.criticalChanceLv2 != 0) criticalChanceMult *= runeListData.criticalChanceLv2;
-                        if (runeListData.criticalDamageLv2 != 0) criticalDamageMult *= runeListData.criticalDamageLv2;
-                        if (runeListData.knockBackLv2 != 0) knockBackMultiplier *= runeListData.knockBackLv2;
-                        if (runeListData.poisonLv2 != 0) poison += runeListData.poisonLv2;
-                        if (runeListData.bleedLv2 != 0) bleed += runeListData.bleedLv2;
-                        if (runeListData.stunLv2 != 0) stun += runeListData.stunLv2;
-                        if (runeListData.paralysisLv2 != 0) paralysis += runeListData.paralysisLv2;
-                        if (runeListData.wakeLv2 != 0) weak += runeListData.wakeLv2;
-                        if (runeListData.defenceDownLv2 != 0) defenceDown += runeListData.defenceDownLv2;
-                        if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
-                        if (runeListData.regeneLv2 != 0) regene += runeListData.regeneLv2;
-
-                        // 以下未設定
-                        //if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
-                        //if (runeListData.poisonTimeLv2 != 0) poisonTime *= runeListData.poisonTimeLv2;
-                        if (runeListData.poisonGuardLv2 != 0) poisonGuard += runeListData.poisonGuardLv2;
-                        if (runeListData.bleedGuardLv2 != 0) bleedGuard += runeListData.bleedGuardLv2;
-                        if (runeListData.stunGuardLv2 != 0) stunGuard += runeListData.stunGuardLv2;
-                        if (runeListData.paralysisGuardLv2 != 0) paralysisGuard += runeListData.paralysisGuardLv2;
-                        if (runeListData.wakeGuardLv2 != 0) wakeGuard += runeListData.wakeGuardLv2;
-                        if (runeListData.defenceDownGuardLv2 != 0) defenceDownGuard += runeListData.defenceDownGuardLv2;
-                    }
+                    // 以下未設定
+                    //if (runeListData.bloodTimeLv2 != 0) bloodTime *= runeListData.bloodTimeLv2;
+                    //if (runeListData.poisonTimeLv2 != 0) poisonTime *= runeListData.poisonTimeLv2;
+                    if (runeListData.poisonGuardLv2 != 0) poisonGuard += runeListData.poisonGuardLv2;
+                    if (runeListData.bleedGuardLv2 != 0) bleedGuard += runeListData.bleedGuardLv2;
+                    if (runeListData.stunGuardLv2 != 0) stunGuard += runeListData.stunGuardLv2;
+                    if (runeListData.paralysisGuardLv2 != 0) paralysisGuard += runeListData.paralysisGuardLv2;
+                    if (runeListData.wakeGuardLv2 != 0) wakeGuard += runeListData.wakeGuardLv2;
+                    if (runeListData.defenceDownGuardLv2 != 0) defenceDownGuard += runeListData.defenceDownGuardLv2;
+                }
 
 
-                    if(runeLevel == 3)
-                    {
-                        if (runeListData.addLevelLv3 != 0) addLevel += runeListData.addLevelLv3;
-                        if (runeListData.pysicalPowerLv3 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv3;
-                        if (runeListData.magicalPowerLv3 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv3;
-                        if (runeListData.physicalDefenseLv3 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv3;
-                        if (runeListData.magicalDefenseLv3 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv3;
-                        if (runeListData.delayLv3 != 0) delayMultiplier *= runeListData.delayLv3;
-                        if (runeListData.speedLv3 != 0) aefSpeedMultiplier *= runeListData.speedLv3;
-                        if (runeListData.moveSpeedLv3 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv3;
-                        if (runeListData.distanceLv3 != 0) maxDistanceMultiplier *= runeListData.distanceLv3;
-                        if (runeListData.scaleLv3 != 0) weaponScaleMultiplier *= runeListData.scaleLv3;
-                        if (runeListData.attackUnitThroughLv3 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv3;
-                        if (runeListData.attackObjectThroughLv3 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv3;
-                        if (runeListData.timeLv3 != 0) projectileLifetime *= runeListData.timeLv3;
-                        if (runeListData.conditionGuardLv3 != 0) conditionGuard += runeListData.conditionGuardLv3;
-                        if (runeListData.guardChanceLv3 != 0) guardChanceMultiplier *= runeListData.guardChanceLv3;
-                        if (runeListData.comboDamageLv3 != 0) comboDamageUp += runeListData.comboDamageLv3;
-                        if (runeListData.comboCriticalLv3 != 0) comboCriticalCountUp += runeListData.comboCriticalLv3;
-                        if (runeListData.criticalChanceLv3 != 0) criticalChanceMult *= runeListData.criticalChanceLv3;
-                        if (runeListData.criticalDamageLv3 != 0) criticalDamageMult *= runeListData.criticalDamageLv3;
-                        if (runeListData.knockBackLv3 != 0) knockBackMultiplier *= runeListData.knockBackLv3;
-                        if (runeListData.poisonLv3 != 0) poison += runeListData.poisonLv3;
-                        if (runeListData.bleedLv3 != 0) bleed += runeListData.bleedLv3;
-                        if (runeListData.stunLv3 != 0) stun += runeListData.stunLv3;
-                        if (runeListData.paralysisLv3 != 0) paralysis += runeListData.paralysisLv3;
-                        if (runeListData.wakeLv3 != 0) weak += runeListData.wakeLv3;
-                        if (runeListData.defenceDownLv3 != 0) defenceDown += runeListData.defenceDownLv3;
-                        if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
-                        if (runeListData.regeneLv3 != 0) regene += runeListData.regeneLv3;
+                if(runeLevel == 3)
+                {
+                    if (runeListData.addLevelLv3 != 0) addLevel += runeListData.addLevelLv3;
+                    if (runeListData.pysicalPowerLv3 != 0) pysicalAttackMultiplier *= runeListData.pysicalPowerLv3;
+                    if (runeListData.magicalPowerLv3 != 0) magicAttackMultiplier *= runeListData.magicalPowerLv3;
+                    if (runeListData.physicalDefenseLv3 != 0) physicalDefenseMultiplier *= runeListData.physicalDefenseLv3;
+                    if (runeListData.magicalDefenseLv3 != 0) magicalDefenseMultiplier *= runeListData.magicalDefenseLv3;
+                    if (runeListData.delayLv3 != 0) delayMultiplier *= runeListData.delayLv3;
+                    if (runeListData.speedLv3 != 0) aefSpeedMultiplier *= runeListData.speedLv3;
+                    if (runeListData.moveSpeedLv3 != 0) moveSpeedMultiplier *= runeListData.moveSpeedLv3;
+                    if (runeListData.distanceLv3 != 0) maxDistanceMultiplier *= runeListData.distanceLv3;
+                    if (runeListData.scaleLv3 != 0) weaponScaleMultiplier *= runeListData.scaleLv3;
+                    if (runeListData.attackUnitThroughLv3 != 0) attackCharThroughAdd += runeListData.attackUnitThroughLv3;
+                    if (runeListData.attackObjectThroughLv3 != 0) attackObjectThroughAdd += runeListData.attackObjectThroughLv3;
+                    if (runeListData.timeLv3 != 0) projectileLifetime *= runeListData.timeLv3;
+                    if (runeListData.conditionGuardLv3 != 0) conditionGuard += runeListData.conditionGuardLv3;
+                    if (runeListData.guardChanceLv3 != 0) guardChanceMultiplier *= runeListData.guardChanceLv3;
+                    if (runeListData.comboDamageLv3 != 0) comboDamageUp += runeListData.comboDamageLv3;
+                    if (runeListData.comboCriticalLv3 != 0) comboCriticalCountUp += runeListData.comboCriticalLv3;
+                    if (runeListData.criticalChanceLv3 != 0) criticalChanceMult *= runeListData.criticalChanceLv3;
+                    if (runeListData.criticalDamageLv3 != 0) criticalDamageMult *= runeListData.criticalDamageLv3;
+                    if (runeListData.knockBackLv3 != 0) knockBackMultiplier *= runeListData.knockBackLv3;
+                    if (runeListData.poisonLv3 != 0) poison += runeListData.poisonLv3;
+                    if (runeListData.bleedLv3 != 0) bleed += runeListData.bleedLv3;
+                    if (runeListData.stunLv3 != 0) stun += runeListData.stunLv3;
+                    if (runeListData.paralysisLv3 != 0) paralysis += runeListData.paralysisLv3;
+                    if (runeListData.wakeLv3 != 0) weak += runeListData.wakeLv3;
+                    if (runeListData.defenceDownLv3 != 0) defenceDown += runeListData.defenceDownLv3;
+                    if (runeListData.bloodSuckLv2 != 0) bloodSuck += runeListData.bloodSuckLv2;
+                    if (runeListData.regeneLv3 != 0) regene += runeListData.regeneLv3;
 
-                        // 以下未設定
-                        //if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
-                        //if (runeListData.poisonTimeLv3 != 0) poisonTime *= runeListData.poisonTimeLv3;
-                        if (runeListData.poisonGuardLv3 != 0) poisonGuard += runeListData.poisonGuardLv3;
-                        if (runeListData.bleedGuardLv3 != 0) bleedGuard += runeListData.bleedGuardLv3;
-                        if (runeListData.stunGuardLv3 != 0) stunGuard += runeListData.stunGuardLv3;
-                        if (runeListData.paralysisGuardLv3 != 0) paralysisGuard += runeListData.paralysisGuardLv3;
-                        if (runeListData.wakeGuardLv3 != 0) wakeGuard += runeListData.wakeGuardLv3;
-                        if (runeListData.defenceDownGuardLv3 != 0) defenceDownGuard += runeListData.defenceDownGuardLv3;
-                    }
+                    // 以下未設定
+                    //if (runeListData.bloodTimeLv3 != 0) bloodTime *= runeListData.bloodTimeLv3;
+                    //if (runeListData.poisonTimeLv3 != 0) poisonTime *= runeListData.poisonTimeLv3;
+                    if (runeListData.poisonGuardLv3 != 0) poisonGuard += runeListData.poisonGuardLv3;
+                    if (runeListData.bleedGuardLv3 != 0) bleedGuard += runeListData.bleedGuardLv3;
+                    if (runeListData.stunGuardLv3 != 0) stunGuard += runeListData.stunGuardLv3;
+                    if (runeListData.paralysisGuardLv3 != 0) paralysisGuard += runeListData.paralysisGuardLv3;
+                    if (runeListData.wakeGuardLv3 != 0) wakeGuard += runeListData.wakeGuardLv3;
+                    if (runeListData.defenceDownGuardLv3 != 0) defenceDownGuard += runeListData.defenceDownGuardLv3;
                 }
-                // ルーン名がspreadの場合はspreadCountを1増やす
-                if(runeName == "spread")
-                {
-                    spreadCount++;
-                    spreadTotalLv += runeLevel;
-                }
-                spreadDamage = spreadTotalLv * 0.25f;
+            }
+            // ルーン名がspreadの場合はspreadCountを1増やす
+            if(runeName == "spread")
+            {
+                spreadCount++;
+                spreadTotalLv += runeLevel;
+            }
+            spreadDamage = spreadTotalLv * 0.25f;
 
-                // --- 鉄壁 --- ルーン名がironWallならironWallをtrueにし、job=4(タンク)の場合「鉄壁」の効果を2倍にする。
-                if(runeName == "ironWall")
-                {
-                    ironWall = true;
-                    if (job == 4)
-                    {                        
-                        physicalDefenseMultiplier *= 2;
-                        magicalDefenseMultiplier *= 2;
-                        guardChanceMultiplier *= 2;
-                        poisonGuard *= 2;
-                        bleedGuard *= 2;
-                        stunGuard *= 2;
-                        paralysisGuard *= 2;
-                        wakeGuard *= 2;
-                        defenceDownGuard *= 2;
-                    }
+            // --- 鉄壁 --- ルーン名がironWallならironWallをtrueにし、job=4(タンク)の場合「鉄壁」の効果を2倍にする。
+            if(runeName == "ironWall")
+            {
+                ironWall = true;
+                if (job == 4)
+                {                        
+                    physicalDefenseMultiplier *= 2;
+                    magicalDefenseMultiplier *= 2;
+                    guardChanceMultiplier *= 2;
+                    poisonGuard *= 2;
+                    bleedGuard *= 2;
+                    stunGuard *= 2;
+                    paralysisGuard *= 2;
+                    wakeGuard *= 2;
+                    defenceDownGuard *= 2;
                 }
-                // --- 範囲持続攻撃 --- ルーンID名がareaAttackならareaAttackをtrueにする
-                if(runeName == "areaAttack")
-                {
-                    areaAttack = true; // １つでも装備していたら範囲持続攻撃を行う
-                    // ルーンのトータルLvを取得
-                    areaAttackLv += runeLevel;
-                }
-                // --- 範囲持続スピードダウン --- ルーンID名がareaSlowならareaSlowをtrueにする
-                if(runeName == "areaSlow")
-                {
-                    areaSlow = true; // １つでも装備していたら範囲持続スピードダウンを行う
-                    // ルーンのトータルLvを取得
-                    areaSlowLv += runeLevel;
-                }
-                // --- 状態異常回復 --- ルーンID名がconditionRecaveryならconditionRecaveryをtrueにする
-                if(runeName == "conditionRecavery")
-                {
-                    conditionRecavery = true; // １つでも装備していたら状態異常回復を行う
-                    // ルーンのトータルLvを取得
-                    conditionRecaveryChance += runeLevel * 15;
-                    if (runeLevel == 3) conditionRecaveryChance += 5;
-                }
-                // --- 狙われやすい --- ルーンID名がeasyTargetならeasyTargetLvを加算
-                if(runeName == "easyTarget")
-                {
-                    easyTargetLv += runeLevel;
-                }
-                // --- 狙われにくい --- ルーンID名がtargetOthersならtargetOthersLvを加算
-                if(runeName == "targetOthers")
-                {
-                    targetOthersLv += runeLevel;
-                }
-                // --- 逃走 --- ルーンID名がescape又はescapeが1以上ならenableEscapeをtrue
-                if(runeName == "escape")
-                {
-                    enableEscape = true;
-                }
-                // --- テレポ --- ルーンID名がteleportation又はteleportationが1以上ならenableTeleportをtrue
-                if(runeName == "teleportation")
-                {
-                    enableTeleport = true;
-                }
+            }
+            // --- 範囲持続攻撃 --- ルーンID名がareaAttackならareaAttackをtrueにする
+            if(runeName == "areaAttack")
+            {
+                areaAttack = true; // １つでも装備していたら範囲持続攻撃を行う
+                // ルーンのトータルLvを取得
+                areaAttackLv += runeLevel;
+            }
+            // --- 範囲持続スピードダウン --- ルーンID名がareaSlowならareaSlowをtrueにする
+            if(runeName == "areaSlow")
+            {
+                areaSlow = true; // １つでも装備していたら範囲持続スピードダウンを行う
+                // ルーンのトータルLvを取得
+                areaSlowLv += runeLevel;
+            }
+            // --- 状態異常回復 --- ルーンID名がconditionRecaveryならconditionRecaveryをtrueにする
+            if(runeName == "conditionRecavery")
+            {
+                conditionRecavery = true; // １つでも装備していたら状態異常回復を行う
+                // ルーンのトータルLvを取得
+                conditionRecaveryChance += runeLevel * 15;
+                if (runeLevel == 3) conditionRecaveryChance += 5;
+            }
+            // --- 狙われやすい --- ルーンID名がeasyTargetならeasyTargetLvを加算
+            if(runeName == "easyTarget")
+            {
+                easyTargetLv += runeLevel;
+            }
+            // --- 狙われにくい --- ルーンID名がtargetOthersならtargetOthersLvを加算
+            if(runeName == "targetOthers")
+            {
+                targetOthersLv += runeLevel;
+            }
+            // --- 逃走 --- ルーンID名がescape又はescapeが1以上ならenableEscapeをtrue
+            if(runeName == "escape")
+            {
+                enableEscape = true;
+            }
+            // --- テレポ --- ルーンID名がteleportation又はteleportationが1以上ならenableTeleportをtrue
+            if(runeName == "teleportation")
+            {
+                enableTeleport = true;
             }
         }
         

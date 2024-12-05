@@ -202,31 +202,10 @@ public class IventryUI : MonoBehaviour
         {
             unitObject.name = unitObject.name.Replace("(Clone)", "");
         }
-        int unitNum = int.Parse(unitObject.name[unitObject.name.Length - 1].ToString());
 
-        // IventrySkillList1~5の番号がunitNumのものを取得
-        List<GameObject> IventrySkillList = null;
-        switch (unitNum)
-        {
-            case 1:
-                IventrySkillList = IventrySkillList1;
-                break;
-            case 2:
-                IventrySkillList = IventrySkillList2;
-                break;
-            case 3:
-                IventrySkillList = IventrySkillList3;
-                break;
-            case 4:
-                IventrySkillList = IventrySkillList4;
-                break;
-            case 5:
-                IventrySkillList = IventrySkillList5;
-                break;
-            default:
-                Debug.LogError("unitNum is invalid");
-                return;
-        }
+        // 該当のIventrySkillListを取得
+        List<List<GameObject>> IventrySkillLists = new List<List<GameObject>>{IventrySkillList1,IventrySkillList2,IventrySkillList3,IventrySkillList4,IventrySkillList5};
+        List<GameObject> IventrySkillList = IventrySkillLists[unit.ID-1];
 
         // IventrySkillListの孫オブジェクトをすべて削除
         foreach (GameObject child in IventrySkillList)
@@ -302,7 +281,6 @@ public class IventryUI : MonoBehaviour
         // 武器のdelayImageにもスプライトを設定
         wpnDelayImage[unitObject.GetComponent<Unit>().ID-1].sprite = sprite;
 
-        //sprite = AtkImage.GetComponent<SpriteRenderer>().sprite;
         // 顔グラ設定
         IventrySkillList[2].GetComponent<Image>().sprite = unit.unitSprite.sprite;
         sprite = shieldImage.GetComponent<SpriteRenderer>().sprite;
@@ -336,24 +314,33 @@ public class IventryUI : MonoBehaviour
         sprite = socket11Image.GetComponent<SpriteRenderer>().sprite;
         IventrySkillList[17].GetComponent<Image>().sprite = sprite;
 
-        for(int i = 6; i < IventrySkillList.Count; i++)
-        {
-            // IventrySkillList[i]の子オブジェクトのItemDandDHandlerコンポーネントを取得
-            ItemDandDHandler item = IventrySkillList[i].GetComponentInChildren<ItemDandDHandler>();
-            float runeLevel = item.runeLevel;
-            Image imageComponent = IventrySkillList[i].GetComponent<Image>();
-            // Materialをinstance化してitemのruneLevelを設定
-            Material materialInstance = new Material(imageComponent.material);
-            imageComponent.material = materialInstance;
-            materialInstance.SetFloat("_Lv", runeLevel);
-        }
-
         // 武器のステータスを取得
         ItemData.WpnListData wpnListData = gameManager.itemData.wpnList.Find(x => x.ID == unit.currentWeapons);
         if (wpnListData == null)
         {
             Debug.LogError("unit name: " + unitObject.name + " currentWeapons: " + unit.currentWeapons + " wpnListData is not assigned.");
             return;
+        }
+
+        // ルーンレベルをunitからスキルパネルとマテリアルに設定
+        for(int i = 6; i < IventrySkillList.Count; i++)
+        {
+            // unitからルーンレベルを取得　iが6ならmainSocket、7~17ならsubSocket
+            int runeLevel = i == 6 ? unit.mainSocket % 10 : unit.subSocket[i-7] % 10;
+            ItemDandDHandler item = IventrySkillList[i].GetComponentInChildren<ItemDandDHandler>();
+            // 固定ルーンの場合はItemのドラッグを無効にする
+            item.isFixItem = false;
+            if (wpnListData.fixMainRune != 0 && i == 6) item.isFixItem = true;
+            if (wpnListData.fixSubRune1 != 0 && i == 7) item.isFixItem = true;
+            if (wpnListData.fixSubRune2 != 0 && i == 8) item.isFixItem = true;
+            if (wpnListData.fixSubRune3 != 0 && i == 9) item.isFixItem = true;
+            
+            item.runeLevel = runeLevel;
+            Image imageComponent = IventrySkillList[i].GetComponent<Image>();
+            // Materialをinstance化してitemのruneLevelを設定
+            Material materialInstance = new Material(imageComponent.material);
+            imageComponent.material = materialInstance;
+            materialInstance.SetFloat("_Lv", runeLevel);
         }
 
         //socketCountの取得

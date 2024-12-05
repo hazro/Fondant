@@ -13,6 +13,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     [SerializeField] private bool isShopItem = false; // ショップアイテムかどうかのフラグ
     [SerializeField] private bool isCharaName = false; // キャラクター名かどうかのフラグ 
     [SerializeField] private bool isEmptyPanel = false; // 空のパネルかどうかのフラグ
+    public bool isFixItem = false; // アイテムを固定するかどうかのフラグ (武器固有ルーンの場合はUnitクラスでtrueにする)
     public bool isSelected = false; // 選択されているかどうかのフラグ
     private Vector3 offset; // ドラッグ中のオフセット
     private Vector3 originalPosition; // 元の位置を保存する変数
@@ -35,7 +36,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         boxCollider = GetComponent<BoxCollider2D>(); // BoxCollider2Dを取得
         iventryUI = FindObjectOfType<IventryUI>(); // IventryUIのインスタンスを取得
         //infomationPanelDisplay = FindObjectOfType<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
-        if(gameManager != null) infomationPanelDisplay = gameManager.GetComponent<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
+        if (gameManager != null) infomationPanelDisplay = gameManager.GetComponent<InfomationPanelDisplay>(); // InfomationPanelDisplayのインスタンスを取得
         shopManager = FindObjectOfType<ShopManager>(); // ShopManagerのインスタンスを取得
         //blackSmithManager = FindObjectOfType<BlackSmithManager>(); // BlackSmithManagerのインスタンスを取得
         // this.gameObjectのマテリアルのLVにruneLevelを代入
@@ -56,15 +57,21 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">ドラッグイベントデータ</param>
     public void OnBeginDrag(PointerEventData eventData)
     {
-        
-        if(blackSmithManager == null){
+        if (isFixItem)
+        {
+            isDraggable = false;
+            return; // アイテムを固定する場合、処理を終了
+        }
+
+        if (blackSmithManager == null)
+        {
             blackSmithManager = FindObjectOfType<BlackSmithManager>(); // BlackSmithManagerのインスタンスを取得
         }
-        if(blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
+        if (blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
 
         string spriteID = "000000"; // SpriteIDを格納する変数
         // ショップアイテムの場合、ドラッグを無効にする
-        if(isShopItem || isCharaName)
+        if (isShopItem || isCharaName)
         {
             isDraggable = false;
             return;
@@ -78,19 +85,21 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             spriteID = CheckSpriteIDAndSetDraggable(GetComponent<SpriteRenderer>().sprite.name);
         }
-        else{
+        else
+        {
             isDraggable = true;
         }
 
         // 空のパネルの場合、ドラッグを無効にする
-        if(isEmptyPanel){
+        if (isEmptyPanel)
+        {
             isDraggable = false;
             return;
         }
 
         originalPosition = transform.position; // 元の位置を保存
         offset = transform.position - GetMouseWorldPosition(eventData);
-        
+
         // 自分以下のオブジェクトのBoxCollider2Dが有効であったら無効にする
         if (boxCollider != null)
         {
@@ -106,7 +115,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
 
         // 装備可能なアイテムの場合、SkillListの枠の色を黄色くする
-        if(iventryUI != null)
+        if (iventryUI != null)
         {
             iventryUI.ChangeSkillListFrameColor(spriteID);
         }
@@ -122,8 +131,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">ドラッグイベントデータ</param>
     public void OnDrag(PointerEventData eventData)
     {
-        if(!isDraggable) return; // ドラッグ不可の場合、処理を終了
-        if(blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
+        if (!isDraggable) return; // ドラッグ不可の場合、処理を終了
+        if (blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
         transform.position = GetMouseWorldPosition(eventData) + offset;
     }
 
@@ -134,8 +143,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">ドラッグイベントデータ</param>
     public void OnEndDrag(PointerEventData eventData)
     {
-        if(!isDraggable) return; // ドラッグ不可の場合、処理を終了
-        if(blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
+        if (!isDraggable) return; // ドラッグ不可の場合、処理を終了
+        if (blackSmithManager != null && blackSmithManager.isSetItem) return; // 強化アイテムがセットされている場合、処理を終了
 
         Vector3 mouseWorldPosition = GetMouseWorldPosition(eventData); // マウスのワールド座標を取得
         Collider2D hitCollider = Physics2D.OverlapPoint(mouseWorldPosition); // マウス位置でのヒットテスト
@@ -144,7 +153,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         {
             GameObject targetObject = hitCollider.gameObject;
             print("DropTarget: " + targetObject.name);
-            if(shopManager == null){
+            if (shopManager == null)
+            {
                 shopManager = FindObjectOfType<ShopManager>(); // ShopManagerのインスタンスを取得
             }
 
@@ -158,7 +168,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             // ゴミ箱にドロップした場合、アイテムを破棄 
             else if (targetObject.name == "Trash" && this.gameObject.CompareTag("Item"))
             {
-                if(iventryUI != null){
+                if (iventryUI != null)
+                {
                     // ゴミ箱SEを再生
                     AkSoundEngine.PostEvent("ST_Trash", gameObject);
                     iventryUI.TrashItem(this.gameObject);
@@ -205,7 +216,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 }
                 // Fit SEを再生
                 AkSoundEngine.PostEvent("ST_Fit", gameObject);
-                
+
             }
             //　どちらもItemタグでない場合は何もせずに元の位置に戻す
             else if (!targetObject.CompareTag("Item") && !this.gameObject.CompareTag("Item"))
@@ -247,6 +258,14 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                 }
                 else
                 {
+                    if(targetObject.transform.parent.gameObject.GetComponent<ItemDandDHandler>().isFixItem)
+                    {
+                        Debug.Log("武器固定ルーンのため装備変更不可");
+                        iventryUI.UpdateIventryPanel();
+                        // エラーSEを再生
+                        AkSoundEngine.PostEvent("ST_Error", gameObject);
+                        return;
+                    }
                     Debug.Log("Skillスロットにドロップしました(skillがターゲット)");
                     socketName = targetObject.transform.parent.name;
                     SetItemIDs(this.gameObject, targetObject.transform.parent.gameObject, out skillItemID, out iventryItemID, out skillItemLv, out iventryItemLv);
@@ -259,9 +278,9 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
                     if (child.name == "waku")
                     {
                         // Imageコンポーネントを取得
-                        if(child.GetComponent<Image>())
+                        if (child.GetComponent<Image>())
                         {
-                            if(child.GetComponent<Image>().color != new Color(1, 1, 0, 1))
+                            if (child.GetComponent<Image>().color != new Color(1, 1, 0, 1))
                             {
                                 Debug.Log(" 装備不可のスキルスロットにドロップまたは入れ替えようとしました");
                                 iventryUI.UpdateIventryPanel();
@@ -311,7 +330,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         }
 
         // SkillListの枠の色をもとに戻す
-        if(iventryUI != null)
+        if (iventryUI != null)
         {
             iventryUI.ChangeSkillListFrameColor("000000");
         }
@@ -323,7 +342,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">イベントデータ</param>
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if(infomationPanelDisplay == null) return; // InfomationPanelDisplayがnullの場合、処理を終了
+        if (infomationPanelDisplay == null) return; // InfomationPanelDisplayがnullの場合、処理を終了
 
         if (!infomationPanelDisplay.isClicked)
         {
@@ -449,8 +468,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// <param name="eventData">イベントデータ</param>
     public void OnPointerExit(PointerEventData eventData)
     {
-        if(infomationPanelDisplay == null) return; // InfomationPanelDisplayがnullの場合、処理を終了
-        
+        if (infomationPanelDisplay == null) return; // InfomationPanelDisplayがnullの場合、処理を終了
+
         if (!infomationPanelDisplay.isClicked) //
         {
             // ここにマウスオーバー解除時の処理を追加
@@ -497,7 +516,8 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         int targetIndex = targetParentTemp.GetSiblingIndex();
 
         // iventryItem配列も入れ替える
-        if (iventryUI != null){
+        if (iventryUI != null)
+        {
             iventryUI.SwapItem(originalIndex, targetIndex);
         }
     }
@@ -537,7 +557,7 @@ public class ItemDandDHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     /// </summary>
     public void ItemSelect(bool forcedCancel = false)
     {
-        if(isSelected == true || forcedCancel == true)
+        if (isSelected == true || forcedCancel == true)
         {
             if (GetComponent<SpriteRenderer>() != null)
             {
