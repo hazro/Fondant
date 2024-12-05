@@ -504,10 +504,14 @@ public class IventryUI : MonoBehaviour
                 {
                     if (unit.subSocket[i] != 0) eqpSubCount++;
                 }
-
+                
                 // 外れるルーンの数を計算
-                removeMainRuneCount = (mainSocketCount + eqpMainCount >= 2) ? 1 : 0; // 外れる固定メインルーンの数を計算
-                removeSubRuneCount =  (subSocketCount + eqpSubCount >= 2) ? Math.Min(subSocketCount, eqpSubCount) : 0; // 外れる固定サブルーンの数を計算
+                removeMainRuneCount = (mainSocketCount + eqpMainCount >= 2) ? 1 : 0; // 固定メインルーンの数によって外れるルーンを計算
+                removeSubRuneCount =  (subSocketCount + eqpSubCount >= 2) ? Math.Min(subSocketCount, eqpSubCount) : 0; // 固定サブルーンによって外れるルーンの数を計算
+
+                removeMainRuneCount += eqpWpnMainCount; // 外れる装備中の固定メインルーンの数
+                removeSubRuneCount +=  eqpWpnSubCount; //  外れる装備中の固定サブルーンの数
+
                 removeItemCount += removeMainRuneCount + removeSubRuneCount;
                 if (removeSubRuneCount > 0) isFixSubRuneTakeOff = true;
                 if (removeMainRuneCount > 0) isFixMainRuneTakeOff = true;
@@ -605,7 +609,7 @@ public class IventryUI : MonoBehaviour
             // 固定ルーンのメインルーンを外してイベントリに追加する
             if (isFixMainRuneTakeOff)
             {
-                // 元装備が固定メインルーンでない場合は外す(イベントリに移動)
+                // 装備中の武器が固定メインルーンでない場合は外す(イベントリに移動)　そうでない場合は移動せず削除
                 if (eqpWpnMainCount == 0)
                 {
                     AddItem(unit.mainSocket);
@@ -616,11 +620,12 @@ public class IventryUI : MonoBehaviour
                 Debug.Log("固定メインルーンを外しました" + (eqpWpnMainCount == 0 ? "元装備が固定メインルーンでないのでイベントリに移動" : "元装備が固定メインルーンなので削除"));
             }
             // 固定ルーンのサブルーンを外してイベントリに追加する
+            ////// ＊＊＊＊＊＊　固定ルーンの装備はUnit.updateStatus()で処理されるため、ここでは処理しない（理由初期装備や、敵にも適用したいため）　＊＊＊＊＊＊ ///////
             if (isFixSubRuneTakeOff)
             {
                 for(int i = 0; i < removeSubRuneCount; i++)
                 {
-                    // 元装備が固定サブルーンでない場合は外す(イベントリに移動)
+                    // 装備中の武器が固定サブルーンでない場合は外す(イベントリに移動) そうでない場合は移動せず削除
                     if(eqpWpnSubCount-1 < i)
                     {
                         AddItem(unit.subSocket[i]);
@@ -737,20 +742,6 @@ public class IventryUI : MonoBehaviour
             {
                 unit.currentAccessories = int.Parse(skillItemID);
             }
-            // mainSocketとsubSocketは空の時がないためスキップ
-            /*
-            else if(originalObj.name == "mainSocket")
-            {
-                unit.mainSocket = int.Parse(skillItemID);
-            }
-            //socketという文字列が含まれている場合はサブルーン
-            else if(originalObj.name.Contains("socket"))
-            {
-                // どのサブルーンを入れ替えるかを取得
-                int socketId = int.Parse(socketName.Substring(socketName.Length - 2)) - 1;
-                unit.subSocket[socketId] = int.Parse(skillItemID);
-            }
-            */
         }
         else
         {
@@ -779,6 +770,7 @@ public class IventryUI : MonoBehaviour
         
         // unitのステータスを更新
         unit.updateStatus();
+
         // ステータス画面UIの表示を更新
         if (statusAdjustmentManager != null)
         {

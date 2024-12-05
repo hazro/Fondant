@@ -577,6 +577,27 @@ public class Unit : MonoBehaviour
             Debug.LogError("unit name: " + gameObject.name + " currentAccessories: " + currentAccessories + "accessoriesListData is not assigned.");
             return;
         }
+
+        // 装備中の武器に固定ルーンがあった場合、敵味方共に固定ルーンを装備する。 (武器やルーンの交換処理はIventryUI.changeEquipmentで行う)
+        // 武器に固定メインルーンがあるか確認
+        if( wpnListData.fixMainRune !=0 )
+        {
+            Debug.Log(this.unitName + " が固定メインルーンを装備: " + wpnListData.fixMainRune);
+            // mainSocketに固定メインルーンを装備
+            mainSocket = wpnListData.fixMainRune;
+        }
+        // 事前にリストでサブルーンのIDを取得
+        List<int> fixSubRunes = new List<int>{wpnListData.fixSubRune1,wpnListData.fixSubRune2,wpnListData.fixSubRune3};
+        for(int i = 0; i < fixSubRunes.Count; i++)
+        {
+            if( fixSubRunes[i] != 0)
+            {
+                Debug.Log(this.unitName + " が固定サブルーン" + i + "を装備: " + fixSubRunes[i]);
+                // subSocket[i]に固定サブルーンを装備
+                subSocket[i] = fixSubRunes[i];
+            }
+        }
+
         // ルーンのステータスの初期化
         int addLevel = 0;
         float pysicalAttackMultiplier = 1.0f;
@@ -639,7 +660,7 @@ public class Unit : MonoBehaviour
 
         // その他
         int spreadTotalLv = 0;
-
+:::::::::::::::::::::::::::::::::::::::::: ここをモンスターにも適用するように修正 ::
         // tagがAllyでiventrySkillListがnullでなければルーンのステータスを取得
         if (gameObject.tag == "Ally" && IventrySkillList != null)
         {
@@ -1116,6 +1137,12 @@ public class Unit : MonoBehaviour
 
         // UnitControllerとAttackControllerにステータスを設定する
         SetStatusUnitController(GetComponent<UnitController>(), GetComponent<AttackController>());
+
+        // ユニットのスキルパネルを更新
+        if (gameObject.tag == "Ally")
+        {
+            iventryUI.UpdateUnitSkillUI(this.gameObject);
+        }
     }
 
     // 武器プレファブを変更する
